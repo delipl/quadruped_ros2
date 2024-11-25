@@ -1,0 +1,3 @@
+[submodule "md80_hardware_interface/3rd_party/candle"]
+	path = md80_hardware_interface/3rd_party/candle
+	url = https://github.com/mabrobotics/candle
