@@ -1,0 +1,11 @@
+std_msgs/Header header
+
+geometry_msgs/Point fl_foot_position
+std_msgs/Bool fl_foot_in_contact
+geometry_msgs/Point fr_foot_position
+std_msgs/Bool fr_foot_in_contact
+geometry_msgs/Point rl_foot_position
+std_msgs/Bool rl_foot_in_contact
+geometry_msgs/Point rr_foot_position
+std_msgs/Bool rr_foot_in_contact
+geometry_msgs/Pose body_pose

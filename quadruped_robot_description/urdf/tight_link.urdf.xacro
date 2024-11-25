@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot name="tight" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:macro name="tight" params="prefix parent_link">
+
+        <link name="${prefix}_tight_link">
+            <visual>
+                <origin xyz="0 0 0.0" rpy="0.0 ${pi/2.0} 0.0 " />
+                <geometry>
+                    <mesh filename="package://quadruped_robot_description/meshes/base_link.DAE"/>
+                  </geometry>
+                <material name="grey" />
+            </visual>
+            <collision>
+                <origin xyz="0 0 0.0" rpy="0.0 ${pi/2.0} 0.0 " />
+                <geometry>
+                    <mesh filename="package://quadruped_robot_description/meshes/base_link.DAE"/>
+                  </geometry>
+            </collision>
+            <inertial>
+                <mass value="0.5" />
+                <origin xyz="0 0 -0.2" />
+                <inertia ixx="0.05" ixy="0.0" ixz="0.0" iyy="0.05" iyz="0.0" izz="0.05" />
+            </inertial>
+        </link>
+
+        <joint name="${prefix}_tight_joint" type="revolute">
+            <parent link="${parent_link}" />
+            <child link="${prefix}_tight_link" />
+            <origin xyz=" ${xyz}" rpy="${rpy}" />
+            <axis xyz="1 0 0" />
+            <limit lower="-3.14" upper="3.14" effort="100" velocity="0.5" />
+            <dynamics damping="0" friction="0"/>
+        </joint>
+
+    </xacro:macro>
+
+</robot>
