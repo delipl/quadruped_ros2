@@ -42,7 +42,7 @@ using ControllerReferenceMsg = quadruped_controller::QuadrupedController::Contro
 void reset_controller_reference_msg(
   const std::shared_ptr<ControllerReferenceMsg> & msg, const std::vector<std::string> & joint_names)
 {
-  msg->joint_names = joint_names;
+  // msg->joint_names = joint_names;
   // msg->displacements.resize(joint_names.size(), std::numeric_limits<double>::quiet_NaN());
   // msg->velocities.resize(joint_names.size(), std::numeric_limits<double>::quiet_NaN());
   // msg->duration = std::numeric_limits<double>::quiet_NaN();
@@ -187,17 +187,17 @@ controller_interface::InterfaceConfiguration QuadrupedController::state_interfac
 
 void QuadrupedController::reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg)
 {
-  if (msg->joint_names.size() == params_.joints.size())
-  {
-    input_ref_.writeFromNonRT(msg);
-  }
-  else
-  {
-    RCLCPP_ERROR(
-      get_node()->get_logger(),
-      "Received %zu , but expected %zu joints in command. Ignoring message.",
-      msg->joint_names.size(), params_.joints.size());
-  }
+  input_ref_.writeFromNonRT(msg);
+  // if (msg->joint_names.size() == params_.joints.size())
+  // {
+  // }
+  // else
+  // {
+  //   // RCLCPP_ERROR(
+  //   //   get_node()->get_logger(),
+  //   //   "Received %zu , but expected %zu joints in command. Ignoring message.",
+  //   //   msg->joint_names.size(), params_.joints.size());
+  // }
 }
 
 std::vector<hardware_interface::CommandInterface> QuadrupedController::on_export_reference_interfaces()

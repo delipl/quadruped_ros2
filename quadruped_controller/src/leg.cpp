@@ -225,10 +225,28 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const double xb2 = std::sqrt(l_AB * l_AB - yb2 * yb2);
 
   double xb = yb1;
-  double yb = -xb1;
+  double yb = xb1;
 
-  const Eigen::Vector2d b = {xb, yb};
-  const auto theta_b = std::atan2(b(1), b(0));
+  Eigen::Vector2d b = {xb, yb};
+  auto theta_b = std::atan2(b(1), b(0));
+  const auto q1_dir = inv_directions_.z() * z_axis_q1_direction_ ;
+  q(1) = q1_dir * (-theta_b);
+
+  // Check if angle is correct
+  const auto ze_based_on_q1 =  l_AB * std::sin(q(1)) +
+                              l_BE * std::sin(M_PI + q(1) + phi);
+  const auto xe_based_on_q1 =  l_AB * std::cos(q(1)) +
+                              l_BE * std::cos(M_PI + q(1) + phi);
+
+  const auto ze_error = std::abs(ze - ze_based_on_q1);
+  const auto xe_error = std::abs(xe - xe_based_on_q1);
+  const auto is_error = (ze_error > 0.001 || xe_error > 0.001);
+  if ( (is_error && q1_dir < 0) ||  (!is_error && q1_dir > 0) ) {
+    yb *= -1;
+    b << b(0), -b(1);
+    theta_b = std::atan2(b(1), b(0));
+    q(1) = q1_dir * (-theta_b);
+  }
 
   const Eigen::Vector2d e = {xe, ze};
   const Eigen::Vector2d be = e - b;
@@ -242,11 +260,12 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const auto beta = std::acos((c * c + l1 * l1 - l4 * l4) / (2 * c * l1));
 
   q(0) = z_axis_q0_direction_ * (std::atan2(ze, ye) - (M_PI + M_PI_2));
-  q(1) = inv_directions_.z() * z_axis_q1_direction_ * (-theta_b);
+
   q(2) = z_axis_q2_direction_ * (-beta - alpha + M_PI);
 
   // Normalize angles
   q(0) -= q(0) / std::abs(q(0)) * 2 * M_PI;
+
   // q(1) -= q(1) / std::abs(q(1)) * 2 * M_PI;
   // q(2) -= q(2) / std::abs(q(2)) * 2 * M_PI;
   // if (std::abs(q(0)) > 6.0) {

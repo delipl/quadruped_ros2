@@ -28,7 +28,7 @@
 #include "std_srvs/srv/set_bool.hpp"
 
 // TODO(anyone): Replace with controller specific messages
-#include "trajectory_msgs/msg/multi_dof_joint_trajectory.hpp"
+#include "quadruped_msgs/msg/quadruped_control.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
 namespace quadruped_controller
@@ -81,7 +81,7 @@ public:
     const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   // TODO(anyone): replace the state and command message types
-  using ControllerReferenceMsg = trajectory_msgs::msg::MultiDOFJointTrajectory;
+  using ControllerReferenceMsg = quadruped_msgs::msg::QuadrupedControl;
   using ControllerModeSrvType = std_srvs::srv::SetBool;
   using ControllerStateMsg = sensor_msgs::msg::JointState;
 

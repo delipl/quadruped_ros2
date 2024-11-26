@@ -47,6 +47,9 @@ public:
       quadruped_controller::Leg leg(leg_name);
       legs.push_back(leg);
     }
+
+    declare_parameter("use_hardware", false);
+    use_hardware_ = get_parameter("use_hardware").as_bool();
   }
 
 private:
@@ -165,7 +168,9 @@ private:
 
     joint_trajectory.points.push_back(point);
 
-    // joint_state_pub_->publish(active_joint_state);
+    if(!use_hardware_) {
+    joint_state_pub_->publish(active_joint_state);
+    }
   }
 
   void
@@ -217,7 +222,7 @@ private:
   void timer_callback() {
     publish_visualization();
 
-    if (joint_trajectory.points.size() < 40) {
+    if (joint_trajectory.points.size() < 40 && use_hardware_) {
       return;
     }
 
@@ -332,6 +337,8 @@ private:
 
   trajectory_msgs::msg::JointTrajectory joint_trajectory;
   visualization_msgs::msg::MarkerArray marker_array_;
+  
+  bool use_hardware_ = false;
 };
 
 int main(int argc, char *argv[]) {
