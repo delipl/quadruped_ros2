@@ -44,11 +44,11 @@ class ZeroTrajectoryPublisher(Node):
         
         # for i in range(4):
         #     point.positions[i*3 + 2] = 0.5
-        point.positions[2] = -1.5
-        point.positions[2+3] = 1.5
+        # point.positions[2] = -1.5
+        # point.positions[2+3] = 1.5
         
-        point.positions[2+6] = 1.5
-        point.positions[2+9] = -1.5
+        # point.positions[2+6] = 1.5
+        # point.positions[2+9] = -1.5
         
         point.time_from_start.sec = (
             0  # Set a 1-second time from start for demonstration

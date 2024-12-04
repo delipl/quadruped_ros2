@@ -7,7 +7,7 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
-#include "visualization_msgs//msg/marker_array.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 class InverseKinematicsTest : public rclcpp::Node {
 
@@ -168,8 +168,8 @@ private:
 
     joint_trajectory.points.push_back(point);
 
-    if(!use_hardware_) {
-    joint_state_pub_->publish(active_joint_state);
+    if (!use_hardware_) {
+      joint_state_pub_->publish(active_joint_state);
     }
   }
 
@@ -337,7 +337,7 @@ private:
 
   trajectory_msgs::msg::JointTrajectory joint_trajectory;
   visualization_msgs::msg::MarkerArray marker_array_;
-  
+
   bool use_hardware_ = false;
 };
 

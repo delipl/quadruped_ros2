@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 <robot name="quadruped" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="use_hardware" default="True" />
+
   <material name="grey">
     <color rgba="0.5 0.5 0.5 1" />
   </material>
@@ -329,42 +331,51 @@
 
   <ros2_control name="MD80HardwareInterface" type="system">
     <hardware>
-      <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
-      <!-- <plugin>mock_components/GenericSystem</plugin> -->
+      <!-- <plugin>md80_hardware_interface/MD80HardwareInterface</plugin> -->
+      <xacro:if value="$(arg use_hardware)">
+        <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
+      </xacro:if>
+      <xacro:unless value="$(arg use_hardware)">
+        <plugin>mock_components/GenericSystem</plugin>
+      </xacro:unless>
+
       <param name="encoders_cpr">4096</param>
     </hardware>
 
-    <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="40.0"
-    ddq_kd="10.0" max_torque="15.0" />
-    <xacro:ros2_control_joint_can name="front_left_second_joint" can_id="11" ddq_kp="20.0"
-    ddq_kd="1.0" />
-    <xacro:ros2_control_joint_can name="front_left_third_joint" can_id="12" ddq_kp="20.0"
-    ddq_kd="1.0" />
+    <xacro:property name="kp2" value="60" />
+    <xacro:property name="kp3" value="20" />
 
-
-    <xacro:ros2_control_joint_can name="front_right_first_joint" can_id="20" ddq_kp="40.0"
-    ddq_kd="10.0" max_torque="15.0" />
-    <xacro:ros2_control_joint_can name="front_right_second_joint" can_id="21" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="80.0"
+    ddq_kd="12.0" max_torque="15.0" />
+    <xacro:ros2_control_joint_can name="front_left_second_joint" can_id="11" ddq_kp="${kp2}"
     ddq_kd="1.0" />
-    <xacro:ros2_control_joint_can name="front_right_third_joint" can_id="22" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="front_left_third_joint" can_id="12" ddq_kp="${kp3}"
     ddq_kd="1.0" />
 
 
-
-    <xacro:ros2_control_joint_can name="rear_right_first_joint" can_id="30" ddq_kp="40.0"
-    ddq_kd="10.0" max_torque="15.0" />
-    <xacro:ros2_control_joint_can name="rear_right_second_joint" can_id="31" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="front_right_first_joint" can_id="20" ddq_kp="80.0"
+    ddq_kd="12.0" max_torque="15.0" />
+    <xacro:ros2_control_joint_can name="front_right_second_joint" can_id="21" ddq_kp="${kp2}"
     ddq_kd="1.0" />
-    <xacro:ros2_control_joint_can name="rear_right_third_joint" can_id="32" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="front_right_third_joint" can_id="22" ddq_kp="${kp3}"
+    ddq_kd="1.0" />
+
+
+
+    <xacro:ros2_control_joint_can name="rear_right_first_joint" can_id="30" ddq_kp="80.0"
+    ddq_kd="12.0" max_torque="15.0" />
+    <xacro:ros2_control_joint_can name="rear_right_second_joint" can_id="31" ddq_kp="${kp2}"
+    ddq_kd="1.0" />
+    <xacro:ros2_control_joint_can name="rear_right_third_joint" can_id="32" ddq_kp="${kp3}"
     ddq_kd="1.0" />
     <!-- <xacro:ros2_control_passive_point name="rear_right_fourth_joint" />
     <xacro:ros2_control_passive_point name="rear_right_fifth_joint" /> -->
 
-    <xacro:ros2_control_joint_can name="rear_left_first_joint" can_id="40" ddq_kp="40.0"
-    ddq_kd="10.0" max_torque="15.0" />
-    <xacro:ros2_control_joint_can name="rear_left_second_joint" can_id="41" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="rear_left_first_joint" can_id="40" ddq_kp="80.0"
+    ddq_kd="12.0" max_torque="15.0" />
+    <xacro:ros2_control_joint_can name="rear_left_second_joint" can_id="41" ddq_kp="${kp2}"
       ddq_kd="1.0" />
-    <xacro:ros2_control_joint_can name="rear_left_third_joint" can_id="42" ddq_kp="20.0"
+    <xacro:ros2_control_joint_can name="rear_left_third_joint" can_id="42" ddq_kp="${kp3}"
     ddq_kd="1.0" />
     <!-- <xacro:ros2_control_passive_point name="rear_left_fourth_joint" />
     <xacro:ros2_control_passive_point name="rear_left_fifth_joint" /> -->

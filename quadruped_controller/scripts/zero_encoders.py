@@ -4,6 +4,7 @@ import argparse
 
 def run_command(leg_id):
     numbers = [leg_id*10, leg_id*10 + 1, leg_id*10 + 2]
+    numbers = [leg_id*10]
     for number in numbers:
         command = f"mdtool config zero {number} && mdtool config save {number}"
         subprocess.run(command, shell=True)
