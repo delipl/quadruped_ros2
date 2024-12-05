@@ -11,6 +11,8 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(imu_filter_madgwick REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(
   bmx160_serial_hardware_interface
@@ -28,6 +30,8 @@ ament_target_dependencies(
   hardware_interface
   rclcpp
   rclcpp_lifecycle
+  imu_filter_madgwick
+  tf2_geometry_msgs
 )
 # prevent pluginlib from using boost
 target_compile_definitions(bmx160_serial_hardware_interface PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
@@ -82,6 +86,8 @@ ament_export_dependencies(
   pluginlib
   rclcpp
   rclcpp_lifecycle
+  imu_filter_madgwick
+  tf2_geometry_msgs
 )
 
 ament_package()

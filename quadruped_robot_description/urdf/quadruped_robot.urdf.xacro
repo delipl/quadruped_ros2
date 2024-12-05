@@ -400,6 +400,17 @@
       <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
       <param name="port">/dev/ttyACM1</param>
       <param name="baud_rate">9600</param>
+
+      <!-- Madgwick Filter Params -->
+      <!-- https://www.mouser.com/pdfdocs/BST-BMX160-DS000-11.pdf -->
+      <!-- Output Noise 0.007 -->
+      <!-- Bias stability 0.0000145 -->
+      <param name="gain">0.003031089</param> 
+      <param name="zeta">0.000006279</param>
+      <param name="mag_bias_x">0.002</param>
+      <param name="mag_bias_y">0.002</param>
+      <param name="mag_bias_z">0.002</param>
+      <param name="world_frame">enu</param>
     </hardware>
     <sensor name="imu">
       <!-- <state_interface name="orientation.x" />
