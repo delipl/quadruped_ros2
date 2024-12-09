@@ -167,10 +167,6 @@ private:
         create_surface_between_contacts(foot_positions, in_contact));
 
     joint_trajectory.points.push_back(point);
-
-    if (!use_hardware_) {
-      joint_state_pub_->publish(active_joint_state);
-    }
   }
 
   void

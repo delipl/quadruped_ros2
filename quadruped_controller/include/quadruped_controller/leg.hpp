@@ -71,6 +71,7 @@ private:
   double z_axis_q1_direction_ = 1.0;
   double z_axis_q2_direction_ = 1.0;
   double passive_side_multiplier_ = 1.0;
+  double third_joint_gear_correction_;
 
   JointState first_;
   JointState second_;

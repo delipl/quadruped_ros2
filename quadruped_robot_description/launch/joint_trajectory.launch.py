@@ -48,7 +48,6 @@ def generate_launch_description():
             "--controller-manager",
             "/controller_manager",
         ],
-        condition=IfCondition(use_hardware),
     )
 
     control_node = Node(
@@ -73,7 +72,7 @@ def generate_launch_description():
         ],
         # condition=IfCondition(use_hardware),
     )
-    
+
     imu_sensor_broadcaster = Node(
         package="controller_manager",
         executable="spawner",
@@ -88,12 +87,14 @@ def generate_launch_description():
     passive_joint_state_broadcaster = Node(
         package="quadruped_controller",
         executable="passive_joint_state_broadcaster",
+        name="passive_joint_state_broadcaster",
         output="screen",
     )
 
     inverse_test_controller = Node(
         package="quadruped_controller",
         executable="quadruped_controller_node",
+        name="quadruped_controller_node",
         output="screen",
         parameters=[{"use_hardware": use_hardware}],
     )
@@ -113,7 +114,9 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument(
                 name="robot_description",
-                default_value=Command(["xacro ", urdf_file, " use_hardware:=", use_hardware]),
+                default_value=Command(
+                    ["xacro ", urdf_file, " use_hardware:=", use_hardware]
+                ),
                 description="Absolute path to robot urdf file",
             ),
             Node(
@@ -147,6 +150,6 @@ def generate_launch_description():
             control_node,
             joint_trajectory_controller,
             imu_sensor_broadcaster,
-            inverse_test_controller
+            inverse_test_controller,
         ]
     )

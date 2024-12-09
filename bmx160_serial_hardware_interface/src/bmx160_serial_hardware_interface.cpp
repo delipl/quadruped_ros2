@@ -119,7 +119,7 @@ BMX160SerialHardwareInterface::read(const rclcpp::Time & /*time*/,
   filter_->getGravity(gx, gy, gz);
 
   if (!std::isnan(gx) && !std::isnan(gy) && !std::isnan(gz)) {
-    RCLCPP_INFO(logger_, "gx: %f, gy: %f, gz: %f", gx, gy, gz);
+    // RCLCPP_INFO(logger_, "gx: %f, gy: %f, gz: %f", gx, gy, gz);
     hw_states_[6] = std::isnan(sensor_data_.accel_x)
                         ? hw_states_[6]
                         : sensor_data_.accel_x - gx;

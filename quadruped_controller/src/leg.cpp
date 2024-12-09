@@ -59,6 +59,9 @@ Leg::Leg(const std::string &name) : name_(name) {
     inv_directions_ << -1, -1, -1;
   }
 
+  const double gear_ratio = 1.0 / 6.0;
+  third_joint_gear_correction_ = 3*gear_ratio*2*M_PI;
+
   first_.name = name + "_first_joint";
   second_.name = name + "_second_joint";
   third_.name = name + "_third_joint";
@@ -146,7 +149,7 @@ Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
 // Page 87 of
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
 void Leg::update_effector_position(double q3) {
-  const double th2 = M_PI - passive_side_multiplier_ * q3;
+  const double th2 = M_PI - passive_side_multiplier_ * q3 + third_joint_gear_correction_;
   const auto c2 = std::cos(th2);
   const auto s2 = std::sin(th2);
 
@@ -170,6 +173,7 @@ void Leg::update_effector_position(double q3) {
 
   const auto x = xe1 + l5 * c3;
   const auto y = ye1 + l5 * s3;
+
 
   fifth_.position = -passive_side_multiplier_ * (M_PI - th2 + th3);
   forth_.position = passive_side_multiplier_ * (M_PI - th4);
@@ -260,32 +264,10 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const auto beta = std::acos((c * c + l1 * l1 - l4 * l4) / (2 * c * l1));
 
   q(0) = z_axis_q0_direction_ * (std::atan2(ze, ye) - (M_PI + M_PI_2));
-
-  q(2) = z_axis_q2_direction_ * (-beta - alpha + M_PI);
+  q(2) = z_axis_q2_direction_ * (-beta - alpha + M_PI+ third_joint_gear_correction_);
 
   // Normalize angles
   q(0) -= q(0) / std::abs(q(0)) * 2 * M_PI;
-
-  // q(1) -= q(1) / std::abs(q(1)) * 2 * M_PI;
-  // q(2) -= q(2) / std::abs(q(2)) * 2 * M_PI;
-  // if (std::abs(q(0)) > 6.0) {
-  //   q(0) -= q(0) / std::abs(q(1)) * 2 * M_PI;
-  // }
-  // if (std::abs(q(1)) > 6.0) {
-  //   q(1) -= q(1) / std::abs(q(1)) * 2 * M_PI;
-  // }
-  // if (std::abs(q(1)) > 6.0) {
-  //   q(2) -= q(1) / std::abs(q(1)) * 2 * M_PI;
-  // }
-
-  if (name_ == "test_me") {
-    std::cout << "foot: " << x_foot.transpose() << std::endl;
-    std::cout << "delta: " << delta << std::endl;
-    std::cout << "xb1: " << xb1 << " yb1: " << yb1 << std::endl;
-    std::cout << "xb2: " << xb << " yb2: " << yb2 << std::endl;
-    std::cout << "phi: " << phi << std::endl;
-    std::cout << "q: " << q.transpose() << std::endl;
-  }
 
   return q;
 }
