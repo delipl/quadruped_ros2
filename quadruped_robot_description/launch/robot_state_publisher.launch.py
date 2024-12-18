@@ -73,6 +73,7 @@ def generate_launch_description():
         ],
         condition=IfCondition(use_hardware),
     )
+    
 
     passive_joint_state_broadcaster = Node(
         package="quadruped_controller",
@@ -127,6 +128,7 @@ def generate_launch_description():
             passive_joint_state_broadcaster,
             joint_state_broadcaster_spawner,
             control_node,
-            joint_trajectory_controller,
+            # joint_trajectory_controller,
+            position_controller
         ]
     )

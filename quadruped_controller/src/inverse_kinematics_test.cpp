@@ -4,7 +4,9 @@
 #include "quadruped_controller/leg.hpp"
 #include "quadruped_msgs/msg/quadruped_control.hpp"
 #include "rclcpp/rclcpp.hpp"
+
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "std_msgs/msg/float64_multi_array.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
@@ -36,6 +38,10 @@ public:
 
     marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
         "quadruped_robot/visualization", 10);
+
+    position_control_pub_ =
+        this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "/position_controller/commands", 10);
 
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
@@ -95,6 +101,8 @@ private:
     green.g = 1.0f;
     green.b = 0.0f;
     green.a = 1.0f;
+    std_msgs::msg::Float64MultiArray pos_control;
+
 
     for (std::size_t i = 0; i < legs.size(); ++i) {
       auto &leg = legs[i];
@@ -138,6 +146,9 @@ private:
       RCLCPP_INFO_STREAM(this->get_logger(),
                          "Point 2 of " << leg_active_joints[2].name << " "
                                        << leg_active_joints[2].position);
+
+      // joint_trajectory.points.push_back(point);
+
       for (const auto &joint_state : leg_active_joints) {
         if (joint_trajectory.joint_names.size() < 12) {
           joint_trajectory.joint_names.push_back(joint_state.name);
@@ -148,6 +159,7 @@ private:
         active_joint_state.effort.push_back(joint_state.effort);
 
         point.positions.push_back(joint_state.position);
+        pos_control.data.push_back(joint_state.position);
       }
 
       // for (const auto &joint_state : joint_states) {
@@ -166,7 +178,7 @@ private:
     marker_array_.markers.push_back(
         create_surface_between_contacts(foot_positions, in_contact));
 
-    joint_trajectory.points.push_back(point);
+    position_control_pub_->publish(pos_control);
   }
 
   void
@@ -326,6 +338,9 @@ private:
   rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr
       trajectory_pub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr
+      position_control_pub_;
 
   std::vector<quadruped_controller::Leg> legs;
   std::vector<std::string> legs_names = {"front_left", "front_right",

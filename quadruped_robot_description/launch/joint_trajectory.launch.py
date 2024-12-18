@@ -99,6 +99,17 @@ def generate_launch_description():
         parameters=[{"use_hardware": use_hardware}],
     )
 
+    position_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "position_controller",
+            "-c",
+            "controller_manager",
+        ],
+        # condition=IfCondition(use_hardware),
+    )
+
     return LaunchDescription(
         [
             delcare_use_hardware,
@@ -148,8 +159,9 @@ def generate_launch_description():
             passive_joint_state_broadcaster,
             joint_state_broadcaster_spawner,
             control_node,
-            joint_trajectory_controller,
+            # joint_trajectory_controller,
             imu_sensor_broadcaster,
             inverse_test_controller,
+            position_controller,
         ]
     )
