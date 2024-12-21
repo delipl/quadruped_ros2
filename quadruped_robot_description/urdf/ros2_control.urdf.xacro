@@ -53,7 +53,6 @@
 
         <ros2_control name="MD80HardwareInterface" type="system">
             <hardware>
-                <!-- <plugin>md80_hardware_interface/MD80HardwareInterface</plugin> -->
                 <xacro:if value="${use_hardware}">
                     <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
                 </xacro:if>
@@ -108,9 +107,19 @@
 
         </ros2_control>
 
-        <ros2_control name="imu" type="sensor">
+        <xacro:property name="mock_imu" value="sensor" />
+         <xacro:unless value="${use_hardware}">
+            <xacro:property name="mock_imu" value="system" />
+        </xacro:unless>
+        <ros2_control name="imu" type="${mock_imu}">
             <hardware>
-                <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
+                <xacro:if value="${use_hardware}">
+                    <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
+                </xacro:if>
+                <xacro:unless value="${use_hardware}">
+                    <plugin>fake_components/GenericSystem</plugin>
+                </xacro:unless>
+
                 <param name="port">/dev/ttyACM1</param>
                 <param name="baud_rate">9600</param>
 

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="libquadbar_kinematics">
+  <class name="quadbar_kinematics::QuadbarKinematics"
+         type="quadbar_kinematics::QuadbarKinematics"
+         base_class_type="kinematics_interface::KinematicsInterface">
+    <description>
+      Quadbar kinematics plugin implementing the KinematicsInterface.
+    </description>
+  </class>
+</library>
