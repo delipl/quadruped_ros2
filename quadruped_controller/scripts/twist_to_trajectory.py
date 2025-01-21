@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import PoseStamped, Point, Quaternion
 from quadruped_msgs.msg import QuadrupedControl
-from std_msgs.msg import Header, Bool
+from std_msgs.msg import  Bool
 from geometry_msgs.msg import Twist
-from builtin_interfaces.msg import Time
+
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 
 class PosePublisher(Node):
@@ -34,7 +33,6 @@ class PosePublisher(Node):
 
         ticks = 30
         self.generate_trot(ticks, 0.0, 0.0, 0.0, 0.0)
-        # plt.show()
 
         self.timer = self.create_timer(timer_period, self.publish_pose)
 

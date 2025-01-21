@@ -111,40 +111,5 @@
          <xacro:unless value="${use_hardware}">
             <xacro:property name="mock_imu" value="system" />
         </xacro:unless>
-        <ros2_control name="imu" type="${mock_imu}">
-            <hardware>
-                <xacro:if value="${use_hardware}">
-                    <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
-                </xacro:if>
-                <xacro:unless value="${use_hardware}">
-                    <plugin>mock_components/GenericSystem</plugin>
-                </xacro:unless>
-
-                <param name="port">/dev/ttyACM1</param>
-                <param name="baud_rate">9600</param>
-
-                <!-- Madgwick Filter Params -->
-                <!-- https://www.mouser.com/pdfdocs/BST-BMX160-DS000-11.pdf -->
-                <!-- Output Noise 0.007 -->
-                <!-- Bias stability 0.0000145 -->
-                <param name="gain">0.003031089</param>
-                <param name="zeta">0.000006279</param>
-                <param name="mag_bias_x">0.002</param>
-                <param name="mag_bias_y">0.002</param>
-                <param name="mag_bias_z">0.002</param>
-                <param name="world_frame">enu</param>
-            </hardware>
-            <sensor name="imu">
-                <state_interface name="magnetometer.x" />
-                <state_interface name="magnetometer.y" />
-                <state_interface name="magnetometer.z" />
-                <state_interface name="angular_velocity.x" />
-                <state_interface name="angular_velocity.y" />
-                <state_interface name="angular_velocity.z" />
-                <state_interface name="linear_acceleration.x" />
-                <state_interface name="linear_acceleration.y" />
-                <state_interface name="linear_acceleration.z" />
-            </sensor>
-        </ros2_control>
     </xacro:macro>
 </robot>

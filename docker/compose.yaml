@@ -10,6 +10,14 @@ services:
     #   context: ..
     #   dockerfile: docker/Dockerfile
     <<: *common-config
+    # Realtime hardware (https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html#determinism)
+    ulimits:
+      rtprio:
+        soft: 99
+        hard: 99
+      memlock:
+        soft: 102400
+        hard: 102400
     volumes:
       - ../:/ros2_ws/src/
       - ./config:/config/cyclonedds.xml
