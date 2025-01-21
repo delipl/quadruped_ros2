@@ -49,7 +49,7 @@ class PosePublisher(Node):
         dx = msg.linear.x / 5.0
         dy = msg.linear.y / 5.0
         dw = msg.angular.z / 5.0
-        self.generate_trot(ticks, dx, dy, dw, 0.15)
+        self.generate_trot(ticks, dx, dy, dw, 0.185)
 
     def generate_trot(self, ticks, dx, dy, dw, dz):
         ises = [0, 1, 1, 0]

@@ -10,7 +10,7 @@ COPY ./src /ros2_ws/src/
 
 RUN apt-get update  && \
     apt-get install -y \
-        ros-dev-tools && \
+        ros-dev-tools udev && \
     # Install dependencies
     rosdep init && \
     rosdep update --rosdistro $ROS_DISTRO && \

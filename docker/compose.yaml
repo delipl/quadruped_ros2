@@ -5,7 +5,7 @@ x-common-config:
 
 services:
   quadruped_robot:
-    image: delicjusz/quadruped-robot:traj 
+    image:  delicjusz/quadruped-robot:udev
     # build:
     #   context: ..
     #   dockerfile: docker/Dockerfile
@@ -19,9 +19,11 @@ services:
       memlock:
         soft: 102400
         hard: 102400
+    
     volumes:
       - ../:/ros2_ws/src/
       - ./config:/config/cyclonedds.xml
+      - /dev/bus/usb:/dev/bus/usb
     environment:
       - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
       - CYCLONEDDS_URI=file:///config/cyclonedds.xml

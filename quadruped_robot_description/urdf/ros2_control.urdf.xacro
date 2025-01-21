@@ -33,6 +33,7 @@
 
             <param name="ddq_kp">${ddq_kp}</param>
             <param name="ddq_kd">${ddq_kd}</param>
+
         </joint>
     </xacro:macro>
 
@@ -55,6 +56,8 @@
             <hardware>
                 <xacro:if value="${use_hardware}">
                     <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
+                    <param name="usb_port">/dev/ttyACM0</param>
+
                 </xacro:if>
                 <xacro:unless value="${use_hardware}">
                     <plugin>mock_components/GenericSystem</plugin>
@@ -64,10 +67,12 @@
             <xacro:property name="kp1" value="80" />
             <xacro:property name="kd1" value="12" />
 
+            <!-- <xacro:property name="kp2" value="50" /> -->
             <xacro:property name="kp2" value="50" />
             <xacro:property name="kd2" value="10" />
 
-            <xacro:property name="kp3" value="50" />
+            <!-- <xacro:property name="kp3" value="50" /> -->
+            <xacro:property name="kp3" value="25" />
             <xacro:property name="kd3" value="10" />
 
             <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="${kp1}"
