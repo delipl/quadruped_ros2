@@ -26,4 +26,4 @@ services:
       - CYCLONEDDS_URI=file:///config/cyclonedds.xml
     command: >
       ros2 launch quadruped_robot_description joint_trajectory.launch.py
-        use_hardware:=False
+        use_hardware:=True
