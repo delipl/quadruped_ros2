@@ -117,7 +117,7 @@
                     <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
                 </xacro:if>
                 <xacro:unless value="${use_hardware}">
-                    <plugin>fake_components/GenericSystem</plugin>
+                    <plugin>mock_components/GenericSystem</plugin>
                 </xacro:unless>
 
                 <param name="port">/dev/ttyACM1</param>

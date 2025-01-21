@@ -1,0 +1,21 @@
+x-common-config:
+  &common-config
+  network_mode: host
+  ipc: host
+
+services:
+  quadruped_robot:
+    image: delicjusz/quadruped-robot:traj 
+    # build:
+    #   context: ..
+    #   dockerfile: docker/Dockerfile
+    <<: *common-config
+    volumes:
+      - ../:/ros2_ws/src/
+      - ./config:/config/cyclonedds.xml
+    environment:
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - CYCLONEDDS_URI=file:///config/cyclonedds.xml
+    command: >
+      ros2 launch quadruped_robot_description joint_trajectory.launch.py
+        use_hardware:=False

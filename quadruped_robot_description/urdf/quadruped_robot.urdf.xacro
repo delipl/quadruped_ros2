@@ -23,7 +23,7 @@
     <collision>
       <origin rpy="0 0 ${pi}" xyz="0.0 0 0.0" />
       <geometry>
-        <mesh filename="package://quadruped_robot_description/meshes/base_link.dae" />
+        <mesh filename="$package://quadruped_robot_description/meshes/base_link.dae" />
       </geometry>
     </collision>
     <inertial>

@@ -136,18 +136,6 @@ private:
       }
 
       auto leg_active_joints = leg.get_active_joint_states();
-      RCLCPP_INFO_STREAM(this->get_logger(),
-                         "Point 0 of " << leg_active_joints[0].name << " "
-                                       << leg_active_joints[0].position);
-      RCLCPP_INFO_STREAM(this->get_logger(),
-                         "Point 1 of " << leg_active_joints[1].name << " "
-                                       << leg_active_joints[1].position);
-
-      RCLCPP_INFO_STREAM(this->get_logger(),
-                         "Point 2 of " << leg_active_joints[2].name << " "
-                                       << leg_active_joints[2].position);
-
-      // joint_trajectory.points.push_back(point);
 
       for (const auto &joint_state : leg_active_joints) {
         if (joint_trajectory.joint_names.size() < 12) {
@@ -161,18 +149,6 @@ private:
         point.positions.push_back(joint_state.position);
         pos_control.data.push_back(joint_state.position);
       }
-
-      // for (const auto &joint_state : joint_states) {
-      //   passive_joint_state.name.push_back(joint_state.name);
-      //   passive_joint_state.position.push_back(0.0 /*joint_state.position*/);
-      //   passive_joint_state.velocity.push_back(joint_state.velocity);
-      //   passive_joint_state.effort.push_back(joint_state.effort);
-
-      //   passive_joint_state.name.push_back(joint_state.name);
-      //   passive_joint_state.position.push_back(0.0 /*joint_state.position*/);
-      //   passive_joint_state.velocity.push_back(joint_state.velocity);
-      //   passive_joint_state.effort.push_back(joint_state.effort);
-      // }
     }
 
     marker_array_.markers.push_back(

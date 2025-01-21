@@ -20,6 +20,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 )
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
 find_package(generate_parameter_library REQUIRED)
 find_package(ament_cmake_gmock REQUIRED)
 find_package(controller_manager REQUIRED)
@@ -125,14 +127,26 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+
 ament_export_include_directories(
   include
 )
 ament_export_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
+
 ament_export_libraries(
   quadruped_controller
 )
+
+# Install Python modules
+ament_python_install_package(${PROJECT_NAME})
+ 
+# Install Python executables
+install(PROGRAMS
+  scripts/twist_to_trajectory.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+ 
 
 ament_package()

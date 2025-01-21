@@ -109,6 +109,11 @@ def generate_launch_description():
         ],
         # condition=IfCondition(use_hardware),
     )
+    
+    twist_to_trajectory = Node(
+        package="quadruped_controller",
+        executable="twist_to_trajectory.py",
+    )
 
     return LaunchDescription(
         [
@@ -163,5 +168,6 @@ def generate_launch_description():
             imu_sensor_broadcaster,
             inverse_test_controller,
             position_controller,
+            twist_to_trajectory
         ]
     )

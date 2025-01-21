@@ -102,6 +102,27 @@
       <dynamics damping="0" friction="0" />
     </joint>
 
+    <link name="${prefix}_foot_first_link" />
+
+    <joint name="${prefix}_foot_first_joint"
+      type="fixed">
+      <parent link="${prefix}_sixth_link" />
+      <child link="${prefix}_foot_first_link" />
+      <origin xyz="0.21 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0 0 1" />
+    </joint>
+
+    <link name="${prefix}_foot_second_link" />
+
+    <joint name="${prefix}_foot_second_joint"
+      type="fixed">
+      <parent link="${prefix}_fifth_link" />
+      <child link="${prefix}_foot_second_link" />
+      <origin xyz="0.21 0.0 0.0" rpy="0.0 0.0 0.0" />
+      <axis xyz="0 0 1" />
+    </joint>
+
+
 
   </xacro:macro>
 
