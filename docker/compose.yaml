@@ -11,6 +11,7 @@ services:
     #   dockerfile: docker/Dockerfile
     <<: *common-config
     # Realtime hardware (https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html#determinism)
+    privileged: true
     ulimits:
       rtprio:
         soft: 99
