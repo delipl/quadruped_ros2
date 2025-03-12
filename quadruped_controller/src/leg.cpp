@@ -163,16 +163,17 @@ void Leg::update_effector_position(double q3) {
   const auto th4 =
       2 * std::atan2(l2 * s2 - l3 * sg, l2 * c2 + l4 - l1 - l3 * cg);
 
-  const auto c3 = std::cos(th3);
-  const auto s3 = std::sin(th3);
-  const auto c4 = std::cos(th4);
-  const auto s4 = std::sin(th4);
+  // TODO: Sounds like unused
+  // const auto c3 = std::cos(th3);
+  // const auto s3 = std::sin(th3);
+  // const auto c4 = std::cos(th4);
+  // const auto s4 = std::sin(th4);
 
-  const auto xe1 = l2 * c2 + l3 * c3;
-  const auto ye1 = l2 * s2 + l3 * s3;
+  // const auto xe1 = l2 * c2 + l3 * c3;
+  // const auto ye1 = l2 * s2 + l3 * s3;
 
-  const auto x = xe1 + l5 * c3;
-  const auto y = ye1 + l5 * s3;
+  // const auto x = xe1 + l5 * c3;
+  // const auto y = ye1 + l5 * s3;
 
 
   fifth_.position = -passive_side_multiplier_ * (M_PI - th2 + th3);

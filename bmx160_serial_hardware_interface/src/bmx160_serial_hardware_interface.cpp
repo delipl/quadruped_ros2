@@ -122,13 +122,13 @@ BMX160SerialHardwareInterface::read(const rclcpp::Time & /*time*/,
     // RCLCPP_INFO(logger_, "gx: %f, gy: %f, gz: %f", gx, gy, gz);
     hw_states_[6] = std::isnan(sensor_data_.accel_x)
                         ? hw_states_[6]
-                        : sensor_data_.accel_x - gx;
+                        : sensor_data_.accel_x; // - gx;
     hw_states_[7] = std::isnan(sensor_data_.accel_y)
                         ? hw_states_[7]
-                        : sensor_data_.accel_y - gy;
+                        : sensor_data_.accel_y; // - gy;
     hw_states_[8] = std::isnan(sensor_data_.accel_z)
                         ? hw_states_[8]
-                        : sensor_data_.accel_z - gz;
+                        : sensor_data_.accel_z; // - gz;
   }
 
   filter_->getOrientation(hw_states_[12], hw_states_[9], hw_states_[10],

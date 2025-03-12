@@ -106,7 +106,7 @@ class PosePublisher(Node):
         traj_y = np.hstack((y[cut:], y[:cut]))
         traj_z = np.hstack((z[cut:], z[:cut]))
 
-        traj_contact = np.where(traj_z < (z0 + dminz), True, False)
+        traj_contact = np.where(traj_z <= z0, True, False)
         return traj_x, traj_y, traj_z, traj_contact
 
     def publish_pose(self):

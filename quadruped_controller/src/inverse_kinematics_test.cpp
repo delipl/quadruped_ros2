@@ -29,13 +29,6 @@ public:
         std::bind(&InverseKinematicsTest::base_pose_callback, this,
                   std::placeholders::_1));
 
-    joint_state_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-        "/joint_states", 10);
-
-    trajectory_pub_ =
-        this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
-            "/joint_trajectory_controller/joint_trajectory", 10);
-
     marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
         "quadruped_robot/visualization", 10);
 
@@ -46,7 +39,7 @@ public:
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     timer_ = this->create_wall_timer(
-        std::chrono::milliseconds(100),
+        std::chrono::milliseconds(10),
         std::bind(&InverseKinematicsTest::timer_callback, this));
 
     for (const auto &leg_name : legs_names) {
@@ -103,7 +96,6 @@ private:
     green.a = 1.0f;
     std_msgs::msg::Float64MultiArray pos_control;
 
-
     for (std::size_t i = 0; i < legs.size(); ++i) {
       auto &leg = legs[i];
       auto &reference_foot_position = reference_foot_positions[i];
@@ -121,19 +113,17 @@ private:
       const auto foot_position = leg.forward_kinematics();
       foot_positions.push_back(foot_position);
 
-      // std::cout << i << ": Reference: " << x.transpose() << std::endl;
-      // std::cout << i << ": Inverse kinematics: " << q.transpose() <<
-      // std::endl; std::cout << i << ": Forward kinematics: " <<
-      // foot_position.transpose()
-      //           << std::endl;
-
       if (in_contact[i]) {
         marker_array_.markers.push_back(create_foot_markers(
             legs_names[i] + "_foot_state", foot_position, light_red));
+
+
       } else {
         marker_array_.markers.push_back(create_foot_markers(
             legs_names[i] + "_foot_state", foot_position, red));
       }
+      marker_array_.markers.push_back(create_acceleration_marker(
+        legs_names[i] + "_foot_force", foot_position, light_red));
 
       auto leg_active_joints = leg.get_active_joint_states();
 
@@ -151,33 +141,49 @@ private:
       }
     }
 
-    marker_array_.markers.push_back(
-        create_surface_between_contacts(foot_positions, in_contact));
+    // Contact
+    auto vis_foot_positions = foot_positions;
+    auto vis_in_contact = in_contact;
+
+    if( std::all_of(in_contact.begin(), in_contact.end(), [](bool v) { return v; }) ){
+      std::swap(vis_foot_positions[2], vis_foot_positions[3]);
+      std::swap(vis_in_contact[2], vis_in_contact[3]);
+      vis_foot_positions.push_back(vis_foot_positions[0]);
+      vis_in_contact.push_back(vis_in_contact[0]);
+    }
+
+
+    auto contact_surface = create_surface_between_contacts(vis_foot_positions, vis_in_contact);
+    if (contact_surface.points.size() > 0) {
+      marker_array_.markers.push_back(contact_surface);
+    }
 
     position_control_pub_->publish(pos_control);
   }
 
-  void
-  base_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+  geometry_msgs::msg::TransformStamped create_footprint_transform(const geometry_msgs::msg::PoseStamped::SharedPtr msg){
     auto transform = geometry_msgs::msg::TransformStamped();
     transform.header.stamp = now();
     transform.header.frame_id = "base_footprint";
     transform.child_frame_id = "base_link";
-    transform.transform.translation.x = msg->pose.position.x;
-    transform.transform.translation.y = msg->pose.position.y;
+    // transform.transform.translation.x = msg->pose.position.x;
+    // transform.transform.translation.y = msg->pose.position.y;
     transform.transform.translation.z = msg->pose.position.z;
 
     transform.transform.rotation.x = msg->pose.orientation.x;
     transform.transform.rotation.y = msg->pose.orientation.y;
     transform.transform.rotation.z = msg->pose.orientation.z;
     transform.transform.rotation.w = msg->pose.orientation.w;
+    return transform;
+  }
 
-    tf_broadcaster_->sendTransform(transform);
-    inverse_base_kinematics(msg);
+  void  base_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+    base_command_pose_ = msg;
   }
 
   std::array<Eigen::Vector3d, 4> inverse_base_kinematics(
       const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+
     std::array<Eigen::Vector3d, 4> foot_positions;
 
     quadruped_msgs::msg::QuadrupedControl quad_control;
@@ -185,18 +191,22 @@ private:
     quad_control.fl_foot_position.x = 0.2 - msg->pose.position.x;
     quad_control.fl_foot_position.y = 0.13 - msg->pose.position.y;
     quad_control.fl_foot_position.z = -msg->pose.position.z;
+    quad_control.fl_foot_in_contact.data = true;
 
     quad_control.fr_foot_position.x = 0.2 - msg->pose.position.x;
     quad_control.fr_foot_position.y = -0.13 - msg->pose.position.y;
     quad_control.fr_foot_position.z = -msg->pose.position.z;
+    quad_control.fr_foot_in_contact.data = true;
 
     quad_control.rl_foot_position.x = -0.2 - msg->pose.position.x;
     quad_control.rl_foot_position.y = 0.13 - msg->pose.position.y;
     quad_control.rl_foot_position.z = -msg->pose.position.z;
+    quad_control.rl_foot_in_contact.data = true;
 
     quad_control.rr_foot_position.x = -0.2 - msg->pose.position.x;
     quad_control.rr_foot_position.y = -0.13 - msg->pose.position.y;
     quad_control.rr_foot_position.z = -msg->pose.position.z;
+    quad_control.rr_foot_in_contact.data = true;
 
     control_callback(quad_control);
 
@@ -204,7 +214,14 @@ private:
   }
 
   void timer_callback() {
+    if(base_command_pose_){
+      inverse_base_kinematics(base_command_pose_);
+      base_command_pose_.reset();
+    }
+    
+
     publish_visualization();
+
 
     if (joint_trajectory.points.size() < 40 && use_hardware_) {
       return;
@@ -214,9 +231,6 @@ private:
       return;
     }
 
-    joint_trajectory.header.stamp = now();
-    trajectory_pub_->publish(joint_trajectory);
-    joint_trajectory.points.clear();
   }
 
   visualization_msgs::msg::Marker create_surface_between_contacts(
@@ -228,13 +242,13 @@ private:
     marker.ns = "contact_surface";
     marker.id = marker_array_.markers.size();
 
-    marker.type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
+    marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
 
     marker.action = visualization_msgs::msg::Marker::ADD;
 
-    marker.scale.x = 1.0;
-    marker.scale.y = 1.0;
-    marker.scale.z = 1.0;
+    marker.scale.x = 0.01;
+    marker.scale.y = 0.01;
+    marker.scale.z = 0.01;
 
     marker.color.r = 0.0;
     marker.color.g = 1.0;
@@ -284,6 +298,53 @@ private:
     return marker;
   }
 
+  visualization_msgs::msg::Marker create_acceleration_marker(const std::string &ns,
+                                  const Eigen::Vector3d &foot_position,
+                                  std_msgs::msg::ColorRGBA color) {
+    visualization_msgs::msg::Marker marker;
+    marker.header.frame_id = "base_link";
+    marker.header.stamp = now();
+    marker.ns = ns;
+    marker.id = marker_array_.markers.size();
+
+    marker.type = visualization_msgs::msg::Marker::ARROW ;
+
+    marker.action = visualization_msgs::msg::Marker::ADD;
+
+    std::uint8_t contact_legs_number = 4;
+    Eigen::Vector3d acceleration;
+    acceleration << 0.0, 0.0, -9.81/4;
+
+    auto leg_force = foot_position.cross(acceleration);
+
+    marker.pose.position.x = foot_position.x();
+    marker.pose.position.y = foot_position.y();
+    marker.pose.position.z = foot_position.z();
+
+    marker.scale.x = 0.03;
+    marker.scale.y = 0.03;
+    marker.scale.z = 0.03;
+
+    marker.color.r = color.r;
+    marker.color.g = color.g;
+    marker.color.b = color.b;
+    marker.color.a = color.a;
+    geometry_msgs::msg::Point point;
+
+    point.x = 0.0;
+    point.y = 0.0;
+    point.z = 0.0;
+
+
+    marker.points.push_back(point);
+    point.x = leg_force.x();
+    point.y = leg_force.y();
+    point.z = leg_force.z();
+    marker.points.push_back(point);
+
+    return marker;
+  }
+
   void clear_markers() {
     visualization_msgs::msg::Marker marker;
     marker.action = visualization_msgs::msg::Marker::DELETEALL;
@@ -303,16 +364,11 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr
       base_pose_sub_;
 
-  rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr
-      position_control_joint_state_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
       marker_pub_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
-  rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr
-      trajectory_pub_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr
@@ -324,6 +380,8 @@ private:
 
   trajectory_msgs::msg::JointTrajectory joint_trajectory;
   visualization_msgs::msg::MarkerArray marker_array_;
+
+  geometry_msgs::msg::PoseStamped::SharedPtr base_command_pose_;
 
   bool use_hardware_ = false;
 };
