@@ -16,7 +16,7 @@ from launch.actions import (
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 
 
 def generate_launch_description():
@@ -39,6 +39,13 @@ def generate_launch_description():
         default_value="false",
         description="Use hardware or not",
     )
+    
+    use_sim = LaunchConfiguration("use_sim")
+    declare_use_sim = DeclareLaunchArgument(
+        name="use_sim",
+        default_value="true",
+        description="Use simulation or not",
+    )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -59,19 +66,9 @@ def generate_launch_description():
             ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
             ("/controller_manager/robot_description", "/robot_description"),
         ],
-        # condition=IfCondition(use_hardware),
+        condition=UnlessCondition(use_sim),
     )
 
-    joint_trajectory_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "joint_trajectory_controller",
-            "-c",
-            "controller_manager",
-        ],
-        # condition=IfCondition(use_hardware),
-    )
 
     imu_sensor_broadcaster = Node(
         package="controller_manager",
@@ -89,6 +86,11 @@ def generate_launch_description():
         executable="passive_joint_state_broadcaster",
         name="passive_joint_state_broadcaster",
         output="screen",
+        parameters=[
+            {
+                "use_sim_time": use_sim
+            }
+            ],
     )
 
     inverse_test_controller = Node(
@@ -96,7 +98,10 @@ def generate_launch_description():
         executable="quadruped_controller_node",
         name="quadruped_controller_node",
         output="screen",
-        parameters=[{"use_hardware": use_hardware}],
+        parameters=[{
+            "use_sim_time": use_sim,
+            "use_hardware": use_hardware
+            }],
     )
 
     position_controller = Node(
@@ -118,11 +123,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             delcare_use_hardware,
-            DeclareLaunchArgument(
-                name="use_sim_time",
-                default_value="true",
-                description="Use simulation (Gazebo) clock if true",
-            ),
+            declare_use_sim,
             DeclareLaunchArgument(
                 name="use_verbose",
                 default_value="false",
@@ -131,7 +132,7 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 name="robot_description",
                 default_value=Command(
-                    ["xacro ", urdf_file, " use_hardware:=", use_hardware]
+                    ["xacro ", urdf_file, " use_hardware:=", use_hardware, " use_sim:=", use_sim]
                 ),
                 description="Absolute path to robot urdf file",
             ),
@@ -142,7 +143,7 @@ def generate_launch_description():
                 output="screen",
                 parameters=[
                     {
-                        "use_sim_time": LaunchConfiguration("use_sim_time"),
+                        "use_sim_time": use_sim,
                         "robot_description": LaunchConfiguration("robot_description"),
                     }
                 ],
@@ -168,6 +169,6 @@ def generate_launch_description():
             imu_sensor_broadcaster,
             inverse_test_controller,
             position_controller,
-            twist_to_trajectory
+            # twist_to_trajectory
         ]
     )

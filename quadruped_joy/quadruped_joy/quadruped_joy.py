@@ -1,9 +1,35 @@
 #!/usr/bin/env python3
 import rclpy
+import numpy as np
+import math
 from rclpy.node import Node
 
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
+
+
+def quaternion_from_euler(ai, aj, ak):
+    ai /= 2.0
+    aj /= 2.0
+    ak /= 2.0
+    ci = math.cos(ai)
+    si = math.sin(ai)
+    cj = math.cos(aj)
+    sj = math.sin(aj)
+    ck = math.cos(ak)
+    sk = math.sin(ak)
+    cc = ci * ck
+    cs = ci * sk
+    sc = si * ck
+    ss = si * sk
+
+    q = np.empty((4,))
+    q[0] = cj * sc - sj * cs
+    q[1] = cj * ss + sj * cc
+    q[2] = cj * cs - sj * sc
+    q[3] = cj * cc + sj * ss
+
+    return q
 
 
 class QuadrupedJoy(Node):
@@ -13,65 +39,102 @@ class QuadrupedJoy(Node):
 
         self.joy_sub_ = self.create_subscription(Joy, "joy", self.joy_callback, 10)
         self.pose_cmd_pub_ = self.create_publisher(
-            PoseStamped, "quadruped/command_base_pose", 10
+            PoseStamped, "quadruped_robot/command_base_pose" , 10
         )
 
         self.button_index_map = {
             "axis": {
-                "position_x": 0,
-                "position_y": 1,
-                "position_z": 3,
-                "orientation_r": 4,
-                "orientation_p": 6,
-                "orientation_y": 7,
+                "position_x": 1,
+                "position_y": 0,
+                "position_z": 2,
+                "orientation_r": 0,
+                "orientation_p": 1,
+                "orientation_y": 3,
             },
+        }
+
+        self.movement_type_button_map = {
+            "XYZ_YAW": 5,
+            "RPY_Z": 4,
+            "WALK": 6,
         }
 
         self.factor_map = {
             "position_factor": {
-                "x": 0.1,
+                "x": -0.1,
                 "y": 0.1,
-                "z": 0.1,
+                "z": -0.1,
             },
             "orientation_factor": {
-                "r": 0.1,
-                "p": 0.1,
-                "y": 0.1,
+                "r": -0.3,
+                "p": -0.3,
+                "y": 0.3,
             },
         }
 
-        for button_name, button_index in self.button_index_map["axis"].items():
-            self.button_index_map["axis"][button_name] = self.declare_parameter(
-                f"button_index_map.axis.{button_name}", button_index
-            ).value
-
-        for factor_name, factor_value in self.factor_map["position_factor"].items():
-            self.factor_map["position_factor"][factor_name] = self.declare_parameter(
-                f"factor_map.position_factor.{factor_name}", factor_value
-            ).value
-
-        for factor_name, factor_value in self.factor_map["orientation_factor"].items():
-            self.factor_map["orientation_factor"][factor_name] = self.declare_parameter(
-                f"factor_map.orientation_factor.{factor_name}", factor_value
-            ).value
-
-        example_param = self.declare_parameter("example_param", "default_value").value
-
-        self.get_logger().info(
-            f"Declared parameter 'example_param'. Value: {example_param}"
-        )
         self.get_logger().info("Hello world from the Python node quadruped_joy")
 
     def joy_callback(self, msg):
         pose = PoseStamped()
-        
-        pose.pose.position.x = msg.axes[self.button_index_map["axis"]["position_x"]] * self.factor_map["position_factor"]["x"]
-        pose.pose.position.y = msg.axes[self.button_index_map["axis"]["position_y"]] * self.factor_map["position_factor"]["y"]
-        pose.pose.position.z = msg.axes[self.button_index_map["axis"]["position_z"]] * self.factor_map["position_factor"]["z"]
-        
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.header.frame_id = "base_footprint"
 
 
-        self.get_logger().info(f"Received Joy message: {msg}")
+        if msg.buttons[self.movement_type_button_map["WALK"]]:
+            return
+        elif msg.buttons[self.movement_type_button_map["XYZ_YAW"]]:
+            pose.pose.position.x = (
+                msg.axes[self.button_index_map["axis"]["position_x"]]
+                * self.factor_map["position_factor"]["x"]
+            )
+            pose.pose.position.y = (
+                msg.axes[self.button_index_map["axis"]["position_y"]]
+                * self.factor_map["position_factor"]["y"]
+            )
+            pose.pose.position.z = (
+                msg.axes[self.button_index_map["axis"]["position_z"]]
+                * self.factor_map["position_factor"]["z"]
+            )
+            
+            yaw = (
+                msg.axes[self.button_index_map["axis"]["orientation_y"]]
+                * self.factor_map["orientation_factor"]["y"]
+            )
+            
+            q = quaternion_from_euler(0, 0, yaw)
+            
+            pose.pose.orientation.x = q[0]
+            pose.pose.orientation.y = q[1]
+            pose.pose.orientation.z = q[2]
+            pose.pose.orientation.w = q[3]
+
+        elif msg.buttons[self.movement_type_button_map["RPY_Z"]]:
+            r = (
+                msg.axes[self.button_index_map["axis"]["orientation_r"]]
+                * self.factor_map["orientation_factor"]["r"]
+            )
+            p = (
+                msg.axes[self.button_index_map["axis"]["orientation_p"]]
+                * self.factor_map["orientation_factor"]["p"]
+            )
+            y = (
+                msg.axes[self.button_index_map["axis"]["orientation_y"]]
+                * self.factor_map["orientation_factor"]["y"]
+            )
+
+            q = quaternion_from_euler(r, p, y)
+
+            pose.pose.orientation.x = q[0]
+            pose.pose.orientation.y = q[1]
+            pose.pose.orientation.z = q[2]
+            pose.pose.orientation.w = q[3]
+
+            pose.pose.position.z = (
+                msg.axes[self.button_index_map["axis"]["position_z"]]
+                * self.factor_map["position_factor"]["z"]
+            )
+
+        self.pose_cmd_pub_.publish(pose)
 
 
 def main(args=None):

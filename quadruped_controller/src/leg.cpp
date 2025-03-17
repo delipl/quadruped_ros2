@@ -60,7 +60,7 @@ Leg::Leg(const std::string &name) : name_(name) {
   }
 
   const double gear_ratio = 1.0 / 6.0;
-  third_joint_gear_correction_ = 3*gear_ratio*2*M_PI;
+  third_joint_gear_correction_ = 3 * gear_ratio * 2 * M_PI;
 
   first_.name = name + "_first_joint";
   second_.name = name + "_second_joint";
@@ -149,7 +149,8 @@ Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
 // Page 87 of
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
 void Leg::update_effector_position(double q3) {
-  const double th2 = M_PI - passive_side_multiplier_ * q3 + third_joint_gear_correction_;
+  const double th2 =
+      M_PI - passive_side_multiplier_ * q3 + third_joint_gear_correction_;
   const auto c2 = std::cos(th2);
   const auto s2 = std::sin(th2);
 
@@ -175,7 +176,6 @@ void Leg::update_effector_position(double q3) {
   // const auto x = xe1 + l5 * c3;
   // const auto y = ye1 + l5 * s3;
 
-
   fifth_.position = -passive_side_multiplier_ * (M_PI - th2 + th3);
   forth_.position = passive_side_multiplier_ * (M_PI - th4);
 }
@@ -186,16 +186,32 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
 
   Eigen::Vector3d x_foot = x;
   //  -0.0105???
+
+  //  Move to the legs base frame
   x_foot << x.x() - inv_directions_.x() * (0.131 - 0.0105),
-      x.y() - inv_directions_.y() * (0.06 + 0.023 + 0.0555 + 0.018),
-      x.z() - 0.06 + 0.015;
+      x.y() - inv_directions_.y() * (0.06), x.z() - 0.06 + 0.015;
 
   // 0.0125???
   const double xe =
       inv_directions_.x() * x_foot(0) -
       inv_directions_.z() * inv_directions_.x() * (0.031 + 0.064 + 0.0125);
   const double ye = x_foot(1);
-  const double ze = x_foot(2);
+  double ze_on_xz = x_foot.z();
+
+  q(0) = z_axis_q0_direction_ * (std::atan2(ze_on_xz, ye) - (M_PI + M_PI_2));
+  q(0) -= q(0) / std::abs(q(0)) * 2 * M_PI;
+
+  // Fix y and z for 1, 2 joints
+  double ze = ze_on_xz;
+
+  double e1 = std::sqrt(ye * ye + ze * ze);
+
+  // value 0.0875 has to be measured
+  double tran_angle = (std::acos(0.0875 / e1));
+  double effector_angle = std::atan2(std::abs(ze), inv_directions_.y() * ye);
+  q(0) = z_axis_q0_direction_ * inv_directions_.y() *
+         (tran_angle - effector_angle);
+  ze = -e1;
 
   const double l_BE = l4 + l5;
   const double l_AB = l1;
@@ -234,19 +250,19 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
 
   Eigen::Vector2d b = {xb, yb};
   auto theta_b = std::atan2(b(1), b(0));
-  const auto q1_dir = inv_directions_.z() * z_axis_q1_direction_ ;
+  const auto q1_dir = inv_directions_.z() * z_axis_q1_direction_;
   q(1) = q1_dir * (-theta_b);
 
   // Check if angle is correct
-  const auto ze_based_on_q1 =  l_AB * std::sin(q(1)) +
-                              l_BE * std::sin(M_PI + q(1) + phi);
-  const auto xe_based_on_q1 =  l_AB * std::cos(q(1)) +
-                              l_BE * std::cos(M_PI + q(1) + phi);
+  const auto ze_based_on_q1 =
+      l_AB * std::sin(q(1)) + l_BE * std::sin(M_PI + q(1) + phi);
+  const auto xe_based_on_q1 =
+      l_AB * std::cos(q(1)) + l_BE * std::cos(M_PI + q(1) + phi);
 
   const auto ze_error = std::abs(ze - ze_based_on_q1);
   const auto xe_error = std::abs(xe - xe_based_on_q1);
   const auto is_error = (ze_error > 0.001 || xe_error > 0.001);
-  if ( (is_error && q1_dir < 0) ||  (!is_error && q1_dir > 0) ) {
+  if ((is_error && q1_dir < 0) || (!is_error && q1_dir > 0)) {
     yb *= -1;
     b << b(0), -b(1);
     theta_b = std::atan2(b(1), b(0));
@@ -264,11 +280,10 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const auto alpha = std::acos((c * c + l2 * l2 - l3 * l3) / (2 * c * l2));
   const auto beta = std::acos((c * c + l1 * l1 - l4 * l4) / (2 * c * l1));
 
-  q(0) = z_axis_q0_direction_ * (std::atan2(ze, ye) - (M_PI + M_PI_2));
-  q(2) = z_axis_q2_direction_ * (-beta - alpha + M_PI+ third_joint_gear_correction_);
+  q(2) = z_axis_q2_direction_ *
+         (-beta - alpha + M_PI + third_joint_gear_correction_);
 
   // Normalize angles
-  q(0) -= q(0) / std::abs(q(0)) * 2 * M_PI;
 
   return q;
 }

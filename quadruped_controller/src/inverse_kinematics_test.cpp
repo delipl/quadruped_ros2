@@ -17,12 +17,12 @@ class InverseKinematicsTest : public rclcpp::Node {
 
 public:
   InverseKinematicsTest() : Node("leg_controller_node") {
-    quadruped_control_sub_ =
-        this->create_subscription<quadruped_msgs::msg::QuadrupedControl>(
-            "control_quadruped", 10,
+    // quadruped_control_sub_ =
+    //     this->create_subscription<quadruped_msgs::msg::QuadrupedControl>(
+    //         "control_quadruped", 10,
 
-            std::bind(&InverseKinematicsTest::control_callback, this,
-                      std::placeholders::_1));
+    //         std::bind(&InverseKinematicsTest::control_callback, this,
+    //                   std::placeholders::_1));
 
     base_pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
         "quadruped_robot/command_base_pose", 10,
@@ -117,13 +117,12 @@ private:
         marker_array_.markers.push_back(create_foot_markers(
             legs_names[i] + "_foot_state", foot_position, light_red));
 
-
       } else {
         marker_array_.markers.push_back(create_foot_markers(
             legs_names[i] + "_foot_state", foot_position, red));
       }
       marker_array_.markers.push_back(create_acceleration_marker(
-        legs_names[i] + "_foot_force", foot_position, light_red));
+          legs_names[i] + "_foot_force", foot_position, light_red));
 
       auto leg_active_joints = leg.get_active_joint_states();
 
@@ -145,15 +144,16 @@ private:
     auto vis_foot_positions = foot_positions;
     auto vis_in_contact = in_contact;
 
-    if( std::all_of(in_contact.begin(), in_contact.end(), [](bool v) { return v; }) ){
+    if (std::all_of(in_contact.begin(), in_contact.end(),
+                    [](bool v) { return v; })) {
       std::swap(vis_foot_positions[2], vis_foot_positions[3]);
       std::swap(vis_in_contact[2], vis_in_contact[3]);
       vis_foot_positions.push_back(vis_foot_positions[0]);
       vis_in_contact.push_back(vis_in_contact[0]);
     }
 
-
-    auto contact_surface = create_surface_between_contacts(vis_foot_positions, vis_in_contact);
+    auto contact_surface =
+        create_surface_between_contacts(vis_foot_positions, vis_in_contact);
     if (contact_surface.points.size() > 0) {
       marker_array_.markers.push_back(contact_surface);
     }
@@ -161,13 +161,14 @@ private:
     position_control_pub_->publish(pos_control);
   }
 
-  geometry_msgs::msg::TransformStamped create_footprint_transform(const geometry_msgs::msg::PoseStamped::SharedPtr msg){
+  geometry_msgs::msg::TransformStamped create_footprint_transform(
+      const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
     auto transform = geometry_msgs::msg::TransformStamped();
     transform.header.stamp = now();
     transform.header.frame_id = "base_footprint";
     transform.child_frame_id = "base_link";
-    // transform.transform.translation.x = msg->pose.position.x;
-    // transform.transform.translation.y = msg->pose.position.y;
+    transform.transform.translation.x = msg->pose.position.x;
+    transform.transform.translation.y = msg->pose.position.y;
     transform.transform.translation.z = msg->pose.position.z;
 
     transform.transform.rotation.x = msg->pose.orientation.x;
@@ -177,7 +178,8 @@ private:
     return transform;
   }
 
-  void  base_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+  void
+  base_pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
     base_command_pose_ = msg;
   }
 
@@ -187,41 +189,63 @@ private:
     std::array<Eigen::Vector3d, 4> foot_positions;
 
     quadruped_msgs::msg::QuadrupedControl quad_control;
+
+    const auto default_leg_separation_x = 0.20;
+    const auto default_leg_separation_y =  0.13;
+    const auto default_base_link_height = -0.18;
+
     quad_control.header.stamp = now();
-    quad_control.fl_foot_position.x = 0.2 - msg->pose.position.x;
-    quad_control.fl_foot_position.y = 0.13 - msg->pose.position.y;
-    quad_control.fl_foot_position.z = -msg->pose.position.z;
+    quad_control.fl_foot_position.x =
+        default_leg_separation_x - msg->pose.position.x;
+    quad_control.fl_foot_position.y =
+        default_leg_separation_y - msg->pose.position.y;
+    quad_control.fl_foot_position.z =
+        default_base_link_height - msg->pose.position.z;
     quad_control.fl_foot_in_contact.data = true;
 
-    quad_control.fr_foot_position.x = 0.2 - msg->pose.position.x;
-    quad_control.fr_foot_position.y = -0.13 - msg->pose.position.y;
-    quad_control.fr_foot_position.z = -msg->pose.position.z;
+    quad_control.fr_foot_position.x =
+        default_leg_separation_x - msg->pose.position.x;
+    quad_control.fr_foot_position.y =
+        -default_leg_separation_y - msg->pose.position.y;
+    quad_control.fr_foot_position.z =
+        default_base_link_height - msg->pose.position.z;
     quad_control.fr_foot_in_contact.data = true;
 
-    quad_control.rl_foot_position.x = -0.2 - msg->pose.position.x;
-    quad_control.rl_foot_position.y = 0.13 - msg->pose.position.y;
-    quad_control.rl_foot_position.z = -msg->pose.position.z;
+    quad_control.rl_foot_position.x =
+        -default_leg_separation_x - msg->pose.position.x;
+    quad_control.rl_foot_position.y =
+        default_leg_separation_y - msg->pose.position.y;
+    quad_control.rl_foot_position.z =
+        default_base_link_height - msg->pose.position.z;
     quad_control.rl_foot_in_contact.data = true;
 
-    quad_control.rr_foot_position.x = -0.2 - msg->pose.position.x;
-    quad_control.rr_foot_position.y = -0.13 - msg->pose.position.y;
-    quad_control.rr_foot_position.z = -msg->pose.position.z;
+    quad_control.rr_foot_position.x =
+        -default_leg_separation_x - msg->pose.position.x;
+    quad_control.rr_foot_position.y =
+        -default_leg_separation_y - msg->pose.position.y;
+    quad_control.rr_foot_position.z =
+        default_base_link_height - msg->pose.position.z ;
     quad_control.rr_foot_in_contact.data = true;
 
+    RCLCPP_INFO(get_logger(), "rr_foot_position pose: x: %f, y: %f, z: %f",
+                quad_control.rr_foot_position.x,
+                quad_control.rr_foot_position.y,
+                quad_control.rr_foot_position.z);
     control_callback(quad_control);
+    create_footprint_transform(msg);
+
+    tf_broadcaster_->sendTransform(create_footprint_transform(msg));
 
     return foot_positions;
   }
 
   void timer_callback() {
-    if(base_command_pose_){
+    if (base_command_pose_) {
       inverse_base_kinematics(base_command_pose_);
       base_command_pose_.reset();
     }
-    
 
     publish_visualization();
-
 
     if (joint_trajectory.points.size() < 40 && use_hardware_) {
       return;
@@ -230,7 +254,6 @@ private:
     if (joint_trajectory.points.empty()) {
       return;
     }
-
   }
 
   visualization_msgs::msg::Marker create_surface_between_contacts(
@@ -298,22 +321,23 @@ private:
     return marker;
   }
 
-  visualization_msgs::msg::Marker create_acceleration_marker(const std::string &ns,
-                                  const Eigen::Vector3d &foot_position,
-                                  std_msgs::msg::ColorRGBA color) {
+  visualization_msgs::msg::Marker
+  create_acceleration_marker(const std::string &ns,
+                             const Eigen::Vector3d &foot_position,
+                             std_msgs::msg::ColorRGBA color) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_link";
     marker.header.stamp = now();
     marker.ns = ns;
     marker.id = marker_array_.markers.size();
 
-    marker.type = visualization_msgs::msg::Marker::ARROW ;
+    marker.type = visualization_msgs::msg::Marker::ARROW;
 
     marker.action = visualization_msgs::msg::Marker::ADD;
 
     std::uint8_t contact_legs_number = 4;
     Eigen::Vector3d acceleration;
-    acceleration << 0.0, 0.0, -9.81/4;
+    acceleration << 0.0, 0.0, -9.81 / 4;
 
     auto leg_force = foot_position.cross(acceleration);
 
@@ -334,7 +358,6 @@ private:
     point.x = 0.0;
     point.y = 0.0;
     point.z = 0.0;
-
 
     marker.points.push_back(point);
     point.x = leg_force.x();
