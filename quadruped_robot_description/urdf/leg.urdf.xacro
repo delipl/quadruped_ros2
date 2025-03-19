@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="quadruped_robot">
+  <xacro:include filename="$(find quadruped_robot_description)/urdf/inertia.urdf.xacro"  />
 
   <!-- Macro to define a leg -->
   <xacro:macro name="leg"
@@ -39,8 +40,8 @@
       <child link="${prefix}_second_link" />
       <origin xyz="0.031 0.0 0.0" rpy="${first_joint_offset} 0.0 0.0" />
       <axis xyz="1 0 0" />
-      <limit lower="-3.1416" upper="3.1416" effort="100" velocity="0.5" />
-      <dynamics damping="0.1" friction="0" />
+      <limit effort="2.0" lower="-3.1416" upper="3.1416" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <xacro:third_link
@@ -57,8 +58,8 @@
       <origin xyz="0.064 0.0 0.023"
         rpy="0.0 0.0 ${pi + second_joint_gear_correction} " />
       <axis xyz="0 0 1" />
-      <limit lower="-3.14" upper="3.14" effort="100" velocity="0.5" />
-      <dynamics damping="0.1" friction="0" />
+      <limit effort="2.0" lower="1.57" upper="4.71" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <xacro:fourth_link
@@ -71,8 +72,8 @@
       <child link="${prefix}_fourth_link" />
       <origin xyz="0.0 0.0 0.0555" rpy="0.0 0.0 ${third_joint_gear_correction_dir*third_joint_gear_correction}" />
       <axis xyz="0 0 1" />
-      <limit lower="-3.14" upper="3.14" effort="100" velocity="0.5" />
-      <dynamics damping="0.1" friction="0" />
+      <limit effort="2.0" lower="0.425" upper="5.8" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <xacro:fifth_link
@@ -80,13 +81,13 @@
 
 
     <joint name="${prefix}_forth_joint"
-      type="continuous">
+      type="revolute">
       <parent link="${prefix}_fourth_link" />
       <child link="${prefix}_fifth_link" />
       <origin xyz="0.125 0.0 0.0255" rpy="0.0 0.0 ${pi}" />
       <axis xyz="0 0 -1" />
-      <limit lower="-3.14" upper="3.14" effort="100" velocity="0.5" />
-      <dynamics damping="0" friction="0" />
+      <limit effort="  2.0" lower="-0.8" upper="-2.9" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <xacro:sixth_link
@@ -94,35 +95,48 @@
 
 
     <joint name="${prefix}_fifth_joint"
-      type="continuous">
+      type="revolute">
       <parent link="${prefix}_third_link" />
       <child link="${prefix}_sixth_link" />
       <origin xyz="-0.125 0.0 0.058" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 -1" />
-      <limit lower="-3.14" upper="3.14" effort="100" velocity="0.5" />
-      <dynamics damping="0" friction="0" />
+      <limit effort="5.0" lower="-3.14" upper="3.14" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
-    <link name="${prefix}_foot_first_link" />
-
-    <joint name="${prefix}_foot_first_joint"
-      type="fixed">
+    <link name="${prefix}_foot_link" >
+      <xacro:inertia_stub/>
+    </link>
+    <joint name="${prefix}_foot_joint"
+      type="revolute">
       <parent link="${prefix}_sixth_link" />
-      <child link="${prefix}_foot_first_link" />
+      <child link="${prefix}_foot_link" />
       <origin xyz="0.21 0.0 0.0115" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
+      <limit effort="2.0" lower="-3.14" upper="3.14" velocity="0.1" />
+      <dynamics damping="0.1" friction="0.1" />
     </joint>
 
-    <link name="${prefix}_foot_second_link" />
-
-    <joint name="${prefix}_foot_second_joint"
+    <link name="${prefix}_chain_close_a_link" >
+      <xacro:inertia_stub/>
+    </link>
+    <joint name="${prefix}_chain_close_a_joint"
       type="fixed">
       <parent link="${prefix}_fifth_link" />
-      <child link="${prefix}_foot_second_link" />
-      <origin xyz="0.21 0.0 -0.0115" rpy="0.0 0.0 0.0" />
+      <child link="${prefix}_chain_close_a_link" />
+      <origin xyz="0.105 0.0 -0.0115" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
     </joint>
 
+    <link name="${prefix}_chain_close_b_link">
+      <xacro:inertia_stub/>
+    </link>
+    <joint name="${prefix}_chain_close_b_joint" type="fixed">
+      <parent link="${prefix}_foot_link" />
+      <child link="${prefix}_chain_close_b_link" />
+      <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0" />
+      <axis xyz="0 0 1" />
+    </joint>
 
 
   </xacro:macro>
@@ -137,16 +151,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 ${pi/2} 0" xyz="0.01 0  0" />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/first_link.dae" />
+          <cylinder length="0.04" radius="0.05"/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" />
     </link>
   </xacro:macro>
 
@@ -159,16 +169,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 0.0 0" xyz="0.055 0  0" />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/second_link.dae" />
+          <box size="0.11 0.1 0.065 "/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" xyz="0.055 0  0" />
     </link>
   </xacro:macro>
 
@@ -181,16 +187,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 0 0" xyz="0.0 0 0.025  " />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/third_link.dae" />
+          <cylinder length="0.05" radius="0.05"/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" xyz="0.0 0  0.025" />
     </link>
   </xacro:macro>
 
@@ -203,16 +205,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 0 0" xyz="0.0625 0.0  0.015 " />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/third_link.dae" />
+          <box size="0.175 0.04 0.025 "/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:box_inertia m="0.04" w="0.175" h="0.025" d="0.0175" xyz="0.0625 0.0  0.015" />
     </link>
   </xacro:macro>
 
@@ -225,16 +223,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 0 0" xyz="0.105 0.0  0.008 " />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/fifth_link.dae" />
+          <box size="0.25 0.04 0.0175 "/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:box_inertia m="0.05" w="0.25" h="0.04" d="0.0175" xyz="0.105 0  0.0" />
     </link>
   </xacro:macro>
 
@@ -247,16 +241,12 @@
         </geometry>
       </visual>
       <collision>
-        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
+        <origin rpy=" 0 0 0" xyz="0.105 0.0  0.008 " />
         <geometry>
-          <mesh filename="package://quadruped_robot_description/meshes/sixth_link.dae" />
+          <box size="0.25 0.04 0.0175 "/>
         </geometry>
       </collision>
-      <inertial>
-        <mass value="0.05" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.00005" iyz="0.0" izz="0.00005" />
-      </inertial>
+      <xacro:box_inertia m="0.05" w="0.25" h="0.04" d="0.0175" xyz="0.105 0  0.0" />
     </link>
   </xacro:macro>
 
