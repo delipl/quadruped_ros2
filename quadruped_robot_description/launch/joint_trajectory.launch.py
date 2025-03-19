@@ -166,7 +166,7 @@ def generate_launch_description():
             joint_state_broadcaster_spawner,
             control_node,
             # joint_trajectory_controller,
-            imu_sensor_broadcaster,
+            # imu_sensor_broadcaster,
             inverse_test_controller,
             position_controller,
             # twist_to_trajectory

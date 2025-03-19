@@ -38,28 +38,28 @@ generate_parameter_library(quadruped_controller_parameters
   src/quadruped_controller.yaml
   include/quadruped_controller/validate_quadruped_controller_parameters.hpp
 )
-add_library(
-  quadruped_controller
-  SHARED
-  src/quadruped_controller.cpp
-)
-target_include_directories(quadruped_controller PUBLIC
-  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-target_link_libraries(quadruped_controller quadruped_controller_parameters)
-ament_target_dependencies(quadruped_controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_compile_definitions(quadruped_controller PRIVATE "QUADRUPED_CONTROLLER_BUILDING_DLL")
+# add_library(
+#   quadruped_controller
+#   SHARED
+#   src/quadruped_controller.cpp
+# )
+# target_include_directories(quadruped_controller PUBLIC
+#   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+#   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+# target_link_libraries(quadruped_controller quadruped_controller_parameters)
+# ament_target_dependencies(quadruped_controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
+# target_compile_definitions(quadruped_controller PRIVATE "QUADRUPED_CONTROLLER_BUILDING_DLL")
 
-pluginlib_export_plugin_description_file(
-  controller_interface quadruped_controller.xml)
+# pluginlib_export_plugin_description_file(
+#   controller_interface quadruped_controller.xml)
 
-install(
-  TARGETS
-  quadruped_controller
-  RUNTIME DESTINATION bin
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-)
+# install(
+#   TARGETS
+#   quadruped_controller
+#   RUNTIME DESTINATION bin
+#   ARCHIVE DESTINATION lib
+#   LIBRARY DESTINATION lib
+# )
 
 install(
   DIRECTORY include/
@@ -118,7 +118,16 @@ target_include_directories(passive_joint_state_broadcaster PUBLIC
 ament_target_dependencies(passive_joint_state_broadcaster ${THIS_PACKAGE_INCLUDE_DEPENDS})
 target_link_libraries(passive_joint_state_broadcaster Eigen3::Eigen)
 
-install(TARGETS quadruped_controller_node controller passive_joint_state_broadcaster
+add_executable(base_inverse_kinematics src/base_inverse_kinematics.cpp)
+
+target_include_directories(base_inverse_kinematics PUBLIC
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+
+ament_target_dependencies(base_inverse_kinematics ${THIS_PACKAGE_INCLUDE_DEPENDS})
+target_link_libraries(base_inverse_kinematics Eigen3::Eigen)
+
+install(TARGETS quadruped_controller_node controller passive_joint_state_broadcaster base_inverse_kinematics
   DESTINATION lib/${PROJECT_NAME}
 )
 

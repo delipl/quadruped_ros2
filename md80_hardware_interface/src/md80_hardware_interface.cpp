@@ -117,8 +117,15 @@ hardware_interface::CallbackReturn MD80HardwareInterface::on_activate(
 
   //  TODO: Add service to zero encoders
   // zero_encoders();
-
+  std::size_t i = 0;
   read(rclcpp::Time{}, rclcpp::Duration(0, 0));
+  // for (auto candle : candle_instances) {
+  //   for (auto &md : candle->md80s) {
+
+  //     // md80_info_[i].state.position = 2*M_PI/6.0;
+  //     ++i;
+  //   }
+  // }
   reset_command();
   log_current_joint_position();
 
@@ -143,6 +150,9 @@ MD80HardwareInterface::read(const rclcpp::Time & /*time*/,
       md80_info_[i].state.position = md.getPosition();
       md80_info_[i].state.velocity = md.getVelocity();
       md80_info_[i].state.effort = md.getTorque();
+
+      // RCLCPP_INFO_STREAM(rclcpp::get_logger(get_name()),
+      //                    "can id " << i << " status: " << md.getQuickStatus());
       ++i;
     }
   }
@@ -222,41 +232,28 @@ void MD80HardwareInterface::add_candle_instances() {
   mab::BusType_E bus;
   const mab::CANdleBaudrate_E baud = mab::CAN_BAUD_1M;
 
-  auto bus_param = info_.hardware_parameters.at("bus");
-  if (bus_param == "usb") {
-    bus = mab::BusType_E::USB;
-  } else if (bus_param == "spi") {
-    bus = mab::BusType_E::SPI;
-  } else {
-    throw std::runtime_error("Unknown bus type: " + bus_param);
-  }
-
-  if (bus == mab::BusType_E::SPI) {
-    try {
-      candle_instances.emplace_back(
-          std::make_shared<mab::Candle>(baud, true, bus));
-      RCLCPP_INFO_STREAM(
-          rclcpp::get_logger(get_name()),
-          "Found CANdle with ID: " << candle_instances.back()->getDeviceId());
-      return;
-    } catch (const char *eMsg) {
-      RCLCPP_ERROR_STREAM(rclcpp::get_logger(get_name()), eMsg);
-    }
-  }
-
   auto usb_port = info_.hardware_parameters.at("usb_port");
 
   while (bus == mab::BusType_E::USB) {
+
     try {
+
       candle_instances.emplace_back(
+
           std::make_shared<mab::Candle>(baud, true, bus, usb_port));
-      RCLCPP_INFO_STREAM(rclcpp::get_logger(get_name()),
-                         "Found CANdle with ID: "
-                             << candle_instances.back()->getDeviceId() << " at "
-                             << usb_port);
+
+      RCLCPP_INFO_STREAM(
+
+          rclcpp::get_logger(get_name()),
+
+          "Found CANdle with ID: " << candle_instances.back()->getDeviceId()
+                                   << " at " << usb_port);
+
     } catch (const char *eMsg) {
+
       RCLCPP_ERROR_STREAM(rclcpp::get_logger(get_name()),
-                          eMsg << " at " << usb_port);
+                          eMsg << " at usb_port");
+
       break;
     }
   }

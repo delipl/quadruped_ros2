@@ -17,6 +17,25 @@ def generate_launch_description():
             executable='quadruped_joy',
             name='quadruped_joy',
             output='screen',
-            parameters=[config],
+            # parameters=[config],
         ),
+        Node(
+            package="joy2twist",
+            executable="joy2twist",
+            output='screen',
+            parameters=[config],
+            remappings=[
+                ("joy", "joy_cmd_vel")
+            ]
+        ), 
+        Node(
+            package="joy_linux",
+            executable="joy_linux_node",
+            output='screen',
+            arguments=["/dev/input/js0 "],
+        ),
+        Node(
+            package="quadruped_controller",
+            executable="twist_to_trajectory.py",
+        )
     ])

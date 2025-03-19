@@ -46,9 +46,9 @@ class PosePublisher(Node):
             return
 
         ticks = 30
-        dx = msg.linear.x / 5.0
-        dy = msg.linear.y / 5.0
-        dw = msg.angular.z / 5.0
+        dx = msg.linear.x  * 0.5
+        dy = msg.linear.y * 0.1
+        dw = msg.angular.z *0.1
         self.generate_trot(ticks, dx, dy, dw, 0.185)
 
     def generate_trot(self, ticks, dx, dy, dw, dz):
@@ -59,7 +59,7 @@ class PosePublisher(Node):
             self.get_logger().info(f"dw: {dw}")
             dyes = dw * np.array([1, 1, -1, -1])
 
-        x0es = 0.227 * np.array([1, 1, -1, -1])
+        x0es = 0.26 * np.array([1, 1, -1, -1])
         y0es = 0.15 * np.array([1, -1, 1, -1])
         self.trajs_x = []
         self.trajs_y = []
@@ -82,7 +82,7 @@ class PosePublisher(Node):
     def generate_leg_trajectory(
         self, ticks, phase=0, periods=3, x0=0.3, y0=0.148, dx=0.0, dy=0.0, dz=0.15
     ):
-        z0 = -0.23
+        z0 = -0.20
         x = np.linspace(x0, x0 + dx, ticks)
         xb = np.linspace(x0 + dx, x0, periods * ticks)
         y = np.linspace(y0, y0 + dy, ticks)
@@ -95,7 +95,7 @@ class PosePublisher(Node):
         if dz == 0:
             dminz = 0.0
         else:
-            dminz = 0.01 
+            dminz = 0.01
 
         x = np.concatenate((x, xb)) - dx / 2
         y = np.concatenate((y, yb)) - dy / 2

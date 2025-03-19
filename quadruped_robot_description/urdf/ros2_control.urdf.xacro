@@ -61,7 +61,7 @@
                     <xacro:if value="${use_hardware}">
                         <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
                         <param name="usb_port">/dev/ttyACM0</param>
-                        <param name="bus">spi</param>
+                        <param name="bus">usb</param>
 
                     </xacro:if>
                     <xacro:unless value="${use_hardware}">
@@ -70,17 +70,17 @@
                 </xacro:unless>
             </hardware>
 
-            <xacro:property name="kp1" value="80" />
-            <xacro:property name="kd1" value="12" />
+            <xacro:property name="kp1" value="25" />
+            <xacro:property name="kd1" value="5.0" />
 
             <!-- <xacro:property name="kp2" value="50" /> -->
-            <xacro:property name="kp2" value="50" />
-            <xacro:property name="kd2" value="10" />
+            <xacro:property name="kp2" value="7.5" />
+            <xacro:property name="kd2" value="1.0" />
             <xacro:property name="max_torque2" value="10.0" />
 
             <!-- <xacro:property name="kp3" value="50" /> -->
-            <xacro:property name="kp3" value="50" />
-            <xacro:property name="kd3" value="10" />
+            <xacro:property name="kp3" value="7.5" />
+            <xacro:property name="kd3" value="1.0" />
             <xacro:property name="max_torque3" value="10.0" />
 
 
@@ -124,52 +124,5 @@
         </ros2_control>
 
 
-        <xacro:unless value="${use_sim}">
-            <xacro:property name="mock_imu" value="sensor" />
-            <xacro:unless value="${use_hardware}">
-                <xacro:property name="mock_imu" value="system" />
-            </xacro:unless>
-
-            <ros2_control name="imu" type="${mock_imu}">
-                <hardware>
-                    <xacro:if value="${use_hardware}">
-                        <plugin>bmx160_serial_hardware_interface/BMX160SerialHardwareInterface</plugin>
-                    </xacro:if>
-                    <xacro:unless value="${use_hardware}">
-                        <plugin>mock_components/GenericSystem</plugin>
-                    </xacro:unless> 
-
-                    <param name="port">/dev/ttyACM0</param>
-                    <param name="baud_rate">9600</param>
-
-                    <!-- Madgwick Filter Params -->
-                    <!-- https://www.mouser.com/pdfdocs/BST-BMX160-DS000-11.pdf -->
-                    <!-- Output Noise 0.007 -->
-                    <!-- Bias stability 0.0000145 -->
-                    <param name="gain">0.003031089</param>
-                    <param name="zeta">0.000006279</param>
-                    <param name="mag_bias_x">0.002</param>
-                    <param name="mag_bias_y">0.002</param>
-                    <param name="mag_bias_z">0.002</param>
-                    <param name="world_frame">enu</param>
-                </hardware>
-                <sensor name="imu">
-                    <state_interface name="orientation.x" />
-                    <state_interface name="orientation.y" />
-                    <state_interface name="orientation.z" />
-                    <state_interface name="orientation.w" />
-
-                    <state_interface name="magnetometer.x" />
-                    <state_interface name="magnetometer.y" />
-                    <state_interface name="magnetometer.z" />
-                    <state_interface name="angular_velocity.x" />
-                    <state_interface name="angular_velocity.y" />
-                    <state_interface name="angular_velocity.z" />
-                    <state_interface name="linear_acceleration.x" />
-                    <state_interface name="linear_acceleration.y" />
-                    <state_interface name="linear_acceleration.z" />
-                </sensor>
-            </ros2_control>
-        </xacro:unless>
     </xacro:macro>
 </robot>

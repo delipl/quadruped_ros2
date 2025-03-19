@@ -3,7 +3,7 @@ import rclpy
 import numpy as np
 import math
 from rclpy.node import Node
-
+from copy import copy
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
 
@@ -38,6 +38,7 @@ class QuadrupedJoy(Node):
         super().__init__("quadruped_joy")
 
         self.joy_sub_ = self.create_subscription(Joy, "joy", self.joy_callback, 10)
+        self.joy_pub_ = self.create_publisher(Joy, "joy_cmd_vel", 10)
         self.pose_cmd_pub_ = self.create_publisher(
             PoseStamped, "quadruped_robot/command_base_pose" , 10
         )
@@ -73,6 +74,7 @@ class QuadrupedJoy(Node):
         }
 
         self.get_logger().info("Hello world from the Python node quadruped_joy")
+        self.was_walk_before = False
 
     def joy_callback(self, msg):
         pose = PoseStamped()
@@ -81,6 +83,8 @@ class QuadrupedJoy(Node):
 
 
         if msg.buttons[self.movement_type_button_map["WALK"]]:
+            self.joy_pub_.publish(msg)
+            self.was_walk_before = True
             return
         elif msg.buttons[self.movement_type_button_map["XYZ_YAW"]]:
             pose.pose.position.x = (
@@ -134,7 +138,20 @@ class QuadrupedJoy(Node):
                 * self.factor_map["position_factor"]["z"]
             )
 
-        self.pose_cmd_pub_.publish(pose)
+
+        if self.was_walk_before:
+            self.was_walk_before = False
+
+            zero_msg = copy(msg)
+            zero_msg.axes[0] = 0.0
+            zero_msg.axes[1] = 0.0
+            zero_msg.axes[2] = 0.0
+            zero_msg.axes[3] = 0.0
+            self.joy_pub_.publish(msg)
+            self.get_logger().info("publishing zero joy")
+        else:
+            self.pose_cmd_pub_.publish(pose)
+            # self.get_logger().info("publishing pose command")
 
 
 def main(args=None):
