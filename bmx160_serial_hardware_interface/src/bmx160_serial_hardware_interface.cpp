@@ -51,8 +51,6 @@ hardware_interface::CallbackReturn BMX160SerialHardwareInterface::on_configure(
     return hardware_interface::CallbackReturn::ERROR;
   }
 
-  ReadMadgwickFilterParams();
-  ConfigureMadgwickFilter();
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -111,15 +109,6 @@ BMX160SerialHardwareInterface::read(const rclcpp::Time & /*time*/,
     }
   }
 
-  filter_->madgwickAHRSupdate(hw_states_[3], hw_states_[4], hw_states_[5],
-                              hw_states_[6], hw_states_[7], hw_states_[8],
-                              hw_states_[0], hw_states_[1], hw_states_[2], dt);
-
-  float gx, gy, gz;
-  filter_->getGravity(gx, gy, gz);
-
-  if (!std::isnan(gx) && !std::isnan(gy) && !std::isnan(gz)) {
-    // RCLCPP_INFO(logger_, "gx: %f, gy: %f, gz: %f", gx, gy, gz);
     hw_states_[6] = std::isnan(sensor_data_.accel_x)
                         ? hw_states_[6]
                         : sensor_data_.accel_x; // - gx;
@@ -128,12 +117,13 @@ BMX160SerialHardwareInterface::read(const rclcpp::Time & /*time*/,
                         : sensor_data_.accel_y; // - gy;
     hw_states_[8] = std::isnan(sensor_data_.accel_z)
                         ? hw_states_[8]
-                        : sensor_data_.accel_z; // - gz;
-  }
+                        : sensor_data_.accel_z;
 
-  filter_->getOrientation(hw_states_[12], hw_states_[9], hw_states_[10],
-                          hw_states_[11]);
-
+  hw_states_[9] = sensor_data_.quat_x;
+  hw_states_[10] = sensor_data_.quat_y;
+  hw_states_[11] = sensor_data_.quat_z;
+  hw_states_[12] = sensor_data_.quat_w;
+  
   return hardware_interface::return_type::OK;
 }
 
@@ -174,44 +164,6 @@ BMX160SerialHardwareInterface::export_state_interfaces() {
       sensor_name, "orientation.w", &hw_states_[12]));
 
   return state_interfaces;
-}
-
-void BMX160SerialHardwareInterface::ConfigureMadgwickFilter() {
-  filter_ = std::make_unique<ImuFilter>();
-  filter_->setWorldFrame(world_frame_);
-  filter_->setAlgorithmGain(
-      hardware_interface::stod(info_.hardware_parameters.at("gain")));
-  filter_->setDriftBiasGain(
-      hardware_interface::stod(info_.hardware_parameters.at("zeta")));
-}
-
-void BMX160SerialHardwareInterface::ReadMadgwickFilterParams() {
-  mag_bias_x_ =
-      hardware_interface::stod(info_.hardware_parameters.at("mag_bias_x"));
-  mag_bias_y_ =
-      hardware_interface::stod(info_.hardware_parameters.at("mag_bias_y"));
-  mag_bias_z_ =
-      hardware_interface::stod(info_.hardware_parameters.at("mag_bias_z"));
-
-  CheckMadgwickFilterWorldFrameParam();
-}
-
-void BMX160SerialHardwareInterface::CheckMadgwickFilterWorldFrameParam() {
-  const auto world_frame = info_.hardware_parameters.at("world_frame");
-
-  if (world_frame == "ned") {
-    world_frame_ = WorldFrame::NED;
-  } else if (world_frame == "nwu") {
-    world_frame_ = WorldFrame::NWU;
-  } else if (world_frame == "enu") {
-    world_frame_ = WorldFrame::ENU;
-  } else {
-    RCLCPP_WARN_STREAM(
-        logger_, "The parameter 'world_frame' was set to an invalid value ("
-                     << world_frame
-                     << "). Valid values are ['enu', 'ned', 'nwu']. Setting to "
-                        "default value 'enu'.");
-  }
 }
 
 } // namespace bmx160_serial_hardware_interface

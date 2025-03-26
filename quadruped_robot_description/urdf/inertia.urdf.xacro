@@ -23,7 +23,20 @@
   <xacro:macro name="inertia_stub">
     <inertial>
       <mass value="2e-06"/>
-      <inertia ixx="1.1e-14" ixy="0" ixz="0" iyy="1.1e-14" iyz="0" izz="1.1e-14"/>
+      <inertia ixx="1.1e-09" ixy="0" ixz="0" iyy="1.1e-09" iyz="0" izz="1.1e-09"/>
     </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="geometry_stub">
+        <origin rpy=" 0 0 0" xyz="0.0 0.0  0.0 " />
+        <geometry>
+          <box size="0.0001 0.0001 0.0001 "/>
+        </geometry>
+  </xacro:macro>
+
+  <xacro:macro name="grey_material">
+    <material name="grey">
+      <color rgba="0.5 0.5 0.5 1.0"/>
+    </material>
   </xacro:macro>
 </robot>

@@ -79,6 +79,8 @@ def generate_launch_description():
             "4BarBot",
             "-topic",
             "robot_description",
+            '-z',
+            '0.3',
 
         ],
         emulate_tty=True,

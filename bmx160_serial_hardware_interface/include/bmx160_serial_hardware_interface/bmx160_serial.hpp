@@ -25,6 +25,7 @@ public:
     float mag_x, mag_y, mag_z;       // Magnetometer data in uT
     float gyro_x, gyro_y, gyro_z;    // Gyroscope data in g
     float accel_x, accel_y, accel_z; // Accelerometer data in m/s^2
+    float quat_w, quat_x, quat_y, quat_z; // Quaternion data
   };
 
   BMX160Serial(const std::string &port_name, int baud_rate = 9600);

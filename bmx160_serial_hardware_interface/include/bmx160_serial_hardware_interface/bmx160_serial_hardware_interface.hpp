@@ -72,13 +72,6 @@ private:
   std::vector<double> hw_states_;
 
   double mag_bias_x_, mag_bias_y_, mag_bias_z_;
-
-  std::unique_ptr<ImuFilter> filter_;
-  WorldFrame::WorldFrame world_frame_;
-
-  void ConfigureMadgwickFilter();
-  void ReadMadgwickFilterParams();
-  void CheckMadgwickFilterWorldFrameParam();
 };
 
 } // namespace bmx160_serial_hardware_interface

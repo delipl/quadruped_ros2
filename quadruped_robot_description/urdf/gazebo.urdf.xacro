@@ -4,5 +4,18 @@
     <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
       <parameters>$(find quadruped_controller)/config/jtc_controllers.yaml</parameters>
     </plugin>
+
+    <plugin filename="libignition-gazebo-detachable-joint-system.so" name="ignition::gazebo::systems::DetachableJoint">
+      <parent_link>rear_left_foot_link</parent_link>
+      <child_model>4BarBot</child_model>  
+      <child_link>rear_left_chain_close_b_link</child_link>
+      <attach_topic>close_loop</attach_topic>
+    </plugin>
+    
+
+    <!-- <plugin filename="libattach-links.so" name="ignition::gazebo::::systems::AttachLinks">
+      <parent>rear_left_chain_close_a_link</parent>
+      <child>rear_left_chain_close_b_link</child>
+    </plugin> -->
   </gazebo>
 </robot>

@@ -14,7 +14,6 @@
   <depend>pluginlib</depend>
 
   <depend>rclcpp</depend>
-  <depend>imu_filter_madgwick</depend>
 
   <depend>rclcpp_lifecycle</depend>
 

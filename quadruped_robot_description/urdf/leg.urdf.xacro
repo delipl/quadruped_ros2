@@ -40,7 +40,7 @@
       <child link="${prefix}_second_link" />
       <origin xyz="0.031 0.0 0.0" rpy="${first_joint_offset} 0.0 0.0" />
       <axis xyz="1 0 0" />
-      <limit effort="2.0" lower="-3.1416" upper="3.1416" velocity="0.1" />
+      <limit effort="100.0" lower="-3.1416" upper="3.1416" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
@@ -49,7 +49,7 @@
 
     <xacro:property name="gear_ratio" value="0.166666" />
     <xacro:property name="second_joint_gear_correction" value="${0*gear_ratio*2*pi}" />
-    <xacro:property name="third_joint_gear_correction" value="${2*gear_ratio*2*pi}" />
+    <xacro:property name="third_joint_gear_correction" value="${3*gear_ratio*2*pi}" />
 
     <joint name="${prefix}_second_joint"
       type="revolute">
@@ -58,7 +58,7 @@
       <origin xyz="0.064 0.0 0.023"
         rpy="0.0 0.0 ${pi + second_joint_gear_correction} " />
       <axis xyz="0 0 1" />
-      <limit effort="2.0" lower="1.57" upper="4.71" velocity="0.1" />
+      <limit effort="100.0" lower="1.57" upper="4.71" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
@@ -72,7 +72,7 @@
       <child link="${prefix}_fourth_link" />
       <origin xyz="0.0 0.0 0.0555" rpy="0.0 0.0 ${third_joint_gear_correction_dir*third_joint_gear_correction}" />
       <axis xyz="0 0 1" />
-      <limit effort="2.0" lower="0.425" upper="5.8" velocity="0.1" />
+      <limit effort="100.0" lower="0.425" upper="5.8" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
@@ -86,7 +86,7 @@
       <child link="${prefix}_fifth_link" />
       <origin xyz="0.125 0.0 0.0255" rpy="0.0 0.0 ${pi}" />
       <axis xyz="0 0 -1" />
-      <limit effort="  2.0" lower="-0.8" upper="-2.9" velocity="0.1" />
+      <limit effort="  2.0" lower="-0.8" upper="-2.9" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
@@ -100,11 +100,18 @@
       <child link="${prefix}_sixth_link" />
       <origin xyz="-0.125 0.0 0.058" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 -1" />
-      <limit effort="5.0" lower="-3.14" upper="3.14" velocity="0.1" />
+      <limit effort="100.0" lower="-3.14" upper="3.14" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <link name="${prefix}_foot_link" >
+      <visual>
+        <xacro:geometry_stub/>
+        <xacro:grey_material />
+</visual>
+      <collision name="${prefix}_foot_link_collision">
+        <xacro:geometry_stub/>  
+      </collision>
       <xacro:inertia_stub/>
     </link>
     <joint name="${prefix}_foot_joint"
@@ -113,11 +120,18 @@
       <child link="${prefix}_foot_link" />
       <origin xyz="0.21 0.0 0.0115" rpy="0.0 0.0 0.0" />
       <axis xyz="0 0 1" />
-      <limit effort="2.0" lower="-3.14" upper="3.14" velocity="0.1" />
+      <limit effort="100.0" lower="-3.14" upper="3.14" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <link name="${prefix}_chain_close_a_link" >
+      <visual>
+        <xacro:geometry_stub/>
+        <xacro:grey_material />
+</visual>
+      <collision name="${prefix}_chain_close_a_link_collision">
+        <xacro:geometry_stub/>  
+      </collision>
       <xacro:inertia_stub/>
     </link>
     <joint name="${prefix}_chain_close_a_joint"
@@ -129,6 +143,13 @@
     </joint>
 
     <link name="${prefix}_chain_close_b_link">
+      <visual>
+        <xacro:geometry_stub/>
+        <xacro:grey_material />
+</visual>
+      <collision name="${prefix}_chain_close_b_link_collision">
+        <xacro:geometry_stub/>  
+      </collision>
       <xacro:inertia_stub/>
     </link>
     <joint name="${prefix}_chain_close_b_joint" type="fixed">
@@ -149,11 +170,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/first_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 ${pi/2} 0" xyz="0.01 0  0" />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <cylinder length="0.04" radius="0.05"/>
+          <mesh filename="package://quadruped_robot_description/meshes/first_link.dae" />
         </geometry>
       </collision>
       <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" />
@@ -167,11 +189,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/second_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 0.0 0" xyz="0.055 0  0" />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <box size="0.11 0.1 0.065 "/>
+          <mesh filename="package://quadruped_robot_description/meshes/second_link.dae" />
         </geometry>
       </collision>
       <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" xyz="0.055 0  0" />
@@ -185,11 +208,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/third_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 0 0" xyz="0.0 0 0.025  " />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+       <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <cylinder length="0.05" radius="0.05"/>
+          <mesh filename="package://quadruped_robot_description/meshes/third_link.dae" />
         </geometry>
       </collision>
       <xacro:cylinder_inertia m="0.6" r="0.05" h="0.04" xyz="0.0 0  0.025" />
@@ -203,11 +227,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/fourth_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 0 0" xyz="0.0625 0.0  0.015 " />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <box size="0.175 0.04 0.025 "/>
+          <mesh filename="package://quadruped_robot_description/meshes/fourth_link.dae" />
         </geometry>
       </collision>
       <xacro:box_inertia m="0.04" w="0.175" h="0.025" d="0.0175" xyz="0.0625 0.0  0.015" />
@@ -221,11 +246,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/fifth_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 0 0" xyz="0.105 0.0  0.008 " />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+         <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <box size="0.25 0.04 0.0175 "/>
+          <mesh filename="package://quadruped_robot_description/meshes/fifth_link.dae" />
         </geometry>
       </collision>
       <xacro:box_inertia m="0.05" w="0.25" h="0.04" d="0.0175" xyz="0.105 0  0.0" />
@@ -239,11 +265,12 @@
         <geometry>
           <mesh filename="package://quadruped_robot_description/meshes/sixth_link.dae" />
         </geometry>
-      </visual>
-      <collision>
-        <origin rpy=" 0 0 0" xyz="0.105 0.0  0.008 " />
+        <xacro:grey_material />
+</visual>
+      <collision name="${name}_collision">
+        <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>
-          <box size="0.25 0.04 0.0175 "/>
+          <mesh filename="package://quadruped_robot_description/meshes/sixth_link.dae" />
         </geometry>
       </collision>
       <xacro:box_inertia m="0.05" w="0.25" h="0.04" d="0.0175" xyz="0.105 0  0.0" />
