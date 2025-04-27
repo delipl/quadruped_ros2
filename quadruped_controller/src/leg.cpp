@@ -121,29 +121,80 @@ Eigen::Matrix4d Leg::denavite_hartenberg(const Eigen::Vector4d &v) {
   return T;
 }
 
+Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
+  // TODO: warning this pi will be negative in another side
+
+  Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
+  Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
+                           z_axis_q0_direction_ * q_open(0) - M_PI_2};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, (0.023 + 0.0555),
+                           l1, 0.0};
+  Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
+
+  auto A01 = denavite_hartenberg(directions_[0] * v_A01);
+  auto A12 = denavite_hartenberg(directions_[1] * v_A12);
+  auto A23 = denavite_hartenberg(directions_[2] * v_A23);
+  auto A34 = denavite_hartenberg(directions_[3] * v_A34);
+
+  return A01 * A12 * A23 * A34;
+}
+
 Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
   const auto d1 = 0.1;
 
   update_effector_position(q(2));
 
-  // TODO: warning this pi will be negative in another side
+  Eigen::Vector3d q_open = {q(0), q(1), fifth_.position};
 
+  auto K = kinematics(q_open);
+
+  return K.block<3, 1>(0, 3);
+}
+Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
+  // DH parameters
   Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
-                           z_axis_q0_direction_ * q(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q(1) + M_PI, (0.023 + 0.0555),
+                           z_axis_q0_direction_ * q_open(0) - M_PI_2};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, (0.023 + 0.0555),
                            l1, 0.0};
-  Eigen::Vector4d v_A34 = {fifth_.position, 0.018, (l4 + l5), 0.0};
+  Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
 
-  auto A01 = denavite_hartenberg(directions_[0] * v_A01);
-  auto A12 = denavite_hartenberg(directions_[1] * v_A12);
-  auto A23 = denavite_hartenberg(directions_[2] * v_A23);
+  // Transformations
+  Eigen::Matrix4d A01 = denavite_hartenberg(directions_[0] * v_A01);
+  Eigen::Matrix4d A12 = denavite_hartenberg(directions_[1] * v_A12);
+  Eigen::Matrix4d A23 = denavite_hartenberg(directions_[2] * v_A23);
+  Eigen::Matrix4d A34 = denavite_hartenberg(directions_[3] * v_A34);
 
-  auto A34 = denavite_hartenberg(directions_[3] * v_A34);
+  Eigen::Matrix4d T01 = A01;
+  Eigen::Matrix4d T02 = T01 * A12;
+  Eigen::Matrix4d T03 = T02 * A23;
+  Eigen::Matrix4d T04 = T03 * A34;
 
-  Eigen::Vector4d versor;
-  versor << 0, 0, 0, 1;
-  return (A01 * A12 * A23 * A34 * versor).head(3);
+  // Position of end-effector
+  Eigen::Vector3d p0 = Eigen::Vector3d::Zero();
+  Eigen::Vector3d p1 = T01.block<3,1>(0,3);
+  Eigen::Vector3d p2 = T02.block<3,1>(0,3);
+  Eigen::Vector3d p3 = T03.block<3,1>(0,3);
+  Eigen::Vector3d pe = T04.block<3,1>(0,3);
+
+  // Z axes of each joint
+  Eigen::Vector3d z0 = Eigen::Vector3d::UnitZ(); // base frame
+  Eigen::Vector3d z1 = T01.block<3,1>(0,2);
+  Eigen::Vector3d z2 = T02.block<3,1>(0,2);
+
+  // Jacobian columns
+  Eigen::Matrix<double, 6, 3> J;
+
+  J.block<3,1>(0,0) = z0.cross(pe - p0); // linear
+  J.block<3,1>(3,0) = z0;                // angular
+
+  J.block<3,1>(0,1) = z1.cross(pe - p1);
+  J.block<3,1>(3,1) = z1;
+
+  J.block<3,1>(0,2) = z2.cross(pe - p2);
+  J.block<3,1>(3,2) = z2;
+
+  return J;
 }
 
 // Page 87 of
@@ -163,18 +214,6 @@ void Leg::update_effector_position(double q3) {
       2 * std::atan2(-l2 * s2 + l4 * sg, l1 + l3 - l2 * c2 - l4 * cg);
   const auto th4 =
       2 * std::atan2(l2 * s2 - l3 * sg, l2 * c2 + l4 - l1 - l3 * cg);
-
-  // TODO: Sounds like unused
-  // const auto c3 = std::cos(th3);
-  // const auto s3 = std::sin(th3);
-  // const auto c4 = std::cos(th4);
-  // const auto s4 = std::sin(th4);
-
-  // const auto xe1 = l2 * c2 + l3 * c3;
-  // const auto ye1 = l2 * s2 + l3 * s3;
-
-  // const auto x = xe1 + l5 * c3;
-  // const auto y = ye1 + l5 * s3;
 
   fifth_.position = -passive_side_multiplier_ * (M_PI - th2 + th3);
   forth_.position = passive_side_multiplier_ * (M_PI - th4);

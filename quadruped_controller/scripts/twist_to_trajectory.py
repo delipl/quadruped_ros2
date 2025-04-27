@@ -60,7 +60,8 @@ class PosePublisher(Node):
             dyes = dw * np.array([1, 1, -1, -1])
 
         x0es = 0.26 * np.array([1, 1, -1, -1])
-        y0es = 0.15 * np.array([1, -1, 1, -1])
+        y0es = 0.20 * np.array([1, -1, 1, -1])
+        # y0es = 0.15 * np.array([1, -1, 1, -1])
         self.trajs_x = []
         self.trajs_y = []
         self.trajs_z = []

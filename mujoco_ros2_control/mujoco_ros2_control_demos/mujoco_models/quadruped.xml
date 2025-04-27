@@ -1,0 +1,707 @@
+<mujoco model="quadruped">
+  <option gravity="0 0 -9.81" iterations="50" solver="PGS" timestep="0.001" />
+
+  <compiler angle="radian" autolimits="true" eulerseq="zyx"
+    meshdir="/home/rabin/Documents/quadruped_robot/src/quadruped_robot_description/meshes" />
+
+  <default>
+    <joint armature="0.01" damping="0.01" frictionloss="0.01" limited="true" />
+    <geom conaffinity="15" condim="4" contype="1" friction="0.9 0.2 0.2" solref="0.001 2" />
+    <motor ctrllimited="true" />
+    <equality solref="0.001 2" />
+    <default class="visualgeom">
+      <geom conaffinity="0" condim="1" contype="0" material="visualgeom" />
+    </default>
+  </default>
+
+  <asset>
+    <mesh file="base_link.stl" name="base_link" />
+    <mesh file="first_link.stl" name="first_link" />
+    <mesh file="second_link.stl" name="second_link" />
+    <mesh file="third_link.stl" name="third_link" />
+    <mesh file="fourth_link.stl" name="fourth_link" />
+    <mesh file="fifth_link.stl" name="fifth_link" />
+    <mesh file="sixth_link.stl" name="sixth_link" />
+    <texture builtin="checker" height="100" name="texplane" rgb1=".0 .0 .0" rgb2=".8 .8 .8"
+      type="2d" width="100" />
+    <material name="matplane" reflectance="0." texrepeat="1 1" texture="texplane" texuniform="true" />
+    <material name="visualgeom" rgba="0.5 0.5 0.5 1.0" />
+  </asset>
+
+  <worldbody>
+    <light castshadow="false" diffuse="0.4 0.4 0.4" dir="0 0 -1" directional="true" pos="0 0 5.0"
+      specular="0.1 0.1 0.1" />
+    <light diffuse="0.6 0.6 0.6" dir="0 0 -1" directional="true" pos="0 0 4" specular="0.2 0.2 0.2" />
+    <geom conaffinity="15" condim="3" material="matplane" name="ground" pos="0 0 0" quat="1 0 0 0"
+      size="100 100 0.001" type="plane" />
+    <camera name="fixed" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
+    <camera mode="trackcom" name="track" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
+    <body name="root" pos="0 0 0.5" quat="1 0 0 0">
+      <freejoint name="root" />
+      <site name="imu" pos="0 0 0" size="0.01" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="base_link"
+        quat="0 0 0 1" type="mesh" />
+      <geom mesh="base_link" quat="0 0 0 1" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="base_link"
+        quat="0 0 0 1" type="mesh" />
+      <geom mesh="base_link" quat="0 0 0 1" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        pos="-0.131 0.06 0.06" quat="0 0 -0.707107 0.707107" type="mesh" />
+      <geom mesh="first_link" pos="-0.131 0.06 0.06" quat="0 0 -0.707107 0.707107"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        name="rear_left_first_link_collision" pos="-0.131 0.06 0.06" quat="0 0 -0.707107 0.707107"
+        type="mesh" />
+      <geom mesh="first_link" pos="-0.131 0.06 0.06" quat="0 0 -0.707107 0.707107"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        pos="-0.131 -0.06 0.06" quat="0 0 -0.707107 0.707107" type="mesh" />
+      <geom mesh="first_link" pos="-0.131 -0.06 0.06" quat="0 0 -0.707107 0.707107"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        name="rear_right_first_link_collision" pos="-0.131 -0.06 0.06" quat="0 0 -0.707107 0.707107"
+        type="mesh" />
+      <geom mesh="first_link" pos="-0.131 -0.06 0.06" quat="0 0 -0.707107 0.707107"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        pos="0.131 -0.06 0.06" quat="0.707107 -0.707107 0 0" type="mesh" />
+      <geom mesh="first_link" pos="0.131 -0.06 0.06" quat="0.707107 -0.707107 0 0"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        name="front_right_first_link_collision" pos="0.131 -0.06 0.06" quat="0.707107 -0.707107 0 0"
+        type="mesh" />
+      <geom mesh="first_link" pos="0.131 -0.06 0.06" quat="0.707107 -0.707107 0 0"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        pos="0.131 0.06 0.06" quat="0.707107 -0.707107 0 0" type="mesh" />
+      <geom mesh="first_link" pos="0.131 0.06 0.06" quat="0.707107 -0.707107 0 0"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="first_link"
+        name="front_left_first_link_collision" pos="0.131 0.06 0.06" quat="0.707107 -0.707107 0 0"
+        type="mesh" />
+      <geom mesh="first_link" pos="0.131 0.06 0.06" quat="0.707107 -0.707107 0 0"
+        rgba="0.5 0.5 0.5 1.0" type="mesh" />
+      <!-- <body gravcomp="0" name="rear_left_second_link" pos="-0.162 0.06 0.06"
+        quat="0 0 0.707107 0.707107">
+        <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
+          quat="0.5 0.5 -0.5 0.5" />
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="rear_left_first_joint"
+          pos="0 0 0" range="-3.1416 3.1416" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" name="rear_left_second_link_collision" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <body gravcomp="0" name="rear_left_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
+          <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
+            quat="0.5 0.5 -0.5 0.5" />
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_second_joint"
+            pos="0 0 0" range="1.57 4.71" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" name="rear_left_third_link_collision" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <body gravcomp="0" name="rear_left_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 -1">
+            <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
+              pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_third_joint"
+              pos="0 0 0" range="0.425 5.8" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" name="rear_left_fourth_link_collision" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="rear_left_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
+              <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
+                pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
+                name="rear_left_forth_joint" pos="0 0 0" range="-0.8 -2.9" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" name="rear_left_fifth_link_collision" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 -0.0115" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_left_chain_close_a_link_collision" pos="0.105 0 -0.0115"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <body gravcomp="0" name="rear_left_chain_close_a_link" pos="0.21 0 -0.0115"
+                quat="0 0 0 1" />
+            </body>
+          </body>
+          <body gravcomp="0" name="rear_left_sixth_link" pos="-0.125 0 0.058">
+            <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
+              quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="rear_left_fifth_joint"
+              pos="0 0 0" range="-3.14 3.14" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" name="rear_left_sixth_link_collision" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="rear_left_foot_link" pos="0.21 0 0.0115">
+              <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
+                quat="0.5 0.5 0.5 0.5" />
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_foot_joint"
+                pos="0 0 0" range="-3.14 3.14" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_left_foot_link_collision" size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_left_chain_close_b_link_collision" pos="0.105 0 0"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body gravcomp="0" name="rear_right_second_link" pos="-0.162 -0.06 0.06"
+        quat="0 0 -0.707107 0.707107">
+        <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
+          quat="0.5 0.5 -0.5 0.5" />
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="rear_right_first_joint"
+          pos="0 0 0" range="-3.1416 3.1416" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" name="rear_right_second_link_collision" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <body gravcomp="0" name="rear_right_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
+          <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
+            quat="0.5 0.5 -0.5 0.5" />
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_second_joint"
+            pos="0 0 0" range="1.57 4.71" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" name="rear_right_third_link_collision" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <body gravcomp="0" name="rear_right_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 1">
+            <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
+              pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_third_joint"
+              pos="0 0 0" range="0.425 5.8" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" name="rear_right_fourth_link_collision" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="rear_right_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
+              <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
+                pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
+                name="rear_right_forth_joint" pos="0 0 0" range="-0.8 -2.9" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" name="rear_right_fifth_link_collision" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 -0.0115" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_right_chain_close_a_link_collision" pos="0.105 0 -0.0115"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <body gravcomp="0" name="rear_right_chain_close_a_link" pos="0.21 0 -0.0115"
+                quat="0 0 0 1" />
+            </body>
+          </body>
+          <body gravcomp="0" name="rear_right_sixth_link" pos="-0.125 0 0.058">
+            <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
+              quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="rear_right_fifth_joint"
+              pos="0 0 0" range="-3.14 3.14" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" name="rear_right_sixth_link_collision" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="rear_right_foot_link" pos="0.21 0 0.0115">
+              <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
+                quat="0.5 0.5 0.5 0.5" />
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_foot_joint"
+                pos="0 0 0" range="-3.14 3.14" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_right_foot_link_collision" size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="rear_right_chain_close_b_link_collision" pos="0.105 0 0"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+            </body>
+          </body>
+        </body>
+      </body>
+      <body gravcomp="0" name="front_right_second_link" pos="0.162 -0.06 0.06"
+        quat="0.707107 0.707107 0 0">
+        <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
+          quat="0.5 0.5 -0.5 0.5" />
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="front_right_first_joint"
+          pos="0 0 0" range="-3.1416 3.1416" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" name="front_right_second_link_collision" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <body gravcomp="0" name="front_right_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
+          <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
+            quat="0.5 0.5 -0.5 0.5" />
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_second_joint"
+            pos="0 0 0" range="1.57 4.71" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" name="front_right_third_link_collision" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <body gravcomp="0" name="front_right_fourth_link" pos="0 0 0.0555"
+            quat="6.28319e-06 0 0 -1">
+            <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
+              pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_third_joint"
+              pos="0 0 0" range="0.425 5.8" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" name="front_right_fourth_link_collision" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="front_right_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
+              <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
+                pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
+                name="front_right_forth_joint" pos="0 0 0" range="-0.8 -2.9" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" name="front_right_fifth_link_collision" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 -0.0115" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_right_chain_close_a_link_collision" pos="0.105 0 -0.0115"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <body gravcomp="0" name="front_right_chain_close_a_link" pos="0.21 0 -0.0115"
+                quat="0 0 0 1" />
+            </body>
+          </body>
+          <body gravcomp="0" name="front_right_sixth_link" pos="-0.125 0 0.058">
+            <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
+              quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="front_right_fifth_joint"
+              pos="0 0 0" range="-3.14 3.14" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" name="front_right_sixth_link_collision" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="front_right_foot_link" pos="0.21 0 0.0115">
+              <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
+                quat="0.5 0.5 0.5 0.5" />
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_foot_joint"
+                pos="0 0 0" range="-3.14 3.14" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_right_foot_link_collision" size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_right_chain_close_b_link_collision" pos="0.105 0 0"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+            </body>
+          </body>
+        </body>
+      </body> -->
+      <body gravcomp="0" name="front_left_second_link" pos="0.162 0.06 0.06"
+        quat="0.707107 -0.707107 0 0">
+        <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
+          quat="0.5 0.5 -0.5 0.5" />
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="front_left_first_joint"
+          pos="0 0 0" range="-3.1416 3.1416" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+          mesh="second_link" name="front_left_second_link_collision" type="mesh" />
+        <geom mesh="second_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+        <body gravcomp="0" name="front_left_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
+          <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
+            quat="0.5 0.5 -0.5 0.5" />
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_second_joint"
+            pos="0 0 0" range="1.57 4.71" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+            mesh="third_link" name="front_left_third_link_collision" type="mesh" />
+          <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+          <body gravcomp="0" name="front_left_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 1">
+            <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
+              pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_third_joint"
+              pos="0 0 0" range="0.425 5.8" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="fourth_link" name="front_left_fourth_link_collision" type="mesh" />
+            <geom mesh="fourth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="front_left_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
+              <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
+                pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
+                name="front_left_forth_joint" pos="0 0 0" range="-0.8 -2.9" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                mesh="fifth_link" name="front_left_fifth_link_collision" type="mesh" />
+              <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 -0.0115" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_left_chain_close_a_link_collision" pos="0.105 0 -0.0115"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 -0.0115" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <body gravcomp="0" name="front_left_chain_close_a_link" pos="0.21 0 -0.0115"
+                quat="0 0 0 1" />
+            </body>
+          </body>
+          <body gravcomp="0" name="front_left_sixth_link" pos="-0.125 0 0.058">
+            <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
+              quat="0 0.707107 0 0.707107" />
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="front_left_fifth_joint"
+              pos="0 0 0" range="-3.14 3.14" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+              mesh="sixth_link" name="front_left_sixth_link_collision" type="mesh" />
+            <geom mesh="sixth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
+            <body gravcomp="0" name="front_left_foot_link" pos="0.21 0 0.0115">
+              <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
+                quat="0.5 0.5 0.5 0.5" />
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_foot_joint"
+                pos="0 0 0" range="-3.14 3.14" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_left_foot_link_collision" size="5e-05 5e-05 5e-05" type="box" />
+              <geom rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                pos="0.105 0 0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+              <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
+                name="front_left_chain_close_b_link_collision" pos="0.105 0 0"
+                size="5e-05 5e-05 5e-05" type="box" />
+              <geom pos="0.105 0 0" rgba="0.5 0.5 0.5 1.0" size="5e-05 5e-05 5e-05" type="box" />
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_first_joint"
+      name="rear_left_first_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_second_joint"
+      name="rear_left_second_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_third_joint"
+      name="rear_left_third_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_first_joint"
+      name="rear_right_first_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_second_joint"
+      name="rear_right_second_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_third_joint"
+      name="rear_right_third_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_first_joint"
+      name="front_right_first_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_second_joint"
+      name="front_right_second_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_third_joint"
+      name="front_right_third_joint" /> -->
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_first_joint"
+      name="front_left_first_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_second_joint"
+      name="front_left_second_joint" />
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_third_joint"
+      name="front_left_third_joint" />
+  </actuator>
+
+  <sensor>
+    <!-- <actuatorpos actuator="rear_left_first_joint" name="rear_left_first_joint_p" />
+    <actuatorvel actuator="rear_left_first_joint" name="rear_left_first_joint_v" />
+    <actuatorfrc actuator="rear_left_first_joint" name="rear_left_first_joint_f" noise="0.001" />
+    <actuatorpos actuator="rear_left_second_joint" name="rear_left_second_joint_p" />
+    <actuatorvel actuator="rear_left_second_joint" name="rear_left_second_joint_v" />
+    <actuatorfrc actuator="rear_left_second_joint" name="rear_left_second_joint_f" noise="0.001" />
+    <actuatorpos actuator="rear_left_third_joint" name="rear_left_third_joint_p" />
+    <actuatorvel actuator="rear_left_third_joint" name="rear_left_third_joint_v" />
+    <actuatorfrc actuator="rear_left_third_joint" name="rear_left_third_joint_f" noise="0.001" />
+    <actuatorpos actuator="rear_right_first_joint" name="rear_right_first_joint_p" />
+    <actuatorvel actuator="rear_right_first_joint" name="rear_right_first_joint_v" />
+    <actuatorfrc actuator="rear_right_first_joint" name="rear_right_first_joint_f" noise="0.001" />
+    <actuatorpos actuator="rear_right_second_joint" name="rear_right_second_joint_p" />
+    <actuatorvel actuator="rear_right_second_joint" name="rear_right_second_joint_v" />
+    <actuatorfrc actuator="rear_right_second_joint" name="rear_right_second_joint_f" noise="0.001" />
+    <actuatorpos actuator="rear_right_third_joint" name="rear_right_third_joint_p" />
+    <actuatorvel actuator="rear_right_third_joint" name="rear_right_third_joint_v" />
+    <actuatorfrc actuator="rear_right_third_joint" name="rear_right_third_joint_f" noise="0.001" />
+    <actuatorpos actuator="front_right_first_joint" name="front_right_first_joint_p" />
+    <actuatorvel actuator="front_right_first_joint" name="front_right_first_joint_v" />
+    <actuatorfrc actuator="front_right_first_joint" name="front_right_first_joint_f" noise="0.001" />
+    <actuatorpos actuator="front_right_second_joint" name="front_right_second_joint_p" />
+    <actuatorvel actuator="front_right_second_joint" name="front_right_second_joint_v" />
+    <actuatorfrc actuator="front_right_second_joint" name="front_right_second_joint_f" noise="0.001" />
+    <actuatorpos actuator="front_right_third_joint" name="front_right_third_joint_p" />
+    <actuatorvel actuator="front_right_third_joint" name="front_right_third_joint_v" />
+    <actuatorfrc actuator="front_right_third_joint" name="front_right_third_joint_f" noise="0.001" /> -->
+    <actuatorpos actuator="front_left_first_joint" name="front_left_first_joint_p" />
+    <actuatorvel actuator="front_left_first_joint" name="front_left_first_joint_v" />
+    <actuatorfrc actuator="front_left_first_joint" name="front_left_first_joint_f" noise="0.001" />
+    <actuatorpos actuator="front_left_second_joint" name="front_left_second_joint_p" />
+    <actuatorvel actuator="front_left_second_joint" name="front_left_second_joint_v" />
+    <actuatorfrc actuator="front_left_second_joint" name="front_left_second_joint_f" noise="0.001" />
+    <actuatorpos actuator="front_left_third_joint" name="front_left_third_joint_p" />
+    <actuatorvel actuator="front_left_third_joint" name="front_left_third_joint_v" />
+    <actuatorfrc actuator="front_left_third_joint" name="front_left_third_joint_f" noise="0.001" />
+    <framequat name="orientation" noise="0.001" objname="imu" objtype="site" />
+    <gyro cutoff="34.9" name="angular-velocity" noise="0.005" site="imu" />
+  </sensor>
+  <contact>
+    <exclude name="exclude_front_left_second_link_root" body1="front_left_second_link" body2="root" />
+    <exclude name="exclude_front_left_second_link_front_left_third_link"
+      body1="front_left_second_link" body2="front_left_third_link" />
+    <exclude name="exclude_front_left_second_link_front_left_fourth_link"
+      body1="front_left_second_link" body2="front_left_fourth_link" />
+    <exclude name="exclude_front_left_second_link_front_left_fifth_link"
+      body1="front_left_second_link" body2="front_left_fifth_link" />
+    <exclude name="exclude_front_left_second_link_front_left_sixth_link"
+      body1="front_left_second_link" body2="front_left_sixth_link" />
+    <exclude name="exclude_front_left_third_link_root" body1="front_left_third_link" body2="root" />
+    <exclude name="exclude_front_left_third_link_front_left_second_link"
+      body1="front_left_third_link" body2="front_left_second_link" />
+    <exclude name="exclude_front_left_third_link_front_left_fourth_link"
+      body1="front_left_third_link" body2="front_left_fourth_link" />
+    <exclude name="exclude_front_left_third_link_front_left_fifth_link"
+      body1="front_left_third_link" body2="front_left_fifth_link" />
+    <exclude name="exclude_front_left_third_link_front_left_sixth_link"
+      body1="front_left_third_link" body2="front_left_sixth_link" />
+    <exclude name="exclude_front_left_fourth_link_root" body1="front_left_fourth_link" body2="root" />
+    <exclude name="exclude_front_left_fourth_link_front_left_second_link"
+      body1="front_left_fourth_link" body2="front_left_second_link" />
+    <exclude name="exclude_front_left_fourth_link_front_left_third_link"
+      body1="front_left_fourth_link" body2="front_left_third_link" />
+    <exclude name="exclude_front_left_fourth_link_front_left_fifth_link"
+      body1="front_left_fourth_link" body2="front_left_fifth_link" />
+    <exclude name="exclude_front_left_fourth_link_front_left_sixth_link"
+      body1="front_left_fourth_link" body2="front_left_sixth_link" />
+    <exclude name="exclude_front_left_fifth_link_root" body1="front_left_fifth_link" body2="root" />
+    <exclude name="exclude_front_left_fifth_link_front_left_second_link"
+      body1="front_left_fifth_link" body2="front_left_second_link" />
+    <exclude name="exclude_front_left_fifth_link_front_left_third_link"
+      body1="front_left_fifth_link" body2="front_left_third_link" />
+    <exclude name="exclude_front_left_fifth_link_front_left_fourth_link"
+      body1="front_left_fifth_link" body2="front_left_fourth_link" />
+    <exclude name="exclude_front_left_fifth_link_front_left_sixth_link"
+      body1="front_left_fifth_link" body2="front_left_sixth_link" />
+    <exclude name="exclude_front_left_sixth_link_root" body1="front_left_sixth_link" body2="root" />
+    <exclude name="exclude_front_left_sixth_link_front_left_second_link"
+      body1="front_left_sixth_link" body2="front_left_second_link" />
+    <exclude name="exclude_front_left_sixth_link_front_left_third_link"
+      body1="front_left_sixth_link" body2="front_left_third_link" />
+    <exclude name="exclude_front_left_sixth_link_front_left_fourth_link"
+      body1="front_left_sixth_link" body2="front_left_fourth_link" />
+    <exclude name="exclude_front_left_sixth_link_front_left_fifth_link"
+      body1="front_left_sixth_link" body2="front_left_fifth_link" />
+    <!-- <exclude name="exclude_front_right_second_link_root" body1="front_right_second_link"
+      body2="root" />
+    <exclude name="exclude_front_right_second_link_front_right_third_link"
+      body1="front_right_second_link" body2="front_right_third_link" />
+    <exclude name="exclude_front_right_second_link_front_right_fourth_link"
+      body1="front_right_second_link" body2="front_right_fourth_link" />
+    <exclude name="exclude_front_right_second_link_front_right_fifth_link"
+      body1="front_right_second_link" body2="front_right_fifth_link" />
+    <exclude name="exclude_front_right_second_link_front_right_sixth_link"
+      body1="front_right_second_link" body2="front_right_sixth_link" />
+    <exclude name="exclude_front_right_third_link_root" body1="front_right_third_link" body2="root" />
+    <exclude name="exclude_front_right_third_link_front_right_second_link"
+      body1="front_right_third_link" body2="front_right_second_link" />
+    <exclude name="exclude_front_right_third_link_front_right_fourth_link"
+      body1="front_right_third_link" body2="front_right_fourth_link" />
+    <exclude name="exclude_front_right_third_link_front_right_fifth_link"
+      body1="front_right_third_link" body2="front_right_fifth_link" />
+    <exclude name="exclude_front_right_third_link_front_right_sixth_link"
+      body1="front_right_third_link" body2="front_right_sixth_link" />
+    <exclude name="exclude_front_right_fourth_link_root" body1="front_right_fourth_link"
+      body2="root" />
+    <exclude name="exclude_front_right_fourth_link_front_right_second_link"
+      body1="front_right_fourth_link" body2="front_right_second_link" />
+    <exclude name="exclude_front_right_fourth_link_front_right_third_link"
+      body1="front_right_fourth_link" body2="front_right_third_link" />
+    <exclude name="exclude_front_right_fourth_link_front_right_fifth_link"
+      body1="front_right_fourth_link" body2="front_right_fifth_link" />
+    <exclude name="exclude_front_right_fourth_link_front_right_sixth_link"
+      body1="front_right_fourth_link" body2="front_right_sixth_link" />
+    <exclude name="exclude_front_right_fifth_link_root" body1="front_right_fifth_link" body2="root" />
+    <exclude name="exclude_front_right_fifth_link_front_right_second_link"
+      body1="front_right_fifth_link" body2="front_right_second_link" />
+    <exclude name="exclude_front_right_fifth_link_front_right_third_link"
+      body1="front_right_fifth_link" body2="front_right_third_link" />
+    <exclude name="exclude_front_right_fifth_link_front_right_fourth_link"
+      body1="front_right_fifth_link" body2="front_right_fourth_link" />
+    <exclude name="exclude_front_right_fifth_link_front_right_sixth_link"
+      body1="front_right_fifth_link" body2="front_right_sixth_link" />
+    <exclude name="exclude_front_right_sixth_link_root" body1="front_right_sixth_link" body2="root" />
+    <exclude name="exclude_front_right_sixth_link_front_right_second_link"
+      body1="front_right_sixth_link" body2="front_right_second_link" />
+    <exclude name="exclude_front_right_sixth_link_front_right_third_link"
+      body1="front_right_sixth_link" body2="front_right_third_link" />
+    <exclude name="exclude_front_right_sixth_link_front_right_fourth_link"
+      body1="front_right_sixth_link" body2="front_right_fourth_link" />
+    <exclude name="exclude_front_right_sixth_link_front_right_fifth_link"
+      body1="front_right_sixth_link" body2="front_right_fifth_link" />
+    <exclude name="exclude_rear_left_second_link_root" body1="rear_left_second_link" body2="root" />
+    <exclude name="exclude_rear_left_second_link_rear_left_third_link" body1="rear_left_second_link"
+      body2="rear_left_third_link" />
+    <exclude name="exclude_rear_left_second_link_rear_left_fourth_link"
+      body1="rear_left_second_link" body2="rear_left_fourth_link" />
+    <exclude name="exclude_rear_left_second_link_rear_left_fifth_link" body1="rear_left_second_link"
+      body2="rear_left_fifth_link" />
+    <exclude name="exclude_rear_left_second_link_rear_left_sixth_link" body1="rear_left_second_link"
+      body2="rear_left_sixth_link" />
+    <exclude name="exclude_rear_left_third_link_root" body1="rear_left_third_link" body2="root" />
+    <exclude name="exclude_rear_left_third_link_rear_left_second_link" body1="rear_left_third_link"
+      body2="rear_left_second_link" />
+    <exclude name="exclude_rear_left_third_link_rear_left_fourth_link" body1="rear_left_third_link"
+      body2="rear_left_fourth_link" />
+    <exclude name="exclude_rear_left_third_link_rear_left_fifth_link" body1="rear_left_third_link"
+      body2="rear_left_fifth_link" />
+    <exclude name="exclude_rear_left_third_link_rear_left_sixth_link" body1="rear_left_third_link"
+      body2="rear_left_sixth_link" />
+    <exclude name="exclude_rear_left_fourth_link_root" body1="rear_left_fourth_link" body2="root" />
+    <exclude name="exclude_rear_left_fourth_link_rear_left_second_link"
+      body1="rear_left_fourth_link" body2="rear_left_second_link" />
+    <exclude name="exclude_rear_left_fourth_link_rear_left_third_link" body1="rear_left_fourth_link"
+      body2="rear_left_third_link" />
+    <exclude name="exclude_rear_left_fourth_link_rear_left_fifth_link" body1="rear_left_fourth_link"
+      body2="rear_left_fifth_link" />
+    <exclude name="exclude_rear_left_fourth_link_rear_left_sixth_link" body1="rear_left_fourth_link"
+      body2="rear_left_sixth_link" />
+    <exclude name="exclude_rear_left_fifth_link_root" body1="rear_left_fifth_link" body2="root" />
+    <exclude name="exclude_rear_left_fifth_link_rear_left_second_link" body1="rear_left_fifth_link"
+      body2="rear_left_second_link" />
+    <exclude name="exclude_rear_left_fifth_link_rear_left_third_link" body1="rear_left_fifth_link"
+      body2="rear_left_third_link" />
+    <exclude name="exclude_rear_left_fifth_link_rear_left_fourth_link" body1="rear_left_fifth_link"
+      body2="rear_left_fourth_link" />
+    <exclude name="exclude_rear_left_fifth_link_rear_left_sixth_link" body1="rear_left_fifth_link"
+      body2="rear_left_sixth_link" />
+    <exclude name="exclude_rear_left_sixth_link_root" body1="rear_left_sixth_link" body2="root" />
+    <exclude name="exclude_rear_left_sixth_link_rear_left_second_link" body1="rear_left_sixth_link"
+      body2="rear_left_second_link" />
+    <exclude name="exclude_rear_left_sixth_link_rear_left_third_link" body1="rear_left_sixth_link"
+      body2="rear_left_third_link" />
+    <exclude name="exclude_rear_left_sixth_link_rear_left_fourth_link" body1="rear_left_sixth_link"
+      body2="rear_left_fourth_link" />
+    <exclude name="exclude_rear_left_sixth_link_rear_left_fifth_link" body1="rear_left_sixth_link"
+      body2="rear_left_fifth_link" />
+    <exclude name="exclude_rear_right_second_link_root" body1="rear_right_second_link" body2="root" />
+    <exclude name="exclude_rear_right_second_link_rear_right_third_link"
+      body1="rear_right_second_link" body2="rear_right_third_link" />
+    <exclude name="exclude_rear_right_second_link_rear_right_fourth_link"
+      body1="rear_right_second_link" body2="rear_right_fourth_link" />
+    <exclude name="exclude_rear_right_second_link_rear_right_fifth_link"
+      body1="rear_right_second_link" body2="rear_right_fifth_link" />
+    <exclude name="exclude_rear_right_second_link_rear_right_sixth_link"
+      body1="rear_right_second_link" body2="rear_right_sixth_link" />
+    <exclude name="exclude_rear_right_third_link_root" body1="rear_right_third_link" body2="root" />
+    <exclude name="exclude_rear_right_third_link_rear_right_second_link"
+      body1="rear_right_third_link" body2="rear_right_second_link" />
+    <exclude name="exclude_rear_right_third_link_rear_right_fourth_link"
+      body1="rear_right_third_link" body2="rear_right_fourth_link" />
+    <exclude name="exclude_rear_right_third_link_rear_right_fifth_link"
+      body1="rear_right_third_link" body2="rear_right_fifth_link" />
+    <exclude name="exclude_rear_right_third_link_rear_right_sixth_link"
+      body1="rear_right_third_link" body2="rear_right_sixth_link" />
+    <exclude name="exclude_rear_right_fourth_link_root" body1="rear_right_fourth_link" body2="root" />
+    <exclude name="exclude_rear_right_fourth_link_rear_right_second_link"
+      body1="rear_right_fourth_link" body2="rear_right_second_link" />
+    <exclude name="exclude_rear_right_fourth_link_rear_right_third_link"
+      body1="rear_right_fourth_link" body2="rear_right_third_link" />
+    <exclude name="exclude_rear_right_fourth_link_rear_right_fifth_link"
+      body1="rear_right_fourth_link" body2="rear_right_fifth_link" />
+    <exclude name="exclude_rear_right_fourth_link_rear_right_sixth_link"
+      body1="rear_right_fourth_link" body2="rear_right_sixth_link" />
+    <exclude name="exclude_rear_right_fifth_link_root" body1="rear_right_fifth_link" body2="root" />
+    <exclude name="exclude_rear_right_fifth_link_rear_right_second_link"
+      body1="rear_right_fifth_link" body2="rear_right_second_link" />
+    <exclude name="exclude_rear_right_fifth_link_rear_right_third_link"
+      body1="rear_right_fifth_link" body2="rear_right_third_link" />
+    <exclude name="exclude_rear_right_fifth_link_rear_right_fourth_link"
+      body1="rear_right_fifth_link" body2="rear_right_fourth_link" />
+    <exclude name="exclude_rear_right_fifth_link_rear_right_sixth_link"
+      body1="rear_right_fifth_link" body2="rear_right_sixth_link" />
+    <exclude name="exclude_rear_right_sixth_link_root" body1="rear_right_sixth_link" body2="root" />
+    <exclude name="exclude_rear_right_sixth_link_rear_right_second_link"
+      body1="rear_right_sixth_link" body2="rear_right_second_link" />
+    <exclude name="exclude_rear_right_sixth_link_rear_right_third_link"
+      body1="rear_right_sixth_link" body2="rear_right_third_link" />
+    <exclude name="exclude_rear_right_sixth_link_rear_right_fourth_link"
+      body1="rear_right_sixth_link" body2="rear_right_fourth_link" />
+    <exclude name="exclude_rear_right_sixth_link_rear_right_fifth_link"
+      body1="rear_right_sixth_link" body2="rear_right_fifth_link" /> -->
+  </contact>
+
+  <equality>
+    <weld body1="root" body2="world" name="equality_sconstssraint_front_right" />
+    <connect anchor="0.0 0 0" body1="front_left_foot_link" body2="front_left_chain_close_a_link"
+      active="true" name="equality_sconstraint_front_left" />
+    <!-- <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
+      active="true" name="equality_sconstraint_front_right" />
+    <connect anchor="0.0 0 0" body1="rear_left_foot_link" body2="rear_left_chain_close_a_link"
+      active="true" name="equality_sconstraint_rear_left" />
+    <connect anchor="0.0 0 0" body1="rear_right_foot_link" body2="rear_right_chain_close_a_link"
+      active="true" name="equality_sconstraint_rear_right" /> -->
+  </equality>
+</mujoco>

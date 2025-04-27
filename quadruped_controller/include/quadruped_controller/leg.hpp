@@ -56,6 +56,10 @@ public:
 
   double get_distance_to_effector() const { return distance_to_effector_; }
 
+  std::string get_name() const { return name_; }
+  Eigen::Matrix4d kinematics(const Eigen::Vector3d &q);
+  Eigen::Matrix<double, 6, 3>  jacobian(const Eigen::Vector3d &q_open);
+
 private:
   const std::string name_;
 

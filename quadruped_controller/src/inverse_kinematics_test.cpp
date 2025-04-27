@@ -114,7 +114,7 @@ private:
             legs_names[i] + "_foot_state", foot_position, red));
       }
       marker_array_.markers.push_back(create_acceleration_marker(
-          legs_names[i] + "_foot_force", foot_position, light_red));
+          legs_names[i] + "_foot_force", foot_position, leg, light_red));
 
       auto leg_active_joints = leg.get_active_joint_states();
 
@@ -128,6 +128,14 @@ private:
         active_joint_state.effort.push_back(joint_state.effort);
 
         point.positions.push_back(joint_state.position);
+
+        if (std::isnan(joint_state.position)) {
+          RCLCPP_ERROR_STREAM(get_logger(), "Leg " << leg.get_name()
+                                                   << " is in the singularity. Skipping "
+                                                      "this the control.");
+                                                      
+          return;
+        }
         pos_control_.data.push_back(joint_state.position);
       }
     }
@@ -239,7 +247,8 @@ private:
 
   visualization_msgs::msg::Marker
   create_acceleration_marker(const std::string &ns,
-                             const Eigen::Vector3d &foot_position,
+    const Eigen::Vector3d &foot_position,
+                             quadruped_controller::Leg &leg,
                              std_msgs::msg::ColorRGBA color) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_link";
@@ -252,10 +261,18 @@ private:
     marker.action = visualization_msgs::msg::Marker::ADD;
 
     std::uint8_t contact_legs_number = 4;
-    Eigen::Vector3d acceleration;
-    acceleration << 0.0, 0.0, -9.81 / 4;
 
-    auto leg_force = foot_position.cross(acceleration);
+    auto q = leg.get_active_joint_states();
+    Eigen::Vector3d q_open = {q[0].position, q[1].position, leg.get_passive_knee_joints().second.position};
+
+    auto J = leg.jacobian(q_open);
+
+    auto J_inv = J.completeOrthogonalDecomposition().pseudoInverse();
+    auto J_inv_transpose = J_inv.transpose();
+
+    Eigen::Vector3d torque_diff = {0.0, 0.0, 9.81};
+
+    auto leg_force = J_inv_transpose * torque_diff;
 
     marker.pose.position.x = foot_position.x();
     marker.pose.position.y = foot_position.y();
