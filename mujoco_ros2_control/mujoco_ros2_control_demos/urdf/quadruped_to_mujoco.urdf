@@ -54,9 +54,9 @@
     <origin rpy=" 0.0 3.141592653589793 0.0" xyz="0.0 0.0 0.1"/>
   </joint>
   <!-- Define the thigh -->
-  <link name="rear_left_leg_base_link"/>
+  <!-- <link name="rear_left_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="rear_left_base_to_leg_joint" type="fixed">
+  <!-- <joint name="rear_left_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_left_leg_base_link"/>
     <origin rpy="0 0 3.141592653589793" xyz="-0.131 0.06 0.06"/>
@@ -200,7 +200,7 @@
       <inertia ixx="7.942708333333334e-06" ixy="0.0" ixz="0.0" iyy="0.0002616927083333333" iyz="0.0" izz="0.00026708333333333337"/>
     </inertial>
   </link>
-  <joint name="rear_left_forth_joint" type="revolute">
+  <joint name="rear_left_fourth_joint" type="revolute">
     <parent link="rear_left_fourth_link"/>
     <child link="rear_left_fifth_link"/>
     <origin rpy="0.0 0.0 3.141592653589793" xyz="0.125 0.0 0.0255"/>
@@ -320,11 +320,11 @@
     <child link="rear_left_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
-  <link name="rear_right_leg_base_link"/>
+  <!-- <link name="rear_right_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="rear_right_base_to_leg_joint" type="fixed">
+  <!-- <joint name="rear_right_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_right_leg_base_link"/>
     <origin rpy="0 0 3.141592653589793" xyz="-0.131 -0.06 0.06"/>
@@ -468,7 +468,7 @@
       <inertia ixx="7.942708333333334e-06" ixy="0.0" ixz="0.0" iyy="0.0002616927083333333" iyz="0.0" izz="0.00026708333333333337"/>
     </inertial>
   </link>
-  <joint name="rear_right_forth_joint" type="revolute">
+  <joint name="rear_right_fourth_joint" type="revolute">
     <parent link="rear_right_fourth_link"/>
     <child link="rear_right_fifth_link"/>
     <origin rpy="0.0 0.0 3.141592653589793" xyz="0.125 0.0 0.0255"/>
@@ -588,11 +588,11 @@
     <child link="rear_right_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
-  <link name="front_right_leg_base_link"/>
+  <!-- <link name="front_right_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="front_right_base_to_leg_joint" type="fixed">
+  <!-- <joint name="front_right_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="front_right_leg_base_link"/>
     <origin rpy="0 0 0" xyz="0.131 -0.06 0.06"/>
@@ -736,7 +736,7 @@
       <inertia ixx="7.942708333333334e-06" ixy="0.0" ixz="0.0" iyy="0.0002616927083333333" iyz="0.0" izz="0.00026708333333333337"/>
     </inertial>
   </link>
-  <joint name="front_right_forth_joint" type="revolute">
+  <joint name="front_right_fourth_joint" type="revolute">
     <parent link="front_right_fourth_link"/>
     <child link="front_right_fifth_link"/>
     <origin rpy="0.0 0.0 3.141592653589793" xyz="0.125 0.0 0.0255"/>
@@ -856,7 +856,7 @@
     <child link="front_right_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
   <link name="front_left_leg_base_link"/>
   <!-- Define the joints -->
@@ -1004,7 +1004,7 @@
       <inertia ixx="7.942708333333334e-06" ixy="0.0" ixz="0.0" iyy="0.0002616927083333333" iyz="0.0" izz="0.00026708333333333337"/>
     </inertial>
   </link>
-  <joint name="front_left_forth_joint" type="revolute">
+  <joint name="front_left_fourth_joint" type="revolute">
     <parent link="front_left_fourth_link"/>
     <child link="front_left_fifth_link"/>
     <origin rpy="0.0 0.0 3.141592653589793" xyz="0.125 0.0 0.0255"/>
@@ -1217,6 +1217,28 @@
       <param name="dq_windup">0.1</param>
       <param name="ddq_kp">7.5</param>
       <param name="ddq_kd">1.0</param>
+    </joint>
+
+    <joint name="front_left_fourth_joint">
+      <state_interface name="position">
+      </state_interface>
+      <state_interface name="velocity">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="effort">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+    </joint>
+
+    <joint name="front_left_fifth_joint">
+      <state_interface name="position">
+      </state_interface>
+      <state_interface name="velocity">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="effort">
+        <param name="initial_value">0.0</param>
+      </state_interface>
     </joint>
     
     <!-- <joint name="front_right_first_joint">

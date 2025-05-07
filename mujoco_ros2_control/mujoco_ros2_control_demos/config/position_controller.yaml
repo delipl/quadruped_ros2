@@ -44,4 +44,5 @@ imu_sensor_broadcaster:
 joint_state_broadcaster:
   ros__parameters:
     publish_rate: 50.0
+    
 
