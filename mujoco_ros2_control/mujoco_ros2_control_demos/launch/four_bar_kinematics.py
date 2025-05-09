@@ -1,5 +1,5 @@
 import numpy as np
-
+#  Młynarski T., Listwan A., Pazderski E.: Teoria maszyn i mechanizmów. Cz. III. Analiza kinematyczna mechanizmów. ZGPK, Kraków 1992.
 def analyze_fourbar(theta2, omega_2, epsilon_2, l1, l2, l3, l4):
     # Krok 2: długość BD
     BD = np.sqrt(l1**2 + l2**2 - 2 * l1 * l2 * np.cos(theta2))
@@ -10,16 +10,16 @@ def analyze_fourbar(theta2, omega_2, epsilon_2, l1, l2, l3, l4):
     # Krok 4: theta3
     numerator_theta3 = l4 * np.sin(gamma) - l2 * np.sin(theta2)
     denominator_theta3 = l1 + l3 - l2 * np.cos(theta2) - l4 * np.cos(gamma)
-    theta3 = 2 * np.arctan(numerator_theta3 / denominator_theta3)
+    theta3 = 2 * np.arctan2(numerator_theta3, denominator_theta3)
 
     # Krok 5: theta4
     numerator_theta4 = l2 * np.sin(theta2) - l3 * np.sin(gamma)
     denominator_theta4 = l2 * np.cos(theta2) + l4 - l1 - l3 * np.cos(gamma)
-    theta4 = 2 * np.arctan(numerator_theta4 / denominator_theta4)
+    theta4 = 2 * np.arctan2(numerator_theta4,  denominator_theta4)
 
     # omega3 and omega4
     omega_3 = (
-        omega_2 * (l2 * np.sin(theta4 := theta4) - theta2) / (l3 * np.sin(gamma))
+        omega_2 * (l2 * np.sin(theta4 - theta2)) / (l3 * np.sin(gamma))
     )
     omega_4 = omega_2 * (l2 * np.sin(theta3 - theta2)) / (l4 * np.sin(gamma))
 
@@ -44,7 +44,6 @@ def analyze_fourbar(theta2, omega_2, epsilon_2, l1, l2, l3, l4):
     epsilon_4 = numerator_e4 / denominator_e4
 
     return {
-        "theta1": np.pi,
         "theta2": theta2,
         "theta3": theta3,
         "theta4": theta4,

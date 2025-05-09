@@ -54,9 +54,9 @@
     <origin rpy=" 0.0 3.141592653589793 0.0" xyz="0.0 0.0 0.1"/>
   </joint>
   <!-- Define the thigh -->
-  <link name="rear_left_leg_base_link"/>
+  <!-- <link name="rear_left_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="rear_left_base_to_leg_joint" type="fixed">
+  <!-- <joint name="rear_left_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_left_leg_base_link"/>
     <origin rpy="0 0 3.141592653589793" xyz="-0.131 0.06 0.06"/>
@@ -145,7 +145,7 @@
     <child link="rear_left_third_link"/>
     <origin rpy="0.0 0.0 3.141592653589793 " xyz="0.064 0.0 0.023"/>
     <axis xyz="0 0 1"/>
-    <limit effort="100.0" lower="0.0" upper="4.71" velocity="0.1"/>
+    <limit effort="100.0" lower="1.57" upper="4.71" velocity="0.1"/>
     <dynamics damping="0.1" friction="0.1"/>
   </joint>
   <link name="rear_left_fourth_link">
@@ -320,11 +320,11 @@
     <child link="rear_left_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
-  <link name="rear_right_leg_base_link"/>
+  <!-- <link name="rear_right_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="rear_right_base_to_leg_joint" type="fixed">
+  <!-- <joint name="rear_right_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="rear_right_leg_base_link"/>
     <origin rpy="0 0 3.141592653589793" xyz="-0.131 -0.06 0.06"/>
@@ -588,11 +588,11 @@
     <child link="rear_right_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
-  <link name="front_right_leg_base_link"/>
+  <!-- <link name="front_right_leg_base_link"/> -->
   <!-- Define the joints -->
-  <joint name="front_right_base_to_leg_joint" type="fixed">
+  <!-- <joint name="front_right_base_to_leg_joint" type="fixed">
     <parent link="base_link"/>
     <child link="front_right_leg_base_link"/>
     <origin rpy="0 0 0" xyz="0.131 -0.06 0.06"/>
@@ -681,7 +681,7 @@
     <child link="front_right_third_link"/>
     <origin rpy="0.0 0.0 3.141592653589793 " xyz="0.064 0.0 0.023"/>
     <axis xyz="0 0 1"/>
-    <limit effort="100.0"  lower="0" upper="4.71"  velocity="0.1"/>
+    <limit effort="100.0" lower="1.57" upper="4.71" velocity="0.1"/>
     <dynamics damping="0.1" friction="0.1"/>
   </joint>
   <link name="front_right_fourth_link">
@@ -856,7 +856,7 @@
     <child link="front_right_chain_close_b_link"/>
     <origin rpy="0.0 0.0 0.0" xyz="0.105 0.0 0.0"/>
     <axis xyz="0 0 1"/>
-  </joint>
+  </joint> -->
   <!-- Define the thigh -->
   <link name="front_left_leg_base_link"/>
   <!-- Define the joints -->
@@ -1237,9 +1237,9 @@
       </state_interface>
       <state_interface name="effort">
       </state_interface>
-    </joint> -->
-
-    <joint name="front_right_first_joint">
+    </joint>
+     -->
+    <!-- <joint name="front_right_first_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
         <param name="initial_value">0.0</param>
@@ -1454,7 +1454,7 @@
       <param name="dq_windup">0.1</param>
       <param name="ddq_kp">7.5</param>
       <param name="ddq_kd">1.0</param>
-    </joint>
+    </joint> -->
     <!-- <xacro:ros2_control_passive_point name="rear_left_fourth_joint" />
     <xacro:ros2_control_passive_point name="rear_left_fifth_joint" /> -->
   </ros2_control>

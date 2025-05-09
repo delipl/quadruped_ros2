@@ -81,7 +81,7 @@
         type="mesh" />
       <geom mesh="first_link" pos="0.131 0.06 0.06" quat="0.707107 -0.707107 0 0"
         rgba="0.5 0.5 0.5 1.0" type="mesh" />
-      <body gravcomp="0" name="rear_left_second_link" pos="-0.162 0.06 0.06"
+      <!-- <body gravcomp="0" name="rear_left_second_link" pos="-0.162 0.06 0.06"
         quat="0 0 0.707107 0.707107">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
           quat="0.5 0.5 -0.5 0.5" />
@@ -97,7 +97,7 @@
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
           <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_second_joint"
-            pos="0 0 0" range="0.0 4.71" />
+            pos="0 0 0" range="1.57 4.71" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
           <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
@@ -275,7 +275,7 @@
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
           <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_second_joint"
-            pos="0 0 0" range="0.0 4.71" />
+            pos="0 0 0" range="1.57 4.71" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
           <geom mesh="third_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
@@ -348,7 +348,7 @@
             </body>
           </body>
         </body>
-      </body>
+      </body> -->
       <body gravcomp="0" name="front_left_second_link" pos="0.162 0.06 0.06"
         quat="0.707107 -0.707107 0 0">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
@@ -442,7 +442,7 @@
   </worldbody>
 
   <actuator>
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_first_joint"
+    <!-- <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_first_joint"
       name="rear_left_first_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_second_joint"
       name="rear_left_second_joint" />
@@ -459,7 +459,7 @@
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_second_joint"
       name="front_right_second_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_third_joint"
-      name="front_right_third_joint" />
+      name="front_right_third_joint" /> -->
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_first_joint"
       name="front_left_first_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_second_joint"
@@ -469,7 +469,7 @@
   </actuator>
 
   <sensor>
-    <actuatorpos actuator="rear_left_first_joint" name="rear_left_first_joint_p" />
+    <!-- <actuatorpos actuator="rear_left_first_joint" name="rear_left_first_joint_p" />
     <actuatorvel actuator="rear_left_first_joint" name="rear_left_first_joint_v" />
     <actuatorfrc actuator="rear_left_first_joint" name="rear_left_first_joint_f" noise="0.001" />
     <actuatorpos actuator="rear_left_second_joint" name="rear_left_second_joint_p" />
@@ -495,7 +495,7 @@
     <actuatorfrc actuator="front_right_second_joint" name="front_right_second_joint_f" noise="0.001" />
     <actuatorpos actuator="front_right_third_joint" name="front_right_third_joint_p" />
     <actuatorvel actuator="front_right_third_joint" name="front_right_third_joint_v" />
-    <actuatorfrc actuator="front_right_third_joint" name="front_right_third_joint_f" noise="0.001" />
+    <actuatorfrc actuator="front_right_third_joint" name="front_right_third_joint_f" noise="0.001" /> -->
     <actuatorpos actuator="front_left_first_joint" name="front_left_first_joint_p" />
     <actuatorvel actuator="front_left_first_joint" name="front_left_first_joint_v" />
     <actuatorfrc actuator="front_left_first_joint" name="front_left_first_joint_f" noise="0.001" />
@@ -555,7 +555,7 @@
       body1="front_left_sixth_link" body2="front_left_fourth_link" />
     <exclude name="exclude_front_left_sixth_link_front_left_fifth_link"
       body1="front_left_sixth_link" body2="front_left_fifth_link" />
-    <exclude name="exclude_front_right_second_link_root" body1="front_right_second_link"
+    <!-- <exclude name="exclude_front_right_second_link_root" body1="front_right_second_link"
       body2="root" />
     <exclude name="exclude_front_right_second_link_front_right_third_link"
       body1="front_right_second_link" body2="front_right_third_link" />
@@ -691,18 +691,18 @@
     <exclude name="exclude_rear_right_sixth_link_rear_right_fourth_link"
       body1="rear_right_sixth_link" body2="rear_right_fourth_link" />
     <exclude name="exclude_rear_right_sixth_link_rear_right_fifth_link"
-      body1="rear_right_sixth_link" body2="rear_right_fifth_link" />
+      body1="rear_right_sixth_link" body2="rear_right_fifth_link" /> -->
   </contact>
 
   <equality>
     <!-- <weld body1="root" body2="world" name="equality_sconstssraint_front_right" /> -->
     <connect anchor="0.0 0 0" body1="front_left_foot_link" body2="front_left_chain_close_a_link"
       active="true" name="equality_sconstraint_front_left" />
-   <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
+    <!-- <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
       active="true" name="equality_sconstraint_front_right" />
     <connect anchor="0.0 0 0" body1="rear_left_foot_link" body2="rear_left_chain_close_a_link"
       active="true" name="equality_sconstraint_rear_left" />
     <connect anchor="0.0 0 0" body1="rear_right_foot_link" body2="rear_right_chain_close_a_link"
-      active="true" name="equality_sconstraint_rear_right" /> 
+      active="true" name="equality_sconstraint_rear_right" /> -->
   </equality>
 </mujoco>
