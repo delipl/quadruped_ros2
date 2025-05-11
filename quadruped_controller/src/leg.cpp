@@ -27,7 +27,7 @@ Leg::Leg(const std::string &name) : name_(name) {
 
     directions_[0].diagonal() << -1, 1, 1, 1;
     directions_[1].diagonal() << 1, 1, 1, 1;
-    directions_[2].diagonal() << 1, -1, -1, 1;
+    directions_[2].diagonal() << -1, -1, -1, 1;
     directions_[3].diagonal() << 1, -1, 1, 1;
 
     inv_directions_ << 1, -1, 1;
@@ -40,7 +40,7 @@ Leg::Leg(const std::string &name) : name_(name) {
 
     directions_[0].diagonal() << 1, 1, 1, 1;
     directions_[1].diagonal() << -1, 1, -1, 1;
-    directions_[2].diagonal() << 1, 1, 1, -1;
+    directions_[2].diagonal() << -1, 1, 1, -1;
     directions_[3].diagonal() << -1, 1, -1, 1;
 
     inv_directions_ << -1, 1, -1;
@@ -66,7 +66,7 @@ Leg::Leg(const std::string &name) : name_(name) {
   second_.name = name + "_second_joint";
   third_.name = name + "_third_joint";
 
-  forth_.name = name + "_forth_joint";
+  forth_.name = name + "_fourth_joint";
   fifth_.name = name + "_fifth_joint";
 }
 
@@ -127,8 +127,8 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
   Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, (0.023 + 0.0555),
-                           l1, 0.0};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI,
+                           (0.023 + 0.0555), l1, 0.0};
   Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
 
   auto A01 = denavite_hartenberg(directions_[0] * v_A01);
@@ -155,8 +155,8 @@ Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
   Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, (0.023 + 0.0555),
-                           l1, 0.0};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI,
+                           (0.023 + 0.0555), l1, 0.0};
   Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
 
   // Transformations
@@ -172,27 +172,27 @@ Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
 
   // Position of end-effector
   Eigen::Vector3d p0 = Eigen::Vector3d::Zero();
-  Eigen::Vector3d p1 = T01.block<3,1>(0,3);
-  Eigen::Vector3d p2 = T02.block<3,1>(0,3);
-  Eigen::Vector3d p3 = T03.block<3,1>(0,3);
-  Eigen::Vector3d pe = T04.block<3,1>(0,3);
+  Eigen::Vector3d p1 = T01.block<3, 1>(0, 3);
+  Eigen::Vector3d p2 = T02.block<3, 1>(0, 3);
+  Eigen::Vector3d p3 = T03.block<3, 1>(0, 3);
+  Eigen::Vector3d pe = T04.block<3, 1>(0, 3);
 
   // Z axes of each joint
   Eigen::Vector3d z0 = Eigen::Vector3d::UnitZ(); // base frame
-  Eigen::Vector3d z1 = T01.block<3,1>(0,2);
-  Eigen::Vector3d z2 = T02.block<3,1>(0,2);
+  Eigen::Vector3d z1 = T01.block<3, 1>(0, 2);
+  Eigen::Vector3d z2 = T02.block<3, 1>(0, 2);
 
   // Jacobian columns
   Eigen::Matrix<double, 6, 3> J;
 
-  J.block<3,1>(0,0) = z0.cross(pe - p0); // linear
-  J.block<3,1>(3,0) = z0;                // angular
+  J.block<3, 1>(0, 0) = z0.cross(pe - p0); // linear
+  J.block<3, 1>(3, 0) = z0;                // angular
 
-  J.block<3,1>(0,1) = z1.cross(pe - p1);
-  J.block<3,1>(3,1) = z1;
+  J.block<3, 1>(0, 1) = z1.cross(pe - p1);
+  J.block<3, 1>(3, 1) = z1;
 
-  J.block<3,1>(0,2) = z2.cross(pe - p2);
-  J.block<3,1>(3,2) = z2;
+  J.block<3, 1>(0, 2) = z2.cross(pe - p2);
+  J.block<3, 1>(3, 2) = z2;
 
   return J;
 }
@@ -200,8 +200,9 @@ Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
 // Page 87 of
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
 void Leg::update_effector_position(double q3) {
-  const double th2 =
-      M_PI - passive_side_multiplier_ * q3 + third_joint_gear_correction_;
+  const double th2 = M_PI -
+                     passive_side_multiplier_ * z_axis_q2_direction_ * q3 +
+                     third_joint_gear_correction_;
   const auto c2 = std::cos(th2);
   const auto s2 = std::sin(th2);
 

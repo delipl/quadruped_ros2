@@ -34,7 +34,6 @@ public:
 
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-
     for (const auto &leg_name : legs_names) {
       quadruped_controller::Leg leg(leg_name);
       legs.push_back(leg);
@@ -130,10 +129,11 @@ private:
         point.positions.push_back(joint_state.position);
 
         if (std::isnan(joint_state.position)) {
-          RCLCPP_ERROR_STREAM(get_logger(), "Leg " << leg.get_name()
-                                                   << " is in the singularity. Skipping "
-                                                      "this the control.");
-                                                      
+          RCLCPP_ERROR_STREAM(get_logger(),
+                              "Leg " << leg.get_name()
+                                     << " is in the singularity. Skipping "
+                                        "this the control.");
+
           return;
         }
         pos_control_.data.push_back(joint_state.position);
@@ -146,7 +146,8 @@ private:
 
     if (std::all_of(in_contact.begin(), in_contact.end(),
                     [](bool v) { return v; })) {
-      std::iter_swap(vis_foot_positions.begin() + 2, vis_foot_positions.begin() + 3);
+      std::iter_swap(vis_foot_positions.begin() + 2,
+                     vis_foot_positions.begin() + 3);
       std::iter_swap(vis_in_contact.begin() + 2, vis_in_contact.begin() + 3);
       vis_foot_positions.push_back(vis_foot_positions[0]);
       vis_in_contact.push_back(vis_in_contact[0]);
@@ -245,11 +246,9 @@ private:
     return marker;
   }
 
-  visualization_msgs::msg::Marker
-  create_acceleration_marker(const std::string &ns,
-    const Eigen::Vector3d &foot_position,
-                             quadruped_controller::Leg &leg,
-                             std_msgs::msg::ColorRGBA color) {
+  visualization_msgs::msg::Marker create_acceleration_marker(
+      const std::string &ns, const Eigen::Vector3d &foot_position,
+      quadruped_controller::Leg &leg, std_msgs::msg::ColorRGBA color) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_link";
     marker.header.stamp = now();
@@ -263,7 +262,8 @@ private:
     std::uint8_t contact_legs_number = 4;
 
     auto q = leg.get_active_joint_states();
-    Eigen::Vector3d q_open = {q[0].position, q[1].position, leg.get_passive_knee_joints().second.position};
+    Eigen::Vector3d q_open = {q[0].position, q[1].position,
+                              leg.get_passive_knee_joints().second.position};
 
     auto J = leg.jacobian(q_open);
 
