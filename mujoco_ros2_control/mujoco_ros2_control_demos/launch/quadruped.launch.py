@@ -87,6 +87,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}],
     )
 
+    
     # rviz_node = Node(
     #     package="rviz2",
     #     executable="rviz2",
@@ -112,7 +113,7 @@ def generate_launch_description():
             ),
             node_mujoco_ros2_control,
             node_robot_state_publisher,
-            # passive_joint_state_broadcaster
+            passive_joint_state_broadcaster
             # rviz_node,
         ]
     )

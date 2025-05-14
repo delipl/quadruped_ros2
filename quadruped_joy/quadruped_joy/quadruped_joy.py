@@ -62,9 +62,9 @@ class QuadrupedJoy(Node):
 
         self.factor_map = {
             "position_factor": {
-                "x": -0.1,
-                "y": 0.1,
-                "z": -0.1,
+                "x": -0.05,
+                "y": 0.05,
+                "z": -0.05,
             },
             "orientation_factor": {
                 "r": -0.3,

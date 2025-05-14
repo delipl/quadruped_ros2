@@ -3,7 +3,9 @@ from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
 import numpy as np
-
+from std_srvs.srv import Empty
+import time
+import copy
 
 class ImpedanceControllerNode(Node):
     def __init__(self):
@@ -12,6 +14,7 @@ class ImpedanceControllerNode(Node):
         self.joint_state_sub = self.create_subscription(
             JointState, "/joint_states", self.joint_state_callback, 10
         )
+
 
         self.effort_pub = self.create_publisher(
             Float64MultiArray, "/effort_controllers/commands", 10
@@ -31,36 +34,61 @@ class ImpedanceControllerNode(Node):
             self.position_callback,
             10,
         )
-        # self.ready_kp = [100.0, 10.5, 10.5] * 4
+        
+        self.create_service(Empty, "/impedance_controller/stand_up", self.stand_up_callback)
+        self.ready_kp = [30.0, 10.5, 20.5] * 4
+        self.ready_kd = [1.0, 1.0, 1.0] * 4
+        self.ready_max_torque = [20.0, 5.0, 5.0] * 4
+
+        # welded
+        # self.ready_kp = [10.0, 10.5, 10.5] * 4
         # self.ready_kd = [1.0, 1.0, 1.0] * 4
         # self.ready_max_torque = [20.0, 20.0, 20.0] * 4
 
-        self.ready_kp = [10.0, 10.5, 10.5] * 4
-        self.ready_kd = [1.0, 1.0, 1.0] * 4
-        self.ready_max_torque = [20.0, 20.0, 20.0] * 4
+        self.stand_up_kp = [70.0, 100.5, 100.5] * 4
+        self.stand_up_kd = [1.0, 1.8, 1.8] * 4
+        self.stand_up_max_torque = [50.0, 30.0, 30.0] * 4
 
-        # self.stand_up_kp = [70.0, 70.5, 70.5] * 4
-        # self.stand_up_kd = [2.0, 2.0, 2.0] * 4
+        self.stand_up_kp = [100.0, 20.5, 20.5] * 4
+        self.stand_up_kd = [1.8, 1.0, 1.0] * 4
+        self.stand_up_max_torque = [30.0, 5.0, 5.0] * 4
+
+        # welded
+        # self.stand_up_kp = [10.0, 10.5, 10.5] * 4
+        # self.stand_up_kd = [1.0, 1.0, 1.0] * 4
         # self.stand_up_max_torque = [40.0, 20.0, 20.0] * 4
 
-        self.stand_up_kp = [10.0, 10.5, 10.5] * 4
-        self.stand_up_kd = [1.0, 1.0, 1.0] * 4
-        self.stand_up_max_torque = [40.0, 20.0, 20.0] * 4
+        # self.walk_kp = [100.0, 30.5, 30.5] * 4
+        # self.walk_kd = [1.4, 1.0, 1.0] * 4
+        # self.walk_max_torque = [40.0, 10.0, 25.0] * 4
 
-        # self.walk_kp = [20.0, 70.5, 70.5] * 4
-        # self.walk_kd = [1.0, 2.0, 2.0] * 4
+        self.walk_kp = [60.0, 60.5, 60.5] * 4
+        self.walk_kd = [1.3, 1.2, 1.2] * 4
+        self.walk_max_torque = [50.0, 30.0, 50.0] * 4
+
+        # welded
+        # self.walk_kp = [20.0, 10.0, 10.0] * 4
+        # self.walk_kd = [0.6, 0.8, 0.8] * 4
         # self.walk_max_torque = [20.0, 20.0, 20.0] * 4
-
-        self.walk_kp = [10.0, 10.5, 10.5] * 4
-        self.walk_kd = [1.0, 1.0, 1.0] * 4
-        self.walk_max_torque = [20.0, 20.0, 20.0] * 4
 
         self.kp = [100.0, 10.5, 10.5] * 4
         self.kd = [1.0, 1.0, 1.0] * 4
         self.max_torque = [20.0, 20.0, 20.0] * 4
 
-        self.start_positions = [0.0, 0.40, 1.4] * 4
-        self.stand_up_positions = [0.0, 0.8, 5.0] * 4
+        self.start_positions = [0.0, -1.0, 1.4] * 4
+        self.stand_up_positions = [0.0, -1.0, 1.4] * 4
+
+        first_start = 0.8
+        self.start_positions[0] = first_start
+        self.start_positions[3] = -first_start
+        self.start_positions[6] = -first_start
+        self.start_positions[9] = first_start
+
+        second_start = -1.0
+        self.start_positions[1] = second_start
+        self.start_positions[4] = second_start
+        self.start_positions[7] = second_start
+        self.start_positions[10] = second_start
 
         self.ready = False
         self.stand_up = False
@@ -71,6 +99,20 @@ class ImpedanceControllerNode(Node):
         self.target_position = None
         self.position_error = None
         self.velocity_error = None
+
+        self.feed_forward_torque = [0] * 12
+
+        self.checking_time = time.time()
+        
+    def stand_up_callback(self, request, response):
+        self.stand_up = False
+        self.ready = False
+        self.target_position = None
+        self.get_logger().info("Stand up sequence reset.")
+        
+        return response
+        
+        
 
     def position_callback(self, msg):
         if self.target_position is None or self.stand_up is False:
@@ -121,10 +163,14 @@ class ImpedanceControllerNode(Node):
         msg.name = ordered_names
         return msg
 
-    def is_in_position(self, positions, target_positions):
+    def is_in_position(
+        self, positions, target_positions, epsilon=0.1, stabilize_time=0.0
+    ):
         for i in range(len(positions)):
-            if abs(positions[i] - target_positions[i]) > 0.2:
+            if abs(positions[i] - target_positions[i]) > epsilon:
+
                 return False
+
         return True
 
     def ready_sequence(self, msg):
@@ -134,10 +180,20 @@ class ImpedanceControllerNode(Node):
             self.kd = self.ready_kd
             self.max_torque = self.ready_max_torque
 
-        if self.is_in_position(msg.position, self.start_positions) and not self.ready:
+        if (
+            self.is_in_position(msg.position, self.start_positions, 0.3)
+            and not self.ready
+            and time.time() - self.checking_time > 1.0
+        ):
+
             self.get_logger().info("Ready to stand up...")
             self.ready = True
-            self.target_position = self.stand_up_positions
+            self.target_position = copy.copy(self.stand_up_positions)
+        elif self.is_in_position(msg.position, self.start_positions, 0.3):
+            self.get_logger().info("Stabilizing...")
+
+        elif not self.ready:
+            self.checking_time = time.time()
 
     def stand_up_sequence(self, msg):
         if not self.stand_up and self.ready:
@@ -148,9 +204,10 @@ class ImpedanceControllerNode(Node):
             self.max_torque = self.stand_up_max_torque
 
         if (
-            self.is_in_position(msg.position, self.stand_up_positions)
+            self.is_in_position(msg.position, self.stand_up_positions, 0.2)
             and self.ready
             and not self.stand_up
+            and time.time() - self.checking_time > 1.0
         ):
             self.get_logger().info("Stood up.")
             self.stand_up = True
@@ -158,6 +215,19 @@ class ImpedanceControllerNode(Node):
             self.kp = self.walk_kp
             self.kd = self.walk_kd
             self.max_torque = self.walk_max_torque
+
+            self.get_logger().info(f"Standing torque: {self.feed_forward_torque}")
+
+        elif (
+            self.ready
+            and not self.stand_up
+            and self.is_in_position(msg.position, self.stand_up_positions, 0.3)
+        ):
+            self.get_logger().info("Stabilizing...")
+
+
+        elif self.ready and not self.stand_up:
+            self.checking_time = time.time()
 
     def first_sequence(self, msg):
         if self.target_position is None:
@@ -167,7 +237,7 @@ class ImpedanceControllerNode(Node):
             self.velocity_error = [0.0] * len(msg.position)
 
             for i in range(len(msg.position)):
-                self.target_position[i] = self.start_positions[i]
+                self.target_position[i] = copy.copy(self.start_positions[i])
 
     def joint_state_callback(self, msg):
         if len(msg.position) != 12:
@@ -194,7 +264,9 @@ class ImpedanceControllerNode(Node):
             position_error.data[i] = e_q
             velocity_error.data[i] = e_v
 
-            torque.data[i] = self.kp[i] * e_q + self.kd[i] * e_v
+            torque.data[i] = (
+                self.kp[i] * e_q + self.kd[i] * e_v + self.feed_forward_torque[i]
+            )
             torque.data[i] = np.clip(
                 torque.data[i], -self.max_torque[i], self.max_torque[i]
             )

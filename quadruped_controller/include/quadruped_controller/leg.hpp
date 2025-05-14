@@ -69,6 +69,14 @@ private:
   const double l4 = LOWER_BONE_LENGTH;
   const double l5 = FOOT_LENGTH;
 
+  const double d0 = 0.06;
+  const double a0 = 0.06;
+  const double a1 = 0.223;
+  const double d2 = 0.0898;
+  const double a2 = l1;
+  const double a3 = l4;
+
+
   std::array<Eigen::DiagonalMatrix<double, 4>, 4> directions_;
   Eigen::Vector3d inv_directions_;
   double z_axis_q0_direction_ = 1.0;

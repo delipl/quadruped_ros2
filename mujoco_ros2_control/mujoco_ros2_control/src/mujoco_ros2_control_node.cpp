@@ -25,22 +25,14 @@
 #include "mujoco_ros2_control/mujoco_rendering.hpp"
 #include "mujoco_ros2_control/mujoco_ros2_control.hpp"
 
+#include <std_srvs/srv/empty.hpp>
+
 // MuJoCo data structures
 mjModel *mujoco_model = nullptr;
 mjData *mujoco_data = nullptr;
 
-// main function
-int main(int argc, const char **argv)
+void load_model(const std::string &model_path)
 {
-  rclcpp::init(argc, argv);
-  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared(
-    "mujoco_ros2_control_node",
-    rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
-
-  RCLCPP_INFO_STREAM(node->get_logger(), "Initializing mujoco_ros2_control node...");
-  auto model_path = node->get_parameter("mujoco_model_path").as_string();
-
-  // load and compile model
   char error[1000] = "Could not load binary model";
   if (
     std::strlen(model_path.c_str()) > 4 &&
@@ -56,6 +48,23 @@ int main(int argc, const char **argv)
   {
     mju_error("Load model error: %s", error);
   }
+}
+
+
+// main function
+
+int i = 0;
+int main(int argc, const char **argv)
+{
+  rclcpp::init(argc, argv);
+  std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared(
+    "mujoco_ros2_control_node",
+    rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
+
+  RCLCPP_INFO_STREAM(node->get_logger(), "Initializing mujoco_ros2_control node...");
+  auto model_path = node->get_parameter("mujoco_model_path").as_string();
+
+  load_model(model_path);
 
   RCLCPP_INFO_STREAM(node->get_logger(), "Mujoco model has been successfully loaded !");
   // make data
@@ -81,6 +90,8 @@ int main(int argc, const char **argv)
 
   // run main loop, target real-time simulation and 60 fps rendering with cameras around 6 hz
   mjtNum last_cam_update = mujoco_data->time;
+  int body_id = mj_name2id(mujoco_model, mjOBJ_BODY, "base_link");
+
   while (rclcpp::ok() && !rendering->is_close_flag_raised())
   {
     // advance interactive simulation for 1/60 sec
@@ -94,13 +105,27 @@ int main(int argc, const char **argv)
     }
     rendering->update();
 
+
     // Updating cameras at ~6 Hz
     // TODO(eholum): Break control and rendering into separate processes
     if (simstart - last_cam_update > 1.0 / 6.0)
     {
       cameras->update(mujoco_model, mujoco_data);
       last_cam_update = simstart;
+      mjtNum* pos = mujoco_data->xpos + 3 * body_id;
+
+      printf("Base position: x=%.3f y=%.3f z=%.3f\n", pos[0], pos[1], pos[2]);
     }
+
+    // i++;
+    // if( i > 60)
+    // {
+    //   RCLCPP_INFO_STREAM(node->get_logger(), "Mujoco restarting...");
+    //   mj_deleteData(mujoco_data);
+    //   mj_deleteModel(mujoco_model);
+    //   load_model(model_path);
+      
+    // }
   }
 
   rendering->close();

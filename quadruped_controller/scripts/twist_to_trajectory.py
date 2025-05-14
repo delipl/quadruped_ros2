@@ -2,11 +2,11 @@
 import rclpy
 from rclpy.node import Node
 from quadruped_msgs.msg import QuadrupedControl
-from std_msgs.msg import  Bool
+from std_msgs.msg import Bool
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Float64MultiArray
 
 import numpy as np
-
 
 
 class PosePublisher(Node):
@@ -17,13 +17,20 @@ class PosePublisher(Node):
         self.publisher_ = self.create_publisher(
             QuadrupedControl, "/control_quadruped", 10
         )
+        
+        self.traj_pub = self.create_publisher(
+            Float64MultiArray, "/legs_trajectory", 10
+        )
 
         self.subscription = self.create_subscription(
             Twist, "/cmd_vel", self.cmd_vel_callback, 10
         )
 
         # Częstotliwość publikacji co sekundę
-        timer_period = 0.01
+        self.gait_period = 0.04
+        self.timer_period = self.gait_period / 100.0
+        
+        # timer_period = 0.01
         # timer_period = 0.1
         self.i = 0
         self.trajs_x = []
@@ -31,36 +38,45 @@ class PosePublisher(Node):
         self.trajs_z = []
         self.trajs_contact = []
 
-        ticks = 30
+        ticks = 200
         self.generate_trot(ticks, 0.0, 0.0, 0.0, 0.0)
 
-        self.timer = self.create_timer(timer_period, self.publish_pose)
+        self.timer = self.create_timer(self.timer_period, self.publish_pose)
 
     def cmd_vel_callback(self, msg):
         if msg.linear.x == 0 and msg.linear.y == 0 and msg.angular.z == 0:
-            ticks = 30
+            ticks = 200
             dx = 0.0
             dy = 0.0
             dw = 0.0
             self.generate_trot(ticks, dx, dy, dw, 0.0)
             return
 
-        ticks = 30
-        dx = msg.linear.x  * 0.5
-        dy = msg.linear.y * 0.1
-        dw = msg.angular.z *0.1
-        self.generate_trot(ticks, dx, dy, dw, 0.185)
+        ticks = 200
+        dx = msg.linear.x * 0.5
+        dy = msg.linear.y * 0.25
+        dw = msg.angular.z
+        self.generate_trot(ticks, dx, dy, dw, 0.10)
 
     def generate_trot(self, ticks, dx, dy, dw, dz):
         ises = [0, 1, 1, 0]
         dxes = dx * np.array([1, 1, 1, 1])
         dyes = dy * np.array([1, 1, 1, 1])
-        if dw != 0:
-            self.get_logger().info(f"dw: {dw}")
-            dyes = dw * np.array([1, 1, -1, -1])
 
         x0es = 0.26 * np.array([1, 1, -1, -1])
-        y0es = 0.20 * np.array([1, -1, 1, -1])
+        y0es = 0.148 * np.array([1, -1, 1, -1])
+        if dw != 0:
+            self.get_logger().info(f"dw: {dw}")
+           
+            for i in range(4):
+                r = np.sqrt(y0es[i]**2 + x0es[i]**2)
+                phi = np.arctan2(y0es[i], x0es[i])
+  
+                dwx = r * np.cos(phi + dw)
+                dwy = r * np.sin(phi + dw)
+                dxes[i] += dwx - x0es[i]
+                dyes[i] += dwy - y0es[i]
+
         # y0es = 0.15 * np.array([1, -1, 1, -1])
         self.trajs_x = []
         self.trajs_y = []
@@ -81,9 +97,9 @@ class PosePublisher(Node):
             index += 1
 
     def generate_leg_trajectory(
-        self, ticks, phase=0, periods=3, x0=0.3, y0=0.148, dx=0.0, dy=0.0, dz=0.15
+        self, ticks, phase=0, periods=3, x0=0.3, y0=0.16, dx=0.0, dy=0.0, dz=0.0
     ):
-        z0 = -0.20
+        z0 = -0.15
         x = np.linspace(x0, x0 + dx, ticks)
         xb = np.linspace(x0 + dx, x0, periods * ticks)
         y = np.linspace(y0, y0 + dy, ticks)
@@ -96,11 +112,11 @@ class PosePublisher(Node):
         if dz == 0:
             dminz = 0.0
         else:
-            dminz = 0.01
+            dminz = 0.00
 
         x = np.concatenate((x, xb)) - dx / 2
         y = np.concatenate((y, yb)) - dy / 2
-        z = np.concatenate((z, z0 -dminz * np.sin(sb)))
+        z = np.concatenate((z, z0 - dminz * np.sin(sb)))
 
         cut = ticks * phase
         traj_x = np.hstack((x[cut:], x[:cut]))
@@ -147,12 +163,20 @@ class PosePublisher(Node):
         msg.rr_foot_position.z = self.trajs_z[3][self.i]
         msg.rr_foot_in_contact = rr
 
+        trajs_msg = Float64MultiArray()
+        trajs_msg.data = [0.0] * 12
+        for i in range(4):
+            trajs_msg.data[i * 3] = self.trajs_x[i][self.i]
+            trajs_msg.data[i * 3 + 1] = self.trajs_y[i][self.i]
+            trajs_msg.data[i * 3 + 2] = self.trajs_z[i][self.i]
+
         if self.i == len(self.trajs_x[0]) - 1:
             self.i = 0
         else:
             self.i += 1
 
         self.publisher_.publish(msg)
+        self.traj_pub.publish(trajs_msg)
 
 
 def main(args=None):

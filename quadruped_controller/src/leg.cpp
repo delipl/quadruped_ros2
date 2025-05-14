@@ -124,12 +124,12 @@ Eigen::Matrix4d Leg::denavite_hartenberg(const Eigen::Vector4d &v) {
 Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
   // TODO: warning this pi will be negative in another side
 
-  Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
-  Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
+  Eigen::Vector4d v_A01 = {M_PI_2, d0, a0, 0.0};
+  Eigen::Vector4d v_A12 = {M_PI_2, 0.0, a1,
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI,
-                           (0.023 + 0.0555), l1, 0.0};
-  Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, d2, a2,
+                           0.0};
+  Eigen::Vector4d v_A34 = {q_open(2), 0.0, a3, 0.0};
 
   auto A01 = denavite_hartenberg(directions_[0] * v_A01);
   auto A12 = denavite_hartenberg(directions_[1] * v_A12);
@@ -140,8 +140,6 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
 }
 
 Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
-  const auto d1 = 0.1;
-
   update_effector_position(q(2));
 
   Eigen::Vector3d q_open = {q(0), q(1), fifth_.position};
@@ -150,14 +148,15 @@ Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
 
   return K.block<3, 1>(0, 3);
 }
+
 Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
   // DH parameters
-  Eigen::Vector4d v_A01 = {M_PI_2, 0.06, 0.06, 0.0};
-  Eigen::Vector4d v_A12 = {M_PI_2, 0.0, (0.031 + 0.064 + 0.131),
+  Eigen::Vector4d v_A01 = {M_PI_2, d0, a0, 0.0};
+  Eigen::Vector4d v_A12 = {M_PI_2, 0.0, a1,
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI,
-                           (0.023 + 0.0555), l1, 0.0};
-  Eigen::Vector4d v_A34 = {q_open(2), 0.018, (l4 + l5), 0.0};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, d2, a2,
+                           0.0};
+  Eigen::Vector4d v_A34 = {q_open(2), 0.0, a3, 0.0};
 
   // Transformations
   Eigen::Matrix4d A01 = denavite_hartenberg(directions_[0] * v_A01);
@@ -228,30 +227,27 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   //  -0.0105???
 
   //  Move to the legs base frame
-  x_foot << x.x() - inv_directions_.x() * (0.131 - 0.0105),
-      x.y() - inv_directions_.y() * (0.06), x.z() - 0.06 + 0.015;
+  x_foot << x.x() - inv_directions_.x() * a1, x.y() - inv_directions_.y() * a0,
+      x.z() - d0;
 
   // 0.0125???
-  const double xe =
-      inv_directions_.x() * x_foot(0) -
-      inv_directions_.z() * inv_directions_.x() * (0.031 + 0.064 + 0.0125);
-  const double ye = x_foot(1);
-  double ze_on_xz = x_foot.z();
+  const double xe = inv_directions_.x() * x_foot(0);
+  // -      inv_directions_.z() * inv_directions_.x() * (0.031 + 0.064 +
+  // 0.0125);
 
-  q(0) = z_axis_q0_direction_ * (std::atan2(ze_on_xz, ye) - (M_PI + M_PI_2));
-  q(0) -= q(0) / std::abs(q(0)) * 2 * M_PI;
+  const double ye = x_foot.y();
+  const double ze_b = x_foot.z();
+
+  const double d_e = std::sqrt(ze_b * ze_b + ye * ye);
+
+  double phi_0 = std::acos(d2 / d_e);
+  double kappa = std::atan2(x_foot.z(), inv_directions_.y() * x_foot.y());
+
+  q(0) = inv_directions_.y() * z_axis_q0_direction_ * (phi_0 + kappa);
+
 
   // Fix y and z for 1, 2 joints
-  double ze = ze_on_xz;
-
-  double e1 = std::sqrt(ye * ye + ze * ze);
-
-  // value 0.0875 has to be measured
-  double tran_angle = (std::acos(0.0875 / e1));
-  double effector_angle = std::atan2(std::abs(ze), inv_directions_.y() * ye);
-  q(0) = z_axis_q0_direction_ * inv_directions_.y() *
-         (tran_angle - effector_angle);
-  ze = -e1;
+  double ze = -std::sqrt(d_e * d_e - d2 * d2);
 
   const double l_BE = l4 + l5;
   const double l_AB = l1;
@@ -267,17 +263,10 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const double delta = T * T - 4 * V * W;
   const double sqrt_delta = std::sqrt(delta);
 
-  double dir = -1.0;
-
   double e_dist = std::sqrt(xe * xe + ze * ze);
 
   const double phi = std::acos((l_AB * l_AB + l_BE * l_BE - e_dist * e_dist) /
                                (2 * l_AB * l_BE));
-
-  // FIXME WHAT IS THIS ANGLE????
-  if (phi > 0.795) {
-    dir = 1.0;
-  }
 
   // FIXME: REAR LEGS INV
   const double yb1 = (-T + sqrt_delta) / (2 * V);
@@ -290,8 +279,8 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
 
   Eigen::Vector2d b = {xb, yb};
   auto theta_b = std::atan2(b(1), b(0));
-  const auto q1_dir = inv_directions_.z() * z_axis_q1_direction_;
-  q(1) = q1_dir * (-theta_b);
+  const auto q1_dir = 1.0;
+  q(1) = (-theta_b);
 
   // Check if angle is correct
   const auto ze_based_on_q1 =
@@ -320,8 +309,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const auto alpha = std::acos((c * c + l2 * l2 - l3 * l3) / (2 * c * l2));
   const auto beta = std::acos((c * c + l1 * l1 - l4 * l4) / (2 * c * l1));
 
-  q(2) = z_axis_q2_direction_ *
-         (-beta - alpha + M_PI + third_joint_gear_correction_);
+  q(2) = (-beta - alpha + M_PI + third_joint_gear_correction_);
 
   // Normalize angles
 

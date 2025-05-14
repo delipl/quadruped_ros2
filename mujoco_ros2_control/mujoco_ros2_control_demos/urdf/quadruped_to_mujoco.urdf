@@ -1269,7 +1269,7 @@
     <joint name="front_right_second_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">0.4</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
@@ -1293,7 +1293,7 @@
     <joint name="front_right_third_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">2.82</param>
+        <param name="initial_value">1.42</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
@@ -1341,7 +1341,7 @@
     <joint name="rear_right_second_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">0.4</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
@@ -1365,7 +1365,7 @@
     <joint name="rear_right_third_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">2.82</param>
+        <param name="initial_value">1.4</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
@@ -1413,7 +1413,7 @@
     <joint name="rear_left_second_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">0.0</param>
+        <param name="initial_value">0.4</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
@@ -1437,7 +1437,7 @@
     <joint name="rear_left_third_joint">
       <command_interface name="effort"/>
       <state_interface name="position">
-        <param name="initial_value">2.82</param>
+        <param name="initial_value">1.42</param>
       </state_interface>
       <state_interface name="velocity">
         <param name="initial_value">0.0</param>
