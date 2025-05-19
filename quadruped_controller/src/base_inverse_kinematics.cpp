@@ -72,8 +72,8 @@ private:
 
     quadruped_msgs::msg::QuadrupedControl quad_control;
 
-    const auto default_leg_separation_x = 0.20;
-    const auto default_leg_separation_y =  0.13;
+    const auto default_leg_separation_x = 0.26;
+    const auto default_leg_separation_y =  0.148;
     const auto default_base_link_height = -0.18;
 
     quad_control.header.stamp = now();

@@ -56,7 +56,7 @@ class PosePublisher(Node):
         dx = msg.linear.x * 0.5
         dy = msg.linear.y * 0.25
         dw = msg.angular.z
-        self.generate_trot(ticks, dx, dy, dw, 0.10)
+        self.generate_trot(ticks, dx, dy, dw, 0.06)
 
     def generate_trot(self, ticks, dx, dy, dw, dz):
         ises = [0, 1, 1, 0]
@@ -109,10 +109,13 @@ class PosePublisher(Node):
         sb = np.linspace(np.pi, 0, periods * ticks)
 
         z = z0 + dz * np.sin(s)
+        dminz = 0.0
+        
         if dz == 0:
             dminz = 0.0
         else:
-            dminz = 0.00
+            dminz = -0.000
+
 
         x = np.concatenate((x, xb)) - dx / 2
         y = np.concatenate((y, yb)) - dy / 2

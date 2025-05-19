@@ -4,8 +4,37 @@ from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
 import numpy as np
 from std_srvs.srv import Empty
+from example_interfaces.srv import AddTwoInts
 import time
 import copy
+
+
+###
+# Third PD:
+t_skala = 0.1 / 26
+T0 = 3896.898 - 3896.807
+T = 3897.393 - T0 - 3896.807
+K = 0.072
+
+print(f"T0: {T0}, T: {T}, K: {K}")
+# K = 0.01
+tau = T0 / (T0 + T)
+a = K * T0 / T
+
+Kp = 1.24 / a * (1 + (0.13 * tau) / (1 - tau))
+
+Td = (0.27 - 0.36 * tau) / (1 - 0.87 * tau) * T0
+print(f"{Kp}, {Td}")
+
+# 3:
+# 34.20749226006192, 0.03655939621794512
+
+# 2:
+# 51.207090397090106 0.023184721126433695
+
+
+###
+
 
 class ImpedanceControllerNode(Node):
     def __init__(self):
@@ -14,7 +43,6 @@ class ImpedanceControllerNode(Node):
         self.joint_state_sub = self.create_subscription(
             JointState, "/joint_states", self.joint_state_callback, 10
         )
-
 
         self.effort_pub = self.create_publisher(
             Float64MultiArray, "/effort_controllers/commands", 10
@@ -34,8 +62,15 @@ class ImpedanceControllerNode(Node):
             self.position_callback,
             10,
         )
-        
-        self.create_service(Empty, "/impedance_controller/stand_up", self.stand_up_callback)
+
+        self.create_service(
+            Empty, "/impedance_controller/stand_up", self.add_on_set_parameters_callback
+        )
+
+        self.create_service(
+            AddTwoInts, "/impedance_controller/first_step", self.step_callback
+        )
+
         self.ready_kp = [30.0, 10.5, 20.5] * 4
         self.ready_kd = [1.0, 1.0, 1.0] * 4
         self.ready_max_torque = [20.0, 5.0, 5.0] * 4
@@ -61,9 +96,14 @@ class ImpedanceControllerNode(Node):
         # self.walk_kp = [100.0, 30.5, 30.5] * 4
         # self.walk_kd = [1.4, 1.0, 1.0] * 4
         # self.walk_max_torque = [40.0, 10.0, 25.0] * 4
-
-        self.walk_kp = [60.0, 60.5, 60.5] * 4
-        self.walk_kd = [1.3, 1.2, 1.2] * 4
+        # ,, 0.025412436548223352
+        self.walk_kp = [95.92020756982738, 51.207090397090106, 51.207090397090106] * 4
+        self.walk_kd = [
+            95.92020756982738 * 0.022526014640095713 ,
+            51.207090397090106 * 0.023184721126433695,
+            51.207090397090106 * 0.023184721126433695,
+            # 34.20749226006192 * 0.03655939621794512,
+        ] * 4
         self.walk_max_torque = [50.0, 30.0, 50.0] * 4
 
         # welded
@@ -103,16 +143,29 @@ class ImpedanceControllerNode(Node):
         self.feed_forward_torque = [0] * 12
 
         self.checking_time = time.time()
-        
+
+    def step_callback(self, request, response):
+        for i in range(4):
+
+            index = (i * 3) + request.a
+            dir = 1
+            if request.a == 0:
+                if i in [1, 2]:
+                    dir = -1
+
+            self.feed_forward_torque[index] = dir * float(request.b) / 1000.0
+            self.kp[index] = 0.0
+            self.kd[index] = 0.0
+
+        return response
+
     def stand_up_callback(self, request, response):
         self.stand_up = False
         self.ready = False
         self.target_position = None
         self.get_logger().info("Stand up sequence reset.")
-        
+
         return response
-        
-        
 
     def position_callback(self, msg):
         if self.target_position is None or self.stand_up is False:
@@ -224,7 +277,6 @@ class ImpedanceControllerNode(Node):
             and self.is_in_position(msg.position, self.stand_up_positions, 0.3)
         ):
             self.get_logger().info("Stabilizing...")
-
 
         elif self.ready and not self.stand_up:
             self.checking_time = time.time()

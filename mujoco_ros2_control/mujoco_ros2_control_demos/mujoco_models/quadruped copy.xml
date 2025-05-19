@@ -5,7 +5,7 @@
     meshdir="/home/rabin/Documents/quadruped_robot/src/quadruped_robot_description/meshes" />
 
   <default>
-    <joint armature="0.01" damping="0.3" frictionloss="0.3" limited="true" />
+    <joint armature="0.01" damping="0.01" frictionloss="0.01" limited="true" />
     <geom conaffinity="15" condim="4" contype="1" friction="0.9 0.2 0.2" solref="0.001 2" />
     <motor ctrllimited="true" />
     <equality solref="0.001 2" />
@@ -36,10 +36,9 @@
       size="100 100 0.001" type="plane" />
     <camera name="fixed" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
     <camera mode="trackcom" name="track" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
-    <body name="root" pos="0 0 0.08" quat="1 0 0 0">
-    <!-- <body name="root" pos="0 0 0.5" quat="1 0 0 0"> -->
+    <body name="root" pos="0 0 0.25" quat="1 0 0 0">
       <freejoint name="root" />
-      <site name="imu" pos="0 0 0" size="0.00000001" />
+      <site name="imu" pos="0 0 0" size="0.01" />
       <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="base_link"
         quat="0 0 0 1" type="mesh" />
       <geom mesh="base_link" quat="0 0 0 1" rgba="0.5 0.5 0.5 1.0" type="mesh" />
@@ -86,7 +85,7 @@
         quat="0 0 0.707107 0.707107">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
           quat="0.5 0.5 -0.5 0.5" />
-        <joint axis="1 0 0" damping="0.05" frictionloss="0.01" name="rear_left_first_joint"
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="rear_left_first_joint"
           pos="0 0 0" range="-3.1416 3.1416" />
         <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
           mesh="second_link" type="mesh" />
@@ -97,7 +96,7 @@
         <body gravcomp="0" name="rear_left_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
-          <joint axis="0 0 -1" damping="0.05" frictionloss="0.01" name="rear_left_second_joint"
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_second_joint"
             pos="0 0 0" range="-3.14 3.14" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
@@ -108,7 +107,7 @@
           <body gravcomp="0" name="rear_left_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 -1">
             <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
               pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 1" damping="0.05" frictionloss="0.01" name="rear_left_third_joint"
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_third_joint"
               pos="0 0 0" range="0.425 5.8" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="fourth_link" type="mesh" />
@@ -119,7 +118,7 @@
             <body gravcomp="0" name="rear_left_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
               <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
                 pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
-              <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" limited="false"
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
                 name="rear_left_fourth_joint" pos="0 0 0" range="-0.8 -2.9" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 mesh="fifth_link" type="mesh" />
@@ -141,7 +140,7 @@
           <body gravcomp="0" name="rear_left_sixth_link" pos="-0.125 0 0.058">
             <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
               quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" name="rear_left_fifth_joint"
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="rear_left_fifth_joint"
               pos="0 0 0" range="-3.14 3.14" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="sixth_link" type="mesh" />
@@ -152,7 +151,7 @@
             <body gravcomp="0" name="rear_left_foot_link" pos="0.21 0 0.0115">
               <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
                 quat="0.5 0.5 0.5 0.5" />
-              <joint axis="0 0 1" damping="0.0" frictionloss="0.0" name="rear_left_foot_joint"
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_left_foot_joint"
                 pos="0 0 0" range="-3.14 3.14" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 size="5e-05 5e-05 5e-05" type="box" />
@@ -175,7 +174,7 @@
         quat="0 0 -0.707107 0.707107">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
           quat="0.5 0.5 -0.5 0.5" />
-        <joint axis="1 0 0" damping="0.05" frictionloss="0.01" name="rear_right_first_joint"
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="rear_right_first_joint"
           pos="0 0 0" range="-3.1416 3.1416" />
         <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
           mesh="second_link" type="mesh" />
@@ -186,7 +185,7 @@
         <body gravcomp="0" name="rear_right_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
-          <joint axis="0 0 1" damping="0.05" frictionloss="0.01" name="rear_right_second_joint"
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_second_joint"
             pos="0 0 0" range="-3.14 3.14" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
@@ -197,7 +196,7 @@
           <body gravcomp="0" name="rear_right_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 1">
             <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
               pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.05" frictionloss="0.01" name="rear_right_third_joint"
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_third_joint"
               pos="0 0 0" range="0.425 5.8" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="fourth_link" type="mesh" />
@@ -208,8 +207,8 @@
             <body gravcomp="0" name="rear_right_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
               <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
                 pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
-              <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" limited="false"
-                name="rear_right_fourth_joint" pos="0 0 0" range="-0.8 -2.9" />
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
+                name="rear_right_fourth_joint" pos="0 0 0" range="-0.3 -2.9" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 mesh="fifth_link" type="mesh" />
               <geom mesh="fifth_link" rgba="0.5 0.5 0.5 1.0" type="mesh" />
@@ -230,7 +229,7 @@
           <body gravcomp="0" name="rear_right_sixth_link" pos="-0.125 0 0.058">
             <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
               quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" name="rear_right_fifth_joint"
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="rear_right_fifth_joint"
               pos="0 0 0" range="-3.14 3.14" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="sixth_link" type="mesh" />
@@ -241,7 +240,7 @@
             <body gravcomp="0" name="rear_right_foot_link" pos="0.21 0 0.0115">
               <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
                 quat="0.5 0.5 0.5 0.5" />
-              <joint axis="0 0 1" damping="0.0" frictionloss="0.0" name="rear_right_foot_joint"
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="rear_right_foot_joint"
                 pos="0 0 0" range="-3.14 3.14" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 size="5e-05 5e-05 5e-05" type="box" />
@@ -264,7 +263,7 @@
         quat="0.707107 0.707107 0 0">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
           quat="0.5 0.5 -0.5 0.5" />
-        <joint axis="1 0 0" damping="0.05" frictionloss="0.01" name="front_right_first_joint"
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="front_right_first_joint"
           pos="0 0 0" range="-3.1416 3.1416" />
         <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
           mesh="second_link" type="mesh" />
@@ -275,7 +274,7 @@
         <body gravcomp="0" name="front_right_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
-          <joint axis="0 0 -1" damping="0.05" frictionloss="0.01" name="front_right_second_joint"
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_second_joint"
             pos="0 0 0" range="-3.14 3.14" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
@@ -287,7 +286,7 @@
             quat="6.28319e-06 0 0 -1">
             <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
               pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 1" damping="0.05" frictionloss="0.01" name="front_right_third_joint"
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_third_joint"
               pos="0 0 0" range="0.425 5.8" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="fourth_link" type="mesh" />
@@ -298,7 +297,7 @@
             <body gravcomp="0" name="front_right_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
               <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
                 pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
-              <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" limited="false"
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
                 name="front_right_fourth_joint" pos="0 0 0" range="-0.8 -2.9" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 mesh="fifth_link" type="mesh" />
@@ -320,7 +319,7 @@
           <body gravcomp="0" name="front_right_sixth_link" pos="-0.125 0 0.058">
             <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
               quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" name="front_right_fifth_joint"
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="front_right_fifth_joint"
               pos="0 0 0" range="-3.14 3.14" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="sixth_link" type="mesh" />
@@ -331,7 +330,7 @@
             <body gravcomp="0" name="front_right_foot_link" pos="0.21 0 0.0115">
               <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
                 quat="0.5 0.5 0.5 0.5" />
-              <joint axis="0 0 1" damping="0.0" frictionloss="0.0" name="front_right_foot_joint"
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_right_foot_joint"
                 pos="0 0 0" range="-3.14 3.14" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 size="5e-05 5e-05 5e-05" type="box" />
@@ -354,7 +353,7 @@
         quat="0.707107 -0.707107 0 0">
         <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0.055 0 0"
           quat="0.5 0.5 -0.5 0.5" />
-        <joint axis="1 0 0" damping="0.05" frictionloss="0.01" name="front_left_first_joint"
+        <joint axis="1 0 0" damping="0.1" frictionloss="0.1" name="front_left_first_joint"
           pos="0 0 0" range="-3.1416 3.1416" />
         <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
           mesh="second_link" type="mesh" />
@@ -365,7 +364,7 @@
         <body gravcomp="0" name="front_left_third_link" pos="0.064 0 0.023" quat="0 0 0 1">
           <inertial diaginertia="0.00075 0.000455 0.000455" mass="0.6" pos="0 0 0.025"
             quat="0.5 0.5 -0.5 0.5" />
-          <joint axis="0 0 1" damping="0.05" frictionloss="0.01" name="front_left_second_joint"
+          <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_second_joint"
             pos="0 0 0" range="-3.14 3.14" />
           <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
             mesh="third_link" type="mesh" />
@@ -376,7 +375,7 @@
           <body gravcomp="0" name="front_left_fourth_link" pos="0 0 0.0555" quat="6.28319e-06 0 0 1">
             <inertial diaginertia="0.000104167 0.000103104 3.10417e-06" mass="0.04"
               pos="0.0625 0 0.015" quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.05" frictionloss="0.01" name="front_left_third_joint"
+            <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_third_joint"
               pos="0 0 0" range="0.425 5.8" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="fourth_link" type="mesh" />
@@ -387,7 +386,7 @@
             <body gravcomp="0" name="front_left_fifth_link" pos="0.125 0 0.0255" quat="0 0 0 1">
               <inertial diaginertia="0.000267084 0.000261694 7.94407e-06" mass="0.050002"
                 pos="0.105 0 -4.59982e-07" quat="0 0.707107 0 0.707107" />
-              <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" limited="false"
+              <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" limited="false"
                 name="front_left_fourth_joint" pos="0 0 0" range="-0.8 -2.9" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 mesh="fifth_link" type="mesh" />
@@ -409,7 +408,7 @@
           <body gravcomp="0" name="front_left_sixth_link" pos="-0.125 0 0.058">
             <inertial diaginertia="0.000267083 0.000261693 7.94271e-06" mass="0.05" pos="0.105 0 0"
               quat="0 0.707107 0 0.707107" />
-            <joint axis="0 0 -1" damping="0.0" frictionloss="0.0" name="front_left_fifth_joint"
+            <joint axis="0 0 -1" damping="0.1" frictionloss="0.1" name="front_left_fifth_joint"
               pos="0 0 0" range="-3.14 3.14" />
             <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
               mesh="sixth_link" type="mesh" />
@@ -420,7 +419,7 @@
             <body gravcomp="0" name="front_left_foot_link" pos="0.21 0 0.0115">
               <inertial diaginertia="1.3225e-08 1.3225e-08 2.2e-09" mass="4e-06" pos="0.0525 0 0"
                 quat="0.5 0.5 0.5 0.5" />
-              <joint axis="0 0 1" damping="0.0" frictionloss="0.0" name="front_left_foot_joint"
+              <joint axis="0 0 1" damping="0.1" frictionloss="0.1" name="front_left_foot_joint"
                 pos="0 0 0" range="-3.14 3.14" />
               <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1"
                 size="5e-05 5e-05 5e-05" type="box" />
@@ -449,48 +448,24 @@
       name="rear_left_second_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_third_joint"
       name="rear_left_third_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_fourth_joint"
-      name="rear_left_fourth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_fifth_joint"
-      name="rear_left_fifth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_left_foot_joint"
-      name="rear_left_foot_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_first_joint"
       name="rear_right_first_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_second_joint"
       name="rear_right_second_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_third_joint"
       name="rear_right_third_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_fourth_joint"
-      name="rear_right_fourth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_fifth_joint"
-      name="rear_right_fifth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="rear_right_foot_joint"
-      name="rear_right_foot_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_first_joint"
       name="front_right_first_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_second_joint"
       name="front_right_second_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_third_joint"
       name="front_right_third_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_fourth_joint"
-      name="front_right_fourth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_fifth_joint"
-      name="front_right_fifth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_right_foot_joint"
-      name="front_right_foot_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_first_joint"
       name="front_left_first_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_second_joint"
       name="front_left_second_joint" />
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_third_joint"
       name="front_left_third_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_fourth_joint"
-      name="front_left_fourth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_fifth_joint"
-      name="front_left_fifth_joint" />
-    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="front_left_foot_joint"
-      name="front_left_foot_joint" />
   </actuator>
 
   <sensor>
@@ -503,15 +478,6 @@
     <actuatorpos actuator="rear_left_third_joint" name="rear_left_third_joint_p" />
     <actuatorvel actuator="rear_left_third_joint" name="rear_left_third_joint_v" />
     <actuatorfrc actuator="rear_left_third_joint" name="rear_left_third_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_left_fourth_joint" name="rear_left_fourth_joint_p" />
-    <actuatorvel actuator="rear_left_fourth_joint" name="rear_left_fourth_joint_v" />
-    <actuatorfrc actuator="rear_left_fourth_joint" name="rear_left_fourth_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_left_fifth_joint" name="rear_left_fifth_joint_p" />
-    <actuatorvel actuator="rear_left_fifth_joint" name="rear_left_fifth_joint_v" />
-    <actuatorfrc actuator="rear_left_fifth_joint" name="rear_left_fifth_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_left_foot_joint" name="rear_left_foot_joint_p" />
-    <actuatorvel actuator="rear_left_foot_joint" name="rear_left_foot_joint_v" />
-    <actuatorfrc actuator="rear_left_foot_joint" name="rear_left_foot_joint_f" noise="0.001" />
     <actuatorpos actuator="rear_right_first_joint" name="rear_right_first_joint_p" />
     <actuatorvel actuator="rear_right_first_joint" name="rear_right_first_joint_v" />
     <actuatorfrc actuator="rear_right_first_joint" name="rear_right_first_joint_f" noise="0.001" />
@@ -521,15 +487,6 @@
     <actuatorpos actuator="rear_right_third_joint" name="rear_right_third_joint_p" />
     <actuatorvel actuator="rear_right_third_joint" name="rear_right_third_joint_v" />
     <actuatorfrc actuator="rear_right_third_joint" name="rear_right_third_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_right_fourth_joint" name="rear_right_fourth_joint_p" />
-    <actuatorvel actuator="rear_right_fourth_joint" name="rear_right_fourth_joint_v" />
-    <actuatorfrc actuator="rear_right_fourth_joint" name="rear_right_fourth_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_right_fifth_joint" name="rear_right_fifth_joint_p" />
-    <actuatorvel actuator="rear_right_fifth_joint" name="rear_right_fifth_joint_v" />
-    <actuatorfrc actuator="rear_right_fifth_joint" name="rear_right_fifth_joint_f" noise="0.001" />
-    <actuatorpos actuator="rear_right_foot_joint" name="rear_right_foot_joint_p" />
-    <actuatorvel actuator="rear_right_foot_joint" name="rear_right_foot_joint_v" />
-    <actuatorfrc actuator="rear_right_foot_joint" name="rear_right_foot_joint_f" noise="0.001" />
     <actuatorpos actuator="front_right_first_joint" name="front_right_first_joint_p" />
     <actuatorvel actuator="front_right_first_joint" name="front_right_first_joint_v" />
     <actuatorfrc actuator="front_right_first_joint" name="front_right_first_joint_f" noise="0.001" />
@@ -539,15 +496,6 @@
     <actuatorpos actuator="front_right_third_joint" name="front_right_third_joint_p" />
     <actuatorvel actuator="front_right_third_joint" name="front_right_third_joint_v" />
     <actuatorfrc actuator="front_right_third_joint" name="front_right_third_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_right_fourth_joint" name="front_right_fourth_joint_p" />
-    <actuatorvel actuator="front_right_fourth_joint" name="front_right_fourth_joint_v" />
-    <actuatorfrc actuator="front_right_fourth_joint" name="front_right_fourth_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_right_fifth_joint" name="front_right_fifth_joint_p" />
-    <actuatorvel actuator="front_right_fifth_joint" name="front_right_fifth_joint_v" />
-    <actuatorfrc actuator="front_right_fifth_joint" name="front_right_fifth_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_right_foot_joint" name="front_right_foot_joint_p" />
-    <actuatorvel actuator="front_right_foot_joint" name="front_right_foot_joint_v" />
-    <actuatorfrc actuator="front_right_foot_joint" name="front_right_foot_joint_f" noise="0.001" />
     <actuatorpos actuator="front_left_first_joint" name="front_left_first_joint_p" />
     <actuatorvel actuator="front_left_first_joint" name="front_left_first_joint_v" />
     <actuatorfrc actuator="front_left_first_joint" name="front_left_first_joint_f" noise="0.001" />
@@ -557,15 +505,7 @@
     <actuatorpos actuator="front_left_third_joint" name="front_left_third_joint_p" />
     <actuatorvel actuator="front_left_third_joint" name="front_left_third_joint_v" />
     <actuatorfrc actuator="front_left_third_joint" name="front_left_third_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_left_fourth_joint" name="front_left_fourth_joint_p" />
-    <actuatorvel actuator="front_left_fourth_joint" name="front_left_fourth_joint_v" />
-    <actuatorfrc actuator="front_left_fourth_joint" name="front_left_fourth_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_left_fifth_joint" name="front_left_fifth_joint_p" />
-    <actuatorvel actuator="front_left_fifth_joint" name="front_left_fifth_joint_v" />
-    <actuatorfrc actuator="front_left_fifth_joint" name="front_left_fifth_joint_f" noise="0.001" />
-    <actuatorpos actuator="front_left_foot_joint" name="front_left_foot_joint_p" />
-    <actuatorvel actuator="front_left_foot_joint" name="front_left_foot_joint_v" />
-    <actuatorfrc actuator="front_left_foot_joint" name="front_left_foot_joint_f" noise="0.001" />
+
     <framequat name="orientation" noise="0.001" objname="imu" objtype="site" />
     <gyro cutoff="34.9" name="angular-velocity" noise="0.005" site="imu" />
   </sensor>
@@ -753,15 +693,16 @@
     <exclude name="exclude_rear_right_sixth_link_rear_right_fifth_link"
       body1="rear_right_sixth_link" body2="rear_right_fifth_link" />
   </contact>
+
   <equality>
-    <!-- <weld body1="root" body2="world" name="weld_to_world" /> -->
+    <weld body1="root" body2="world" name="equality_sconstssraint_front_right" />
     <connect anchor="0.0 0 0" body1="front_left_foot_link" body2="front_left_chain_close_a_link"
       active="true" name="equality_sconstraint_front_left" />
-    <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
+   <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
       active="true" name="equality_sconstraint_front_right" />
     <connect anchor="0.0 0 0" body1="rear_left_foot_link" body2="rear_left_chain_close_a_link"
       active="true" name="equality_sconstraint_rear_left" />
     <connect anchor="0.0 0 0" body1="rear_right_foot_link" body2="rear_right_chain_close_a_link"
-      active="true" name="equality_sconstraint_rear_right" />
+      active="true" name="equality_sconstraint_rear_right" /> 
   </equality>
 </mujoco>
