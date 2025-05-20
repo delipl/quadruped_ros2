@@ -92,35 +92,8 @@ def generate_launch_description():
                 default_value=Command(["xacro ", urdf_file]),
                 description="Absolute path to robot urdf file",
             ),
-            Node(
-                package="robot_state_publisher",
-                executable="robot_state_publisher",
-                name="robot_state_publisher",
-                output="screen",
-                parameters=[
-                    {
-                        "use_sim_time": LaunchConfiguration("use_sim_time"),
-                        "robot_description": LaunchConfiguration("robot_description"),
-                    }
-                ],
-            ),
-            # Node(
-            #     package="joint_state_publisher_gui",
-            #     executable="joint_state_publisher_gui",
-            #     name="joint_state_publisher_gui",
-            #     output="screen",
-            #     # remappings= {("joint_states", "rqt_joint_states")},
-            # ),
-            # Node(
-            #     package="rviz2",
-            #     executable="rviz2",
-            #     name="rviz2",
-            #     output="screen",
-            #     arguments=['-d', os.path.join(get_package_share_directory("quadruped_robot_description"), "rviz", "quadruped_robot.rviz")],
-            # ),
-            joint_state_broadcaster_spawner,
-            control_node,
+            # joint_state_broadcaster_spawner,
+            # control_node,
             quadruped_controller,
-            
         ]
     )

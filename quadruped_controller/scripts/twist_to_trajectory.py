@@ -15,7 +15,7 @@ class PosePublisher(Node):
 
         # Utworzenie publishera, który publikuje wiadomości PoseStamped na topiku 'pose'
         self.publisher_ = self.create_publisher(
-            QuadrupedControl, "/control_quadruped", 10
+            QuadrupedControl, "/quadruped_controller/reference", 10
         )
         
         self.traj_pub = self.create_publisher(
@@ -27,7 +27,7 @@ class PosePublisher(Node):
         )
 
         # Częstotliwość publikacji co sekundę
-        self.gait_period = 0.04
+        self.gait_period = 0.08
         self.timer_period = self.gait_period / 100.0
         
         # timer_period = 0.01
@@ -114,7 +114,7 @@ class PosePublisher(Node):
         if dz == 0:
             dminz = 0.0
         else:
-            dminz = -0.000
+            dminz = -0.0
 
 
         x = np.concatenate((x, xb)) - dx / 2

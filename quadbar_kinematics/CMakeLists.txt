@@ -18,6 +18,7 @@ include_directories(include)
 # Library
 add_library(${PROJECT_NAME} SHARED
   src/quadbar_kinematics.cpp
+  src/leg.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}
@@ -27,13 +28,15 @@ ament_target_dependencies(${PROJECT_NAME}
   Eigen3
 )
 
+target_link_libraries(${PROJECT_NAME}  Eigen3::Eigen)
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
 # Register as a plugin
-pluginlib_export_plugin_description_file(kinematics_interface plugin.xml)
+pluginlib_export_plugin_description_file(quadbar_kinematics plugin.xml)
 
 # Install targets
 install(
@@ -54,7 +57,7 @@ install(FILES plugin.xml
 )
 
 # Export package
-ament_export_dependencies(rclcpp kinematics_interface pluginlib Eigen3)
+ament_export_dependencies(rclcpp quadbar_kinematics pluginlib Eigen3)
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 

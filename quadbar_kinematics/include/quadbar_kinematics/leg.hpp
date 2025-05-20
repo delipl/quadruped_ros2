@@ -6,9 +6,8 @@
 
 #include <Eigen/Dense>
 
-#include <sensor_msgs/msg/joint_state.hpp>
 
-namespace quadruped_controller {
+namespace quadbar_kinematics {
 
 struct JointState {
   std::string name;
@@ -25,8 +24,6 @@ class Leg {
 public:
   Leg(const std::string &name);
 
-  void set_positions_from_joint_states(
-      const sensor_msgs::msg::JointState::SharedPtr msg);
 
   Eigen::Vector3d forward_kinematics(const Eigen::Vector3d &q);
   Eigen::Vector3d forward_kinematics() {
@@ -48,22 +45,17 @@ public:
     return {first_, second_, third_};
   }
 
-  void set_joints_states(const Eigen::Vector3d &q,
-                         const Eigen::Vector3d &dq = {0, 0, 0}) {
+  void set_joints_states(const Eigen::Vector3d &q) {
     first_.position = q(0);
     second_.position = q(1);
     third_.position = q(2);
-
-    first_.velocity = dq(0);
-    second_.velocity = dq(1);
-    third_.velocity = dq(2);
   }
 
   double get_distance_to_effector() const { return distance_to_effector_; }
 
   std::string get_name() const { return name_; }
   Eigen::Matrix4d kinematics(const Eigen::Vector3d &q);
-  Eigen::Matrix<double, 6, 3> jacobian(const Eigen::Vector3d &q_open);
+  Eigen::Matrix<double, 6, 3>  jacobian(const Eigen::Vector3d &q_open);
 
 private:
   const std::string name_;
@@ -80,6 +72,7 @@ private:
   const double d2 = 0.0898;
   const double a2 = l1;
   const double a3 = l4;
+
 
   std::array<Eigen::DiagonalMatrix<double, 4>, 4> directions_;
   Eigen::Vector3d inv_directions_;

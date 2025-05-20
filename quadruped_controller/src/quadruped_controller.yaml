@@ -18,43 +18,67 @@
 #
 
 quadruped_controller:
-  joints: {
-    type: string_array,
-    default_value: [],
-    description: "Specifies joints used by the controller. If state joints parameter is defined, then only command joints are defined with this parameter.",
-    read_only: true,
-    validation: {
-      unique<>: null,
-      not_empty<>: null,
+  joints:
+    {
+      type: string_array,
+      default_value: [],
+      description: "Specifies joints used by the controller. If state joints parameter is defined, then only command joints are defined with this parameter.",
+      read_only: true,
+      validation: { unique<>: null, not_empty<>: null },
     }
-  }
-  state_joints: {
-    type: string_array,
-    default_value: [],
-    description: "(optional) Specifies joints for reading states. This parameter is only relevant when state joints are different then command joint, i.e., when a following controller is used.",
-    read_only: true,
-    validation: {
-      unique<>: null,
+  state_joints:
+    {
+      type: string_array,
+      default_value: [],
+      description: "(optional) Specifies joints for reading states. This parameter is only relevant when state joints are different then command joint, i.e., when a following controller is used.",
+      read_only: true,
+      validation: { unique<>: null },
     }
-  }
 
-  passive_joints: {
-    type: string_array,
-    default_value: [],
-    description: "TODO: @delipl",
-    read_only: true,
-    validation: {
-      unique<>: null,
-    }
+  
+  state_interfaces:
+    {
+      type: string_array,
+      description: "Specifies which state interfaces the controller will claim.",
+      read_only: true
   }
-  interface_name: {
-    type: string,
-    default_value: "",
-    description: "Name of the interface used by the controller on joints and command_joints.",
-    read_only: true,
-    validation: {
-      not_empty<>: null,
-      one_of<>: [["position", "velocity", "acceleration", "effort",]],
-      forbidden_interface_name_prefix: null
+  command_interface:
+    {
+      type: string,
+      default_value: "",
+      description: "Name of the interface used by the controller on joints and command_joints.",
+      read_only: true,
+      validation:
+        {
+          not_empty<>: null,
+          one_of<>: [["position", "velocity", "acceleration", "effort"]],
+          forbidden_interface_name_prefix: null,
+        },
     }
-  }
+  kinematics:
+    plugin_name:
+      {
+        type: string,
+        description: "Specifies the name of the kinematics plugin to load.",
+      }
+    plugin_package:
+      {
+        type: string,
+        description: "Specifies the package name that contains the kinematics plugin.",
+      }
+    base:
+      {
+        type: string,
+        description: "Specifies the base link of the robot description used by the kinematics plugin.",
+      }
+    tip:
+      {
+        type: string,
+        description: "Specifies the end effector link of the robot description used by the kinematics plugin.",
+      }
+    alpha:
+      {
+        type: double,
+        default_value: 0.01,
+        description: "Specifies the damping coefficient for the Jacobian pseudo inverse.",
+      }

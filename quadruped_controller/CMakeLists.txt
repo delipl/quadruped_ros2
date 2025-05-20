@@ -17,7 +17,8 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   trajectory_msgs
   quadruped_msgs
   visualization_msgs
-)
+  kinematics_interface
+  )
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
@@ -38,28 +39,29 @@ generate_parameter_library(quadruped_controller_parameters
   src/quadruped_controller.yaml
   include/quadruped_controller/validate_quadruped_controller_parameters.hpp
 )
-# add_library(
-#   quadruped_controller
-#   SHARED
-#   src/quadruped_controller.cpp
-# )
-# target_include_directories(quadruped_controller PUBLIC
-#   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-#   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-# target_link_libraries(quadruped_controller quadruped_controller_parameters)
-# ament_target_dependencies(quadruped_controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
-# target_compile_definitions(quadruped_controller PRIVATE "QUADRUPED_CONTROLLER_BUILDING_DLL")
+add_library(
+  quadruped_controller
+  SHARED
+  src/quadruped_controller.cpp
+  src/leg.cpp
+)
+target_include_directories(quadruped_controller PUBLIC
+  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+target_link_libraries(quadruped_controller quadruped_controller_parameters)
+ament_target_dependencies(quadruped_controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
+target_compile_definitions(quadruped_controller PRIVATE "QUADRUPED_CONTROLLER_BUILDING_DLL")
 
-# pluginlib_export_plugin_description_file(
-#   controller_interface quadruped_controller.xml)
+pluginlib_export_plugin_description_file(
+  controller_interface quadruped_controller.xml)
 
-# install(
-#   TARGETS
-#   quadruped_controller
-#   RUNTIME DESTINATION bin
-#   ARCHIVE DESTINATION lib
-#   LIBRARY DESTINATION lib
-# )
+install(
+  TARGETS
+  quadruped_controller
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
 
 install(
   DIRECTORY include/

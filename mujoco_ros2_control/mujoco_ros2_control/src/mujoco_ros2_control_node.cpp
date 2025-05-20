@@ -114,7 +114,7 @@ int main(int argc, const char **argv)
       last_cam_update = simstart;
       mjtNum* pos = mujoco_data->xpos + 3 * body_id;
 
-      printf("Base position: x=%.3f y=%.3f z=%.3f\n", pos[0], pos[1], pos[2]);
+      // printf("Base position: x=%.3f y=%.3f z=%.3f\n", pos[0], pos[1], pos[2]);
     }
 
     // i++;

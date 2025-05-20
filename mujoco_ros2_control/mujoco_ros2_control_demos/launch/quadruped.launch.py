@@ -105,15 +105,15 @@ def generate_launch_description():
                     on_start=[load_joint_state_controller],
                 )
             ),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=load_joint_state_controller,
-                    on_exit=[load_position_controller],
-                )
-            ),
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=load_joint_state_controller,
+            #         on_exit=[load_position_controller],
+            #     )
+            # ),
             node_mujoco_ros2_control,
             node_robot_state_publisher,
-            passive_joint_state_broadcaster
+            # passive_joint_state_broadcaster
             # rviz_node,
         ]
     )

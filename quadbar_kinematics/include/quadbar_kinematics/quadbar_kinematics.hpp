@@ -18,48 +18,67 @@
 #define QUADBAR_KINEMATICS__QUADBAR_KINEMATICS_HPP_
 
 #include "kinematics_interface/kinematics_interface.hpp"
+
+#include <array>
 #include <string>
 #include <vector>
 
-namespace quadbar_kinematics
-{
+#include "quadbar_kinematics/leg.hpp"
 
-class QuadbarKinematics : public kinematics_interface::KinematicsInterface
-{
+namespace quadbar_kinematics {
+
+class QuadbarKinematics : public kinematics_interface::KinematicsInterface {
 public:
   QuadbarKinematics() = default;
   ~QuadbarKinematics() override = default;
 
-  bool initialize(
-    std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface> parameters_interface,
-    const std::string & end_effector_name) override;
+  enum LegIndex {
+    FRONT_LEFT = 0,
+    FRONT_RIGHT,
+    REAR_LEFT,
+    REAR_RIGHT,
+    LEG_COUNT
+  };
+
+  bool
+  initialize(std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface>
+                 parameters_interface,
+             const std::string &end_effector_name) override;
 
   bool convert_cartesian_deltas_to_joint_deltas(
-    const Eigen::VectorXd & joint_pos, const Eigen::Matrix<double, 6, 1> & delta_x,
-    const std::string & link_name, Eigen::VectorXd & delta_theta) override;
+      const Eigen::VectorXd &joint_pos,
+      const Eigen::Matrix<double, 6, 1> &delta_x, const std::string &link_name,
+      Eigen::VectorXd &delta_theta) override;
 
   bool convert_joint_deltas_to_cartesian_deltas(
-    const Eigen::VectorXd & joint_pos, const Eigen::VectorXd & delta_theta,
-    const std::string & link_name, Eigen::Matrix<double, 6, 1> & delta_x) override;
+      const Eigen::VectorXd &joint_pos, const Eigen::VectorXd &delta_theta,
+      const std::string &link_name,
+      Eigen::Matrix<double, 6, 1> &delta_x) override;
 
-  bool calculate_link_transform(
-    const Eigen::VectorXd & joint_pos, const std::string & link_name,
-    Eigen::Isometry3d & transform) override;
+  bool calculate_link_transform(const Eigen::VectorXd &joint_pos,
+                                const std::string &link_name,
+                                Eigen::Isometry3d &transform) override;
 
   bool calculate_jacobian(
-    const Eigen::VectorXd & joint_pos, const std::string & link_name,
-    Eigen::Matrix<double, 6, Eigen::Dynamic> & jacobian) override;
+      const Eigen::VectorXd &joint_pos, const std::string &link_name,
+      Eigen::Matrix<double, 6, Eigen::Dynamic> &jacobian) override;
 
   // It will be avaiable after sync
-  bool calculate_jacobian_inverse(
-    const Eigen::VectorXd & joint_pos, const std::string & link_name,
-    Eigen::Matrix<double, Eigen::Dynamic, 6> & jacobian_inverse) /* override */;
+  bool calculate_jacobian_inverse(const Eigen::VectorXd &joint_pos,
+                                  const std::string &link_name,
+                                  Eigen::Matrix<double, Eigen::Dynamic, 6>
+                                      &jacobian_inverse) /* override */;
 
 private:
   // Private helper methods specific to QuadbarKinematics can be added here
-  bool validate_joint_positions(const Eigen::VectorXd & joint_pos) const;
+  bool validate_joint_positions(const Eigen::VectorXd &joint_pos) const;
+  LegIndex get_leg_index(const std::string &leg_name) const;
+
+
+
+  std::map<std::string, quadbar_kinematics::Leg> legs_map_;
 };
 
-}  // namespace quadbar_kinematics
+} // namespace quadbar_kinematics
 
-#endif  // QUADBAR_KINEMATICS__QUADBAR_KINEMATICS_HPP_
+#endif // QUADBAR_KINEMATICS__QUADBAR_KINEMATICS_HPP_

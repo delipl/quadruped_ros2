@@ -20,7 +20,7 @@ Source of this file are templates in
 
 <library path="quadruped_controller">
   <class name="quadruped_controller/QuadrupedController"
-         type="quadruped_controller::QuadrupedController" base_class_type="controller_interface::ChainableControllerInterface">
+         type="quadruped_controller::QuadrupedController" base_class_type="controller_interface::ControllerInterface">
   <description>
     QuadrupedController ros2_control controller.
   </description>
