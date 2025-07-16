@@ -16,25 +16,6 @@ controller_manager:
     quadruped_controller:
       type: quadruped_controller/QuadrupedController
 
-effort_controllers:
-  ros__parameters:
-      joints:
-        - front_left_first_joint
-        - front_left_second_joint
-        - front_left_third_joint
-
-        - front_right_first_joint
-        - front_right_second_joint
-        - front_right_third_joint
-
-        - rear_left_first_joint
-        - rear_left_second_joint
-        - rear_left_third_joint
-
-        - rear_right_first_joint
-        - rear_right_second_joint
-        - rear_right_third_joint
-
 imu_sensor_broadcaster:
   ros__parameters:
     sensor_name: imu
@@ -52,18 +33,18 @@ joint_state_broadcaster:
 quadruped_controller:
     ros__parameters:
       joints:
-        - front_left_first_joint
-        - front_left_second_joint
-        - front_left_third_joint
-        - front_right_first_joint
-        - front_right_second_joint
-        - front_right_third_joint
+        # - front_left_first_joint
+        # - front_left_second_joint
+        # - front_left_third_joint
+        # - front_right_first_joint
+        # - front_right_second_joint
+        # - front_right_third_joint
         - rear_left_first_joint
-        - rear_left_second_joint
-        - rear_left_third_joint
-        - rear_right_first_joint
-        - rear_right_second_joint
-        - rear_right_third_joint
+        # - rear_left_second_joint
+        # - rear_left_third_joint
+        # - rear_right_first_joint
+        # - rear_right_second_joint
+        # - rear_right_third_joint
 
       command_interface: effort
       state_interfaces:

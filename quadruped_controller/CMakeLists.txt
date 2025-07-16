@@ -18,6 +18,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   quadruped_msgs
   visualization_msgs
   kinematics_interface
+  example_interfaces
   )
 
 find_package(ament_cmake REQUIRED)

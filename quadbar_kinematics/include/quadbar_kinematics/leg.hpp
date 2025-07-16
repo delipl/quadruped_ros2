@@ -88,7 +88,7 @@ private:
   JointState forth_;
   JointState fifth_;
 
-  void update_effector_position(double q3);
+  void update_passive_joints(double q3);
   Eigen::Matrix4d denavite_hartenberg(double alpha, double a, double d,
                                       double theta);
   Eigen::Matrix4d denavite_hartenberg(const Eigen::Vector4d &v);

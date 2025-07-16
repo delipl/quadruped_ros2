@@ -49,22 +49,33 @@ public:
   }
 
   void set_joints_states(const Eigen::Vector3d &q,
-                         const Eigen::Vector3d &dq = {0, 0, 0}) {
+                         const Eigen::Vector3d &v = {0, 0, 0},
+                         const Eigen::Vector3d &tau = {0, 0, 0}) {
     first_.position = q(0);
     second_.position = q(1);
     third_.position = q(2);
 
-    first_.velocity = dq(0);
-    second_.velocity = dq(1);
-    third_.velocity = dq(2);
+    first_.velocity = v(0);
+    second_.velocity = v(1);
+    third_.velocity = v(2);
+
+    first_.effort = tau(0);
+    second_.effort = tau(1);
+    third_.effort = tau(2);
   }
 
   double get_distance_to_effector() const { return distance_to_effector_; }
 
   std::string get_name() const { return name_; }
   Eigen::Matrix4d kinematics(const Eigen::Vector3d &q);
-  Eigen::Matrix<double, 6, 3> jacobian(const Eigen::Vector3d &q_open);
+  Eigen::Matrix<double, 3, 3> jacobian(const Eigen::Vector3d &q_open);
+  Eigen::Matrix<double, 3, 3> jacobian();
+  Eigen::Matrix<double, 2, 2> jacobian_2d();
+  void update_passive_joints_dynamics(double q3, double dq3, double ddq3) ;
 
+  Eigen::Vector2d bar_acc_;
+  Eigen::Vector2d bar_q2_acc_;
+  Eigen::Vector3d bar_q1_acc_;
 private:
   const std::string name_;
 
@@ -95,7 +106,7 @@ private:
   JointState forth_;
   JointState fifth_;
 
-  void update_effector_position(double q3);
+  void update_passive_joints(double q3);
   Eigen::Matrix4d denavite_hartenberg(double alpha, double a, double d,
                                       double theta);
   Eigen::Matrix4d denavite_hartenberg(const Eigen::Vector4d &v);

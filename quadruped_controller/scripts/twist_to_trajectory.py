@@ -64,7 +64,8 @@ class PosePublisher(Node):
         dyes = dy * np.array([1, 1, 1, 1])
 
         x0es = 0.26 * np.array([1, 1, -1, -1])
-        y0es = 0.148 * np.array([1, -1, 1, -1])
+        # x0es = 0.223 * np.array([1, 1, -1, -1])
+        y0es = 0.1498 * np.array([1, -1, 1, -1])
         if dw != 0:
             self.get_logger().info(f"dw: {dw}")
            

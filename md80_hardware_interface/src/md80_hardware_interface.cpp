@@ -104,7 +104,6 @@ MD80HardwareInterface::export_command_interfaces() {
       command_interfaces.emplace_back(hardware_interface::CommandInterface(
           info_.joints[i].name, hardware_interface::HW_IF_EFFORT,
           &md80_info_[i].command.effort));
-      // FIXME: Is it even the same?
       md80_info_[i].control_mode = mab::Md80Mode_E::RAW_TORQUE;
     }
   }
@@ -163,20 +162,22 @@ hardware_interface::return_type
 MD80HardwareInterface::write(const rclcpp::Time & /*time*/,
                              const rclcpp::Duration & /*period*/) {
   std::size_t i = 0;
-  for (auto candle : candle_instances) {
-    for (auto &md : candle->md80s) {
-      const auto &control_mode = md80_info_[i].control_mode;
-      if (control_mode == mab::Md80Mode_E::POSITION_PID) {
-        md.setTargetPosition(md80_info_[i].command.position);
-      } else if (control_mode == mab::Md80Mode_E::VELOCITY_PID) {
-        md.setTargetVelocity(md80_info_[i].command.velocity);
-      } else if (control_mode == mab::Md80Mode_E::IMPEDANCE) {
-        md.setTargetPosition(md80_info_[i].command.position);
-      }
-
-      ++i;
-    }
-  }
+  // for (auto candle : candle_instances) {
+  //   for (auto &md : candle->md80s) {
+  //     const auto &control_mode = md80_info_[i].control_mode;
+  //     if (control_mode == mab::Md80Mode_E::POSITION_PID) {
+  //       md.setTargetPosition(md80_info_[i].command.position);
+  //     } else if (control_mode == mab::Md80Mode_E::VELOCITY_PID) {
+  //       md.setTargetVelocity(md80_info_[i].command.velocity);
+  //     } else if (control_mode == mab::Md80Mode_E::IMPEDANCE) {
+  //       md.setTargetPosition(md80_info_[i].command.position);
+  //     }
+  //     else if (control_mode == mab::Md80Mode_E::RAW_TORQUE) {
+  //       md.setTargetTorque(md80_info_[i].command.effort);
+  //     }
+  //     ++i;
+  //   }
+  // }
 
   return hardware_interface::return_type::OK;
 }

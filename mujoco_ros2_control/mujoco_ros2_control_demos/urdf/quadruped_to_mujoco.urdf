@@ -1131,6 +1131,7 @@
   <ros2_control name="MD80HardwareInterface" type="system">
     <hardware>
       <plugin>mujoco_ros2_control/MujocoSystem</plugin>
+      <!-- <plugin>mock_components/GenericSystem</plugin> -->
     </hardware>
      <joint name="front_left_first_joint">
       <command_interface name="effort">

@@ -35,13 +35,12 @@ quadruped_controller:
       validation: { unique<>: null },
     }
 
-  
   state_interfaces:
     {
       type: string_array,
       description: "Specifies which state interfaces the controller will claim.",
-      read_only: true
-  }
+      read_only: true,
+    }
   command_interface:
     {
       type: string,
@@ -54,6 +53,13 @@ quadruped_controller:
           one_of<>: [["position", "velocity", "acceleration", "effort"]],
           forbidden_interface_name_prefix: null,
         },
+    }
+
+  pid_z_leg_trajectory:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Specifies the PID gains for the Z leg trajectory controller.",
     }
   kinematics:
     plugin_name:

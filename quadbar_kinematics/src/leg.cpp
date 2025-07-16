@@ -116,7 +116,7 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
 }
 
 Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
-  update_effector_position(q(2));
+  update_passive_joints(q(2));
 
   Eigen::Vector3d q_open = {q(0), q(1), fifth_.position};
 
@@ -174,7 +174,7 @@ Eigen::Matrix<double, 6, 3> Leg::jacobian(const Eigen::Vector3d &q_open) {
 
 // Page 87 of
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
-void Leg::update_effector_position(double q3) {
+void Leg::update_passive_joints(double q3) {
   const double th2 = M_PI -
                      passive_side_multiplier_ * z_axis_q2_direction_ * q3 +
                      third_joint_gear_correction_;

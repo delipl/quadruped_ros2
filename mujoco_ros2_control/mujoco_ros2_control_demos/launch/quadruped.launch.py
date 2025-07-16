@@ -47,6 +47,17 @@ def generate_launch_description():
         ],
     )
 
+    # node_mujoco_ros2_control = Node(
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     parameters=[controller_config_file],
+    #     emulate_tty=True,
+    #     remappings=[
+    #         ("/diff_drive_controller/cmd_vel_unstamped", "/cmd_vel"),
+    #         ("/controller_manager/robot_description", "/robot_description"),
+    #     ],
+    # )
+
     node_robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -87,7 +98,6 @@ def generate_launch_description():
         parameters=[{"use_sim_time": True}],
     )
 
-    
     # rviz_node = Node(
     #     package="rviz2",
     #     executable="rviz2",

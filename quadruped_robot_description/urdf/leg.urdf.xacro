@@ -47,7 +47,7 @@
     <xacro:third_link
       name="${prefix}_third_link" />
 
-    <xacro:property name="gear_ratio" value="0.166666" />
+    <xacro:property name="gear_ratio" value="0.0" />
     <xacro:property name="second_joint_gear_correction" value="${0*gear_ratio*2*pi}" />
     <xacro:property name="third_joint_gear_correction" value="${3*gear_ratio*2*pi}" />
 
@@ -266,7 +266,7 @@
           <mesh filename="package://quadruped_robot_description/meshes/sixth_link.dae" />
         </geometry>
         <xacro:grey_material />
-</visual>
+      </visual>
       <collision name="${name}_collision">
         <origin rpy="0 0 0" xyz="0.0 0 0.0" />
         <geometry>

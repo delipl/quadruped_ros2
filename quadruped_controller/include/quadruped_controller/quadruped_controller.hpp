@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "controller_interface/controller_interface.hpp"
+#include "pluginlib/class_loader.hpp"
 #include "quadruped_controller/quadruped_controller_parameters.hpp"
 #include "quadruped_controller/visibility_control.h"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
@@ -28,18 +29,21 @@
 #include "realtime_tools/realtime_buffer.hpp"
 #include "realtime_tools/realtime_publisher.hpp"
 #include "std_srvs/srv/set_bool.hpp"
-
-#include "pluginlib/class_loader.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_ros/transform_broadcaster.h"
 
 // TODO(anyone): Replace with controller specific messages
 #include "quadruped_msgs/msg/quadruped_control.hpp"
 
+#include "control_msgs/msg/multi_dof_state_stamped.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "kinematics_interface/kinematics_interface.hpp"
 #include "quadruped_controller/leg.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
+#include "example_interfaces/srv/add_two_ints.hpp"
 
+#include "quadruped_controller/visualization.hpp"
 namespace quadruped_controller {
 // name constants for state interfaces
 static constexpr size_t STATE_MY_ITFS = 0;
@@ -113,19 +117,56 @@ protected:
   using DataMsg = std_msgs::msg::Float64MultiArray;
   using DataRTPublisher = realtime_tools::RealtimePublisher<DataMsg>;
 
+  using VisualizationMsg = visualization_msgs::msg::MarkerArray;
+  using VisualizationRTPublisher =
+      realtime_tools::RealtimePublisher<VisualizationMsg>;
+
+  using MultiDofStateStampedMsg = control_msgs::msg::MultiDOFStateStamped;
+  using MultiDofStateStampedRTP =
+      realtime_tools::RealtimePublisher<MultiDofStateStampedMsg>;
+
   // RT publishers
   std::unique_ptr<ControllerStatePublisher> state_rt_pub_;
   std::unique_ptr<DataRTPublisher> impedance_control_rt_pub_;
-  std::unique_ptr<DataRTPublisher> target_position_rt_pub_;
+  std::unique_ptr<DataRTPublisher> target_joint_position_rt_pub_;
   std::unique_ptr<DataRTPublisher> position_error_rt_pub_;
   std::unique_ptr<DataRTPublisher> velocity_error_rt_pub_;
+
+  std::unique_ptr<DataRTPublisher> foot_position_rt_pub_;
+  std::unique_ptr<DataRTPublisher> foot_control_position_rt_pub_;
+  std::unique_ptr<DataRTPublisher> target_foot_position_rt_pub_;
+  std::unique_ptr<DataRTPublisher> foot_position_error_rt_pub_;
+  std::unique_ptr<VisualizationRTPublisher> visualization_rt_pub_;
+
+  std::unique_ptr<MultiDofStateStampedRTP> multi_dof_state_rt_pub_;
+  std::unique_ptr<MultiDofStateStampedRTP> multi_dof_task_state_rt_pub_;
+  
 
   // Normal publishers
   rclcpp::Publisher<ControllerStateMsg>::SharedPtr state_pub_;
   rclcpp::Publisher<DataMsg>::SharedPtr impedance_control_normal_pub_;
-  rclcpp::Publisher<DataMsg>::SharedPtr target_position_normal_pub_;
+  rclcpp::Publisher<DataMsg>::SharedPtr target_joint_position_normal_pub_;
   rclcpp::Publisher<DataMsg>::SharedPtr position_error_normal_pub_;
   rclcpp::Publisher<DataMsg>::SharedPtr velocity_error_normal_pub_;
+
+  rclcpp::Publisher<DataMsg>::SharedPtr foot_position_normal_pub_;
+  rclcpp::Publisher<DataMsg>::SharedPtr foot_control_position_normal_pub_;
+  rclcpp::Publisher<DataMsg>::SharedPtr target_foot_position_normal_pub_;
+  rclcpp::Publisher<DataMsg>::SharedPtr foot_position_error_normal_pub_;
+  rclcpp::Publisher<VisualizationMsg>::SharedPtr visualization_normal_pub_;
+
+  rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr step_service_;
+
+  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr
+      multi_dof_state_normal_pub_;
+
+  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr
+      multi_dof_task_state_normal_pub_;
+
+  // TF broadcaster and timer
+  std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
+  rclcpp::TimerBase::SharedPtr tf_timer_;
 
   // Kinematics interface plugin loader
   std::shared_ptr<
@@ -133,14 +174,43 @@ protected:
       kinematics_loader_;
   std::unique_ptr<kinematics_interface::KinematicsInterface> kinematics_;
 
+  std::unique_ptr<Visualization> visualization_;
+
 private:
   // callback for topic interface
   QUADRUPED_CONTROLLER__VISIBILITY_LOCAL
   void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
 
   std::vector<Leg> legs_map_;
-};
+  Eigen::VectorXd joint_positions_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd joint_positions_errors_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd joint_velocities_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd joint_velocity_errors_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd joint_efforts_ = Eigen::VectorXd::Zero(12);
 
+  Eigen::VectorXd target_joint_positions_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd target_joint_efforts_ = Eigen::VectorXd::Zero(12);
+
+  Eigen::VectorXd foot_positions_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd foot_control_positions_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd target_foot_positions_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd foot_positions_error_ = Eigen::VectorXd::Zero(12);
+
+  std::size_t get_state_interface_index(std::size_t leg_index,
+                                        std::size_t joint_index,
+                                        std::size_t interface_index) const;
+
+  std::size_t get_command_interface_index(std::size_t leg_index,
+                                          std::size_t joint_index) const;
+
+  void
+  set_msg_data_from_vector_and_publish(std::unique_ptr<DataRTPublisher> &rt_pub,
+                                       const Eigen::VectorXd &data);
+
+                                       Eigen::VectorXd Kp = Eigen::VectorXd::Zero(12);
+                                       Eigen::VectorXd Kd = Eigen::VectorXd::Zero(12);
+                                       Eigen::VectorXd feed_forward_ = Eigen::VectorXd::Zero(12);
+};
 } // namespace quadruped_controller
 
 #endif // QUADRUPED_CONTROLLER__QUADRUPED_CONTROLLER_HPP_
