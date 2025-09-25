@@ -36,8 +36,8 @@
       size="100 100 0.001" type="plane" />
     <camera name="fixed" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
     <camera mode="trackcom" name="track" pos="0 -3.0 0.7388076085151868" xyaxes="1 0 0 0 0 1" />
-    <body name="root" pos="0 0 0.08" quat="1 0 0 0">
-    <!-- <body name="root" pos="0 0 0.5" quat="1 0 0 0"> -->
+    <!-- <body name="root" pos="0 0 0.08" quat="1 0 0 0"> -->
+    <body name="root" pos="0 0 0.5" quat="1 0 0 0">
       <freejoint name="root" />
       <site name="imu" pos="0 0 0" size="0.00000001" />
       <geom class="visualgeom" conaffinity="0" contype="1" density="0" group="1" mesh="base_link"
@@ -754,7 +754,7 @@
       body1="rear_right_sixth_link" body2="rear_right_fifth_link" />
   </contact>
   <equality>
-    <!-- <weld body1="root" body2="world" name="weld_to_world" /> -->
+    <weld body1="root" body2="world" name="weld_to_world" />
     <connect anchor="0.0 0 0" body1="front_left_foot_link" body2="front_left_chain_close_a_link"
       active="true" name="equality_sconstraint_front_left" />
     <connect anchor="0.0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"

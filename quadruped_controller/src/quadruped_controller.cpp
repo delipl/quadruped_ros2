@@ -227,7 +227,7 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
                   feed_forward_[3 * i + 2] = 0.0;
                 }
               } else {
-                feed_forward_[request->a] = 0.001*request->b;
+                feed_forward_[request->a] = 0.001 * request->b;
                 Kp[request->a] = 0;
                 Kd[request->a] = 0;
               }
@@ -258,42 +258,43 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
       51.207090397090106 * 0.023184721126433695;
 
   // Load the differential IK plugin
-  if (!params_.kinematics.plugin_name.empty()) {
-    try {
-      // Make sure we destroy the interface first. Otherwise we might run into a
-      // segfault
-      if (kinematics_loader_) {
-        kinematics_.reset();
-      }
-      kinematics_loader_ = std::make_shared<
-          pluginlib::ClassLoader<kinematics_interface::KinematicsInterface>>(
-          params_.kinematics.plugin_package,
-          "kinematics_interface::KinematicsInterface");
-      kinematics_ = std::unique_ptr<kinematics_interface::KinematicsInterface>(
-          kinematics_loader_->createUnmanagedInstance(
-              params_.kinematics.plugin_name));
+  // if (!params_.kinematics.plugin_name.empty()) {
+  //   try {
+  //     // Make sure we destroy the interface first. Otherwise we might run into a
+  //     // segfault
+  //     if (kinematics_loader_) {
+  //       kinematics_.reset();
+  //     }
+  //     kinematics_loader_ = std::make_shared<
+  //         pluginlib::ClassLoader<kinematics_interface::KinematicsInterface>>(
+  //         params_.kinematics.plugin_package,
+  //         "kinematics_interface::KinematicsInterface");
+  //     kinematics_ = std::unique_ptr<kinematics_interface::KinematicsInterface>(
+  //         kinematics_loader_->createUnmanagedInstance(
+  //             params_.kinematics.plugin_name));
 
-      std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface>
-          parameters_interface;
-      if (!kinematics_->initialize(parameters_interface, "")) {
-        return controller_interface::CallbackReturn::ERROR;
-      }
-    } catch (pluginlib::PluginlibException &ex) {
-      RCLCPP_ERROR(rclcpp::get_logger("QuadrupedController"),
-                   "Exception while loading the IK plugin '%s': '%s'",
-                   params_.kinematics.plugin_name.c_str(), ex.what());
-      return controller_interface::CallbackReturn::ERROR;
-    }
-  } else {
-    RCLCPP_ERROR(
-        rclcpp::get_logger("AdmittanceRule"),
-        "A differential IK plugin name was not specified in the config file.");
-    return controller_interface::CallbackReturn::ERROR;
-  }
+  //     std::shared_ptr<rclcpp::node_interfaces::NodeParametersInterface>
+  //         parameters_interface;
+  //     if (!kinematics_->initialize(parameters_interface, "")) {
+  //       return controller_interface::CallbackReturn::ERROR;
+  //     }
+  //   } catch (pluginlib::PluginlibException &ex) {
+  //     RCLCPP_ERROR(rclcpp::get_logger("QuadrupedController"),
+  //                  "Exception while loading the IK plugin '%s': '%s'",
+  //                  params_.kinematics.plugin_name.c_str(), ex.what());
+  //     return controller_interface::CallbackReturn::ERROR;
+  //   }
+  // } else {
+  //   RCLCPP_ERROR(
+  //       rclcpp::get_logger("AdmittanceRule"),
+  //       "A differential IK plugin name was not specified in the config file.");
+  //   return controller_interface::CallbackReturn::ERROR;
+  // }
 
   // TODO: parametrize this
   std::vector<std::string> legs_names = {"front_left", "front_right",
                                          "rear_left", "rear_right"};
+  // std::vector<std::string> legs_names = {"rear_left"};
   for (const auto &leg_name : legs_names) {
     quadruped_controller::Leg leg(leg_name);
     legs_map_.push_back(leg);

@@ -71,7 +71,7 @@ def generate_launch_description():
             "-c",
             "controller_manager",
         ],
-        condition=IfCondition(use_hardware),
+        # condition=IfCondition(use_hardware),
     )
     
     return LaunchDescription(

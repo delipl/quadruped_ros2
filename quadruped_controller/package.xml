@@ -13,19 +13,13 @@
   <build_depend>generate_parameter_library</build_depend>
 
   <depend>control_msgs</depend>
-
   <depend>controller_interface</depend>
-
   <depend>hardware_interface</depend>
-
+  <depend>kinematics_interface</depend>
   <depend>pluginlib</depend>
-
   <depend>rclcpp</depend>
-
   <depend>rclcpp_lifecycle</depend>
-
   <depend>realtime_tools</depend>
-
   <depend>std_srvs</depend>
   <depend>trajectory_msgs</depend>
   <depend>sensor_msgs</depend>

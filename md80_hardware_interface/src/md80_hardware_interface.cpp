@@ -34,6 +34,7 @@ MD80HardwareInterface::on_init(const hardware_interface::HardwareInfo &info) {
   RCLCPP_INFO_STREAM(rclcpp::get_logger(get_name()),
                      "Requesting " << motors_size << " motors.");
   md80_info_.resize(motors_size);
+  initial_positions_.resize(motors_size);
 
   return CallbackReturn::SUCCESS;
 }
@@ -118,13 +119,13 @@ hardware_interface::CallbackReturn MD80HardwareInterface::on_activate(
   // zero_encoders();
   std::size_t i = 0;
   read(rclcpp::Time{}, rclcpp::Duration(0, 0));
-  // for (auto candle : candle_instances) {
-  //   for (auto &md : candle->md80s) {
+  for (auto candle : candle_instances) {
+    for (auto &md : candle->md80s) {
 
-  //     // md80_info_[i].state.position = 2*M_PI/6.0;
-  //     ++i;
-  //   }
-  // }
+      initial_positions_[i] = md80_info_[i].state.position;
+      ++i;
+    }
+  }
   reset_command();
   log_current_joint_position();
 
@@ -146,7 +147,7 @@ MD80HardwareInterface::read(const rclcpp::Time & /*time*/,
   std::size_t i = 0;
   for (auto candle : candle_instances) {
     for (auto &md : candle->md80s) {
-      md80_info_[i].state.position = md.getPosition();
+      md80_info_[i].state.position = md.getPosition() - initial_positions_[i];
       md80_info_[i].state.velocity = md.getVelocity();
       md80_info_[i].state.effort = md.getTorque();
 
@@ -166,7 +167,7 @@ MD80HardwareInterface::write(const rclcpp::Time & /*time*/,
   //   for (auto &md : candle->md80s) {
   //     const auto &control_mode = md80_info_[i].control_mode;
   //     if (control_mode == mab::Md80Mode_E::POSITION_PID) {
-  //       md.setTargetPosition(md80_info_[i].command.position);
+  //       md.setTargetPosition(md80_info_[i].command.position - initial_positions_[i]);
   //     } else if (control_mode == mab::Md80Mode_E::VELOCITY_PID) {
   //       md.setTargetVelocity(md80_info_[i].command.velocity);
   //     } else if (control_mode == mab::Md80Mode_E::IMPEDANCE) {

@@ -110,6 +110,7 @@ private:
   void log_current_joint_position();
 
   std::vector<MD80Info> md80_info_;
+  std::vector<double> initial_positions_;
 
   std::vector<std::shared_ptr<mab::Candle>> candle_instances;
 };
