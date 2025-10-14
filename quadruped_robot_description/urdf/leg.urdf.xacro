@@ -48,8 +48,8 @@
       name="${prefix}_third_link" />
 
     <xacro:property name="gear_ratio" value="0.0" />
-    <xacro:property name="second_joint_gear_correction" value="${third_joint_gear_correction_dir*0.3559}" />
-    <xacro:property name="third_joint_gear_correction" value="${-0.8+pi}" />
+    <xacro:property name="second_joint_gear_correction" value="${third_joint_gear_correction_dir*0.2793}" />
+    <xacro:property name="third_joint_gear_correction" value="${-1.117+pi}" />
 
     <joint name="${prefix}_second_joint"
       type="revolute">

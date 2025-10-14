@@ -107,20 +107,20 @@
 
             <xacro:property name="kp1" value="25" />
             <xacro:property name="kd1" value="5.0" />
-            <xacro:property name="max_torque1" value="15.0" />
+            <xacro:property name="max_torque1" value="1.0" />
 
 
             <!-- <xacro:property name="kp2" value="50" /> -->
             <xacro:property name="kp2" value="7.5" />
             <xacro:property name="kd2" value="1.0" />
-            <xacro:property name="max_torque2" value="10.0" />
+            <xacro:property name="max_torque2" value="1.0" />
 
             <!-- <xacro:property name="kp3" value="50" /> -->
             <xacro:property name="kp3" value="7.5" />
             <xacro:property name="kd3" value="1.0" />
-            <xacro:property name="max_torque3" value="10.0" />
+            <xacro:property name="max_torque3" value="1.0" />
 
-            <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="${kp1}"
+            <!-- <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="${kp1}"
                 ddq_kd="${kd1}" max_torque="${max_torque1}" />
             <xacro:ros2_control_joint_can name="front_left_second_joint" can_id="11" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
@@ -142,7 +142,7 @@
             <xacro:ros2_control_joint_can name="rear_right_second_joint" can_id="31" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="rear_right_third_joint" can_id="32" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+                ddq_kd="${kd3}" max_torque="${max_torque3}" /> -->
 
 
             <xacro:ros2_control_joint_can name="rear_left_first_joint" can_id="40" ddq_kp="${kp1}"

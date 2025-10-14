@@ -35,6 +35,14 @@ quadruped_controller:
       validation: { unique<>: null },
     }
 
+  leg_names:
+    {
+      type: string_array,
+      default_value: [],
+      description: "Leg names",
+      read_only: true,
+      validation: { unique<>: null },
+    }
   state_interfaces:
     {
       type: string_array,

@@ -60,7 +60,7 @@ Leg::Leg(const std::string &name) : name_(name) {
   }
 
   const double gear_ratio = 1.0 / 6.0;
-  third_joint_gear_correction_ = -0.8+M_PI;
+  third_joint_gear_correction_ = -1.117+M_PI;
 
   first_.name = name + "_first_joint";
   second_.name = name + "_second_joint";

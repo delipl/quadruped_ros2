@@ -182,19 +182,19 @@ private:
   void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
 
   std::vector<Leg> legs_map_;
-  Eigen::VectorXd joint_positions_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd joint_positions_errors_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd joint_velocities_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd joint_velocity_errors_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd joint_efforts_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd joint_positions_;
+  Eigen::VectorXd joint_positions_errors_;
+  Eigen::VectorXd joint_velocities_;
+  Eigen::VectorXd joint_velocity_errors_;
+  Eigen::VectorXd joint_efforts_;
 
-  Eigen::VectorXd target_joint_positions_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd target_joint_efforts_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd target_joint_positions_;
+  Eigen::VectorXd target_joint_efforts_;
 
-  Eigen::VectorXd foot_positions_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd foot_control_positions_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd target_foot_positions_ = Eigen::VectorXd::Zero(12);
-  Eigen::VectorXd foot_positions_error_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd foot_positions_;
+  Eigen::VectorXd foot_control_positions_;
+  Eigen::VectorXd target_foot_positions_;
+  Eigen::VectorXd foot_positions_error_;
 
   std::size_t get_state_interface_index(std::size_t leg_index,
                                         std::size_t joint_index,
