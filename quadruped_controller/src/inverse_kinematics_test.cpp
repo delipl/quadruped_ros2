@@ -250,53 +250,53 @@ private:
       const std::string &ns, const Eigen::Vector3d &foot_position,
       quadruped_controller::Leg &leg, std_msgs::msg::ColorRGBA color) {
     visualization_msgs::msg::Marker marker;
-    marker.header.frame_id = "base_link";
-    marker.header.stamp = now();
-    marker.ns = ns;
-    marker.id = marker_array_.markers.size();
+    // marker.header.frame_id = "base_link";
+    // marker.header.stamp = now();
+    // marker.ns = ns;
+    // marker.id = marker_array_.markers.size();
 
-    marker.type = visualization_msgs::msg::Marker::ARROW;
+    // marker.type = visualization_msgs::msg::Marker::ARROW;
 
-    marker.action = visualization_msgs::msg::Marker::ADD;
+    // marker.action = visualization_msgs::msg::Marker::ADD;
 
-    std::uint8_t contact_legs_number = 4;
+    // std::uint8_t contact_legs_number = 4;
 
-    auto q = leg.get_active_joint_states();
-    Eigen::Vector3d q_open = {q[0].position, q[1].position,
-                              leg.get_passive_knee_joints().second.position};
+    // auto q = leg.get_active_joint_states();
+    // Eigen::Vector3d q_open = {q[0].position, q[1].position,
+    //                           leg.get_passive_knee_joints().second.position};
 
-    auto J = leg.jacobian(q_open);
+    // auto J = leg.jacobian(q_open);
 
-    auto J_inv = J.completeOrthogonalDecomposition().pseudoInverse();
-    auto J_inv_transpose = J_inv.transpose();
+    // auto J_inv = J.completeOrthogonalDecomposition().pseudoInverse();
+    // auto J_inv_transpose = J_inv.transpose();
 
-    Eigen::Vector3d torque_diff = {0.0, 0.0, 9.81};
+    // Eigen::Vector3d torque_diff = {0.0, 0.0, 9.81};
 
-    auto leg_force = J_inv_transpose * torque_diff;
+    // auto leg_force = J_inv_transpose * torque_diff;
 
-    marker.pose.position.x = foot_position.x();
-    marker.pose.position.y = foot_position.y();
-    marker.pose.position.z = foot_position.z();
+    // marker.pose.position.x = foot_position.x();
+    // marker.pose.position.y = foot_position.y();
+    // marker.pose.position.z = foot_position.z();
 
-    marker.scale.x = 0.03;
-    marker.scale.y = 0.03;
-    marker.scale.z = 0.03;
+    // marker.scale.x = 0.03;
+    // marker.scale.y = 0.03;
+    // marker.scale.z = 0.03;
 
-    marker.color.r = color.r;
-    marker.color.g = color.g;
-    marker.color.b = color.b;
-    marker.color.a = color.a;
-    geometry_msgs::msg::Point point;
+    // marker.color.r = color.r;
+    // marker.color.g = color.g;
+    // marker.color.b = color.b;
+    // marker.color.a = color.a;
+    // geometry_msgs::msg::Point point;
 
-    point.x = 0.0;
-    point.y = 0.0;
-    point.z = 0.0;
+    // point.x = 0.0;
+    // point.y = 0.0;
+    // point.z = 0.0;
 
-    marker.points.push_back(point);
-    point.x = leg_force.x();
-    point.y = leg_force.y();
-    point.z = leg_force.z();
-    marker.points.push_back(point);
+    // marker.points.push_back(point);
+    // point.x = leg_force.x();
+    // point.y = leg_force.y();
+    // point.z = leg_force.z();
+    // marker.points.push_back(point);
 
     return marker;
   }

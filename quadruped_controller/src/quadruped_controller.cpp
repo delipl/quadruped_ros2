@@ -227,6 +227,19 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     return controller_interface::CallbackReturn::ERROR;
   }
 
+    // Kp << 5.85966683083936, 0, 0,
+    Kp << 22.5633300297324, 22.5633300297324, 22.5633300297324,
+
+    0,0,0,
+    0,0,0,
+    0,0,0;
+    // Kd << 5.85966683083936 * 0.0264537851168775,
+    Kd << 22.5633300297324 * 0.0102549019607843,
+     22.5633300297324 * 0.0102549019607843,
+     22.5633300297324 * 0.0102549019607843,
+    0,0,0,
+    0,0,0,
+    0,0,0;
   // Kp << 95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
@@ -344,8 +357,8 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     }
   };
 
-  // tf_timer_ = get_node()->create_wall_timer(std::chrono::milliseconds(10),
-  //                                           publish_tf_callback);
+  tf_timer_ = get_node()->create_wall_timer(std::chrono::milliseconds(10),
+                                            publish_tf_callback);
 
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return controller_interface::CallbackReturn::SUCCESS;
@@ -455,11 +468,20 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
   // Inverse kinematics
   for (std::size_t i = 0; i < legs_map_.size(); ++i)
   {
+    // ADDED!!!!
+    // double s = std::sin(time.seconds()*5);
+    // double target = (s+1)/2.0 * 0.2 - 0.3; 
+    // double target_2 = (s+1)/2.0 * 1.57 ; 
+
+    // RCLCPP_INFO(get_node()->get_logger(), "time: %f sin: %f, target: %f", time.seconds(), s, target);
+
+    // target_joint_positions_.segment<3>(i * 3) << 0.0, target_2, 1.4;
+    
     auto& leg = legs_map_[i];
 
     if (msg->header.stamp == rclcpp::Time(0, 0, RCL_ROS_TIME))
     {
-      target_joint_positions_.segment<3>(i * 3) << 0.0, -1.0, 1.4;
+      target_joint_positions_.segment<3>(i * 3) << -0.86, 0.52, 1.8;
       continue;
     }
 
@@ -510,8 +532,6 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
   {
     auto joint_states = legs_map_[i].get_joints_states();
 
-    legs_map_[i].update_passive_joints_dynamics(joint_states[2].position, joint_states[2].velocity,
-                                                joint_states[2].effort);
     auto passive_knee_joints = legs_map_[i].get_passive_knee_joints();
     const size_t first = 2 * i;
     const size_t second = 2 * i + 1;

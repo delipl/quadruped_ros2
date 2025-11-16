@@ -68,11 +68,6 @@ public:
 
   std::string get_name() const { return name_; }
   Eigen::Matrix4d kinematics(const Eigen::Vector3d &q);
-  Eigen::Matrix<double, 3, 3> jacobian(const Eigen::Vector3d &q_open);
-  Eigen::Matrix<double, 3, 3> jacobian();
-  Eigen::Matrix<double, 2, 2> jacobian_2d();
-  void update_passive_joints_dynamics(double q3, double dq3, double ddq3) ;
-
   Eigen::Vector2d bar_acc_;
   Eigen::Vector2d bar_q2_acc_;
   Eigen::Vector3d bar_q1_acc_;
