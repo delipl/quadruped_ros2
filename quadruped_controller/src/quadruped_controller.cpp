@@ -232,13 +232,19 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
 
       0, 0, 0, 0, 0, 0, 0, 0, 0;
   // Kd << 5.85966683083936 * 0.0264537851168775,
-  Kd << 22.5633300297324 * 0.0102549019607843, 22.5633300297324 * 0.0102549019607843,
-      22.5633300297324 * 0.0102549019607843, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  Kd << 22.5633300297324 * 0.0102549019607843, 22.5633300297324 * 0.0102549019607843,22.5633300297324 * 0.0102549019607843,
+   0, 0, 0, 0, 0, 0, 0, 0, 0;
 
   Kp << 0.5633300297324, 0.5633300297324, 0.5633300297324,
+  0.5633300297324, 0.5633300297324, 0.5633300297324,
+  0.5633300297324, 0.5633300297324, 0.5633300297324,
+  0.5633300297324, 0.5633300297324, 0.5633300297324;
 
-      0, 0, 0, 0, 0, 0, 0, 0, 0;
-  Kd << 100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+
+  Kd << 100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
+  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
+  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
+  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843;
   // Kp << 95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
@@ -409,10 +415,16 @@ QuadrupedController::on_deactivate(const rclcpp_lifecycle::State& /*previous_sta
 {
   // TODO(anyone): depending on number of interfaces, use definitions, e.g.,
   // `CMD_MY_ITFS`, instead of a loop
-  for (size_t i = 0; i < command_interfaces_.size(); ++i)
+  for (auto & command_interface : command_interfaces_)
   {
-    command_interfaces_[i].set_value(std::numeric_limits<double>::quiet_NaN());
+    if (!command_interface.set_value(0.0))
+    {
+      RCLCPP_ERROR(get_node()->get_logger(), "Unable to set command interface value to 0.0");
+      return controller_interface::CallbackReturn::SUCCESS;
+    }
   }
+
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -481,7 +493,7 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     if (std::isnan(foot_control_positions_[0]))
     {
       RCLCPP_WARN(get_node()->get_logger(), "No valid reference received yet, holding initial position.");
-      target_joint_positions_.segment<3>(i * 3) << -0.0, 0.0, 0.0;
+      target_joint_positions_.segment<3>(i * 3) << 0.0, 0.2, 0.2;
       continue;
     }
 
@@ -543,24 +555,14 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     state_rt_pub_->msg_.velocity[second] = passive_knee_joints.second.velocity;
     state_rt_pub_->msg_.effort[second] = passive_knee_joints.second.effort;
 
-
-    vis_msg.markers.push_back(visualization_->createSphere(foot_positions_.segment<3>(i*3), 0.02, red, "base_link", i));
-    vis_msg.markers.push_back(visualization_->createSphere(target_foot_positions_.segment<3>(i*3), 0.02, green, "base_link",  10+i));
-
+    vis_msg.markers.push_back(
+        visualization_->createSphere(foot_positions_.segment<3>(i * 3), 0.02, red, "base_link", i));
+    vis_msg.markers.push_back(
+        visualization_->createSphere(target_foot_positions_.segment<3>(i * 3), 0.02, green, "base_link", 10 + i));
   }
 
   if (visualization_rt_pub_ && visualization_rt_pub_->trylock())
   {
-    // visualization_msgs::msg::Marker vis_clean_marker;`
-    // vis_clean_marker.header.stamp = get_node()->now();
-    // vis_clean_marker.action = visualization_msgs::msg::Marker::DELETEALL;
-    // visualization_msgs::msg::MarkerArray vis_clean_msg;
-    // vis_clean_msg.markers.push_back(vis_clean_marker);
-
-    // visualization_rt_pub_->msg_ = vis_clean_msg;
-    // visualization_rt_pub_->unlockAndPublish();
-
-
     visualization_rt_pub_->msg_ = vis_msg;
 
     visualization_rt_pub_->unlockAndPublish();
@@ -578,7 +580,6 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     for (size_t i = 0; i < legs_map_.size() * 3; ++i)
     {
       auto& dof = multi_dof_state_rt_pub_->msg_.dof_states[i];
-      // dof.name =
       dof.error = joint_positions_errors_[i];
       dof.error_dot = joint_velocity_errors_[i];
 

@@ -17,7 +17,7 @@ Leg::Leg(const std::string &name) : name_(name) {
     directions_[2].diagonal() << 1, 1, -1, 1;
     directions_[3].diagonal() << -1, 1, 1, 1;
 
-    inv_directions_ << 1, 1, 1;
+    inv_directions_ << 1, 1, 0;
 
   } else if (name == "front_right") {
     z_axis_q0_direction_ = 1.0;
@@ -30,7 +30,7 @@ Leg::Leg(const std::string &name) : name_(name) {
     directions_[2].diagonal() << -1, -1, -1, 1;
     directions_[3].diagonal() << 1, -1, 1, 1;
 
-    inv_directions_ << 1, -1, 1;
+    inv_directions_ << 1, -1, 0;
 
   } else if (name == "rear_left") {
     z_axis_q0_direction_ = -1.0;
@@ -40,10 +40,10 @@ Leg::Leg(const std::string &name) : name_(name) {
 
     directions_[0].diagonal() << 1, 1, 1, 1;
     directions_[1].diagonal() << -1, 1, -1, 1;
-    directions_[2].diagonal() << -1, 1, 1, -1;
+    directions_[2].diagonal() << 1, 1, 1, -1;
     directions_[3].diagonal() << -1, 1, -1, 1;
 
-    inv_directions_ << -1, 1, -1;
+    inv_directions_ << -1, 1, 0;
 
   } else if (name == "rear_right") {
     z_axis_q0_direction_ = -1.0;
@@ -54,12 +54,11 @@ Leg::Leg(const std::string &name) : name_(name) {
     directions_[0].diagonal() << -1, 1, 1, 1;
     directions_[1].diagonal() << 1, 1, -1, 1;
     directions_[2].diagonal() << 1, -1, 1, -1;
-    directions_[3].diagonal() << 1, -1, -1, 1;
+    directions_[3].diagonal() << -1, -1, -1, 1;
 
-    inv_directions_ << -1, -1, -1;
+    inv_directions_ << -1, -1, 0;
   }
 
-  const double gear_ratio = 1.0 / 6.0;
   third_joint_gear_correction_ = -1.117+M_PI;
 
   first_.name = name + "_first_joint";
@@ -115,9 +114,9 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
   Eigen::Vector4d v_A01 = {M_PI_2, d0, a0, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, a1,
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * (-q_open(1)) + M_PI + 0.2793 , d2, a2,
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI  -0.2793 , d2, a2,
                            0.0};
-  Eigen::Vector4d v_A34 = {q_open(2), 0.0, a3, 0.0};
+  Eigen::Vector4d v_A34 = {z_axis_q2_direction_ * q_open(2), 0.0, a3, 0.0};
 
   auto A01 = denavite_hartenberg(directions_[0] * v_A01);
   auto A12 = denavite_hartenberg(directions_[1] * v_A12);
@@ -141,7 +140,7 @@ Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
 void Leg::update_passive_joints(double q3) {
   const double th2 = M_PI -
-                     passive_side_multiplier_ * z_axis_q2_direction_ * q3 +
+                     passive_side_multiplier_ * q3 +
                      third_joint_gear_correction_;
   const auto c2 = std::cos(th2);
   const auto s2 = std::sin(th2);
@@ -214,23 +213,25 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   Eigen::Vector2d b = {xb, yb};
   auto theta_b = std::atan2(b(1), b(0));
   const auto q1_dir = 1.0;
-  q(1) = (theta_b) + 0.2793;
+  q(1) = z_axis_q1_direction_ * theta_b + passive_side_multiplier_*0.2793;
 
+  // This part is to check if we have chosen the correct solution among the two possible
+  // If the solution is not correct, the inverse kinematics is roteted by 90 degrees in the middle
   // Check if angle is correct
   const auto ze_based_on_q1 =
-      l_AB * std::sin(q(1)) + l_BE * std::sin(M_PI + q(1) + phi);
+      l_AB * std::sin(theta_b) + l_BE * std::sin(M_PI + theta_b + phi);
   const auto xe_based_on_q1 =
-      l_AB * std::cos(q(1)) + l_BE * std::cos(M_PI + q(1) + phi);
+      l_AB * std::cos(theta_b) + l_BE * std::cos(M_PI + theta_b + phi);
 
   const auto ze_error = std::abs(ze - ze_based_on_q1);
   const auto xe_error = std::abs(xe - xe_based_on_q1);
   const auto is_error = (ze_error > 0.001 || xe_error > 0.001);
-  if ((is_error && q1_dir < 0) || (!is_error && q1_dir > 0)) {
-    yb *= -1;
+  if ((is_error && q1_dir > 0) || (!is_error && q1_dir < 0)) {
     b << b(0), -b(1);
     theta_b = std::atan2(b(1), b(0));
-    q(1) = q1_dir * (-theta_b) - 0.2793;
+    q(1) = z_axis_q1_direction_ * (theta_b + 0.2793);
   }
+
 
   const Eigen::Vector2d e = {xe, ze};
   const Eigen::Vector2d be = e - b;
@@ -243,7 +244,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   const auto alpha = std::acos((c * c + l2 * l2 - l3 * l3) / (2 * c * l2));
   const auto beta = std::acos((c * c + l1 * l1 - l4 * l4) / (2 * c * l1));
 
-  q(2) = (-beta - alpha + M_PI + third_joint_gear_correction_);
+  q(2) = z_axis_q2_direction_ * (-beta - alpha + M_PI + third_joint_gear_correction_);
 
   return q;
 }

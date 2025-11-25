@@ -34,6 +34,10 @@ quadruped_controller:
     ros__parameters:
       leg_names:
         - rear_left
+        - rear_right
+        # - front_left
+        # - front_right
+
       joints:
         # - front_left_first_joint
         # - front_left_second_joint
@@ -44,9 +48,9 @@ quadruped_controller:
         - rear_left_first_joint
         - rear_left_second_joint
         - rear_left_third_joint
-        # - rear_right_first_joint
-        # - rear_right_second_joint
-        # - rear_right_third_joint
+        - rear_right_first_joint
+        - rear_right_second_joint
+        - rear_right_third_joint
 
       command_interface: acceleration
       state_interfaces:
