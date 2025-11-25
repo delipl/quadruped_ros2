@@ -7,21 +7,23 @@ namespace quadruped_controller {
 Leg::Leg(const std::string &name) : name_(name) {
 
   if (name == "front_left") {
+    // same likeRR
     z_axis_q0_direction_ = 1.0;
-    z_axis_q1_direction_ = 1.0;
+    z_axis_q1_direction_ = -1.0;
     z_axis_q2_direction_ = -1.0;
     passive_side_multiplier_ = -1.0;
 
     directions_[0].diagonal() << 1, 1, 1, 1;
     directions_[1].diagonal() << -1, 1, 1, 1;
-    directions_[2].diagonal() << 1, 1, -1, 1;
-    directions_[3].diagonal() << -1, 1, 1, 1;
+    directions_[2].diagonal() << -1, 1, -1, 1;
+    directions_[3].diagonal() << 1, 1, 1, 1;
 
     inv_directions_ << 1, 1, 0;
 
   } else if (name == "front_right") {
+    // same like RL
     z_axis_q0_direction_ = 1.0;
-    z_axis_q1_direction_ = -1.0;
+    z_axis_q1_direction_ = 1.0;
     z_axis_q2_direction_ = 1.0;
     passive_side_multiplier_ = 1.0;
 

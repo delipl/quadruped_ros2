@@ -493,7 +493,7 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     if (std::isnan(foot_control_positions_[0]))
     {
       RCLCPP_WARN(get_node()->get_logger(), "No valid reference received yet, holding initial position.");
-      target_joint_positions_.segment<3>(i * 3) << 0.0, 0.2, 0.2;
+      target_joint_positions_.segment<3>(i * 3) << 0.0, 0.0, 0.0;
       continue;
     }
 
