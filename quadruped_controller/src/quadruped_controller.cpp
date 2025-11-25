@@ -199,12 +199,12 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
           {
             for (int i = 0; i < 4; i++)
             {
-              Kp[3 * i] = 95.92020756982738;
-              Kp[3 * i + 1] = 25.601396;
-              Kp[3 * i + 2] = 51.207090397090106;
-              Kd[3 * i] = 95.92020756982738 * 0.022526014640095713;
-              Kd[3 * i + 1] = 25.601396 * 0.0240;
-              Kd[3 * i + 2] = 51.207090397090106 * 0.023184721126433695;
+              // Kp[3 * i] = 95.92020756982738;
+              // Kp[3 * i + 1] = 25.601396;
+              // Kp[3 * i + 2] = 51.207090397090106;
+              // Kd[3 * i] = 95.92020756982738 * 0.022526014640095713;
+              // Kd[3 * i + 1] = 25.601396 * 0.0240;
+              // Kd[3 * i + 2] = 51.207090397090106 * 0.023184721126433695;
               feed_forward_[3 * i] = 0.0;
               feed_forward_[3 * i + 1] = 0.0;
               feed_forward_[3 * i + 2] = 0.0;
@@ -236,23 +236,6 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     Kd[3 * i + 1] = params_.second_joint_kd;
     Kd[3 * i + 2] = params_.third_joint_kd;
   }
-  // mujoco
-  // Kp << 95.92020756982738, 51.207090397090106, 51.207090397090106,
-  //     95.92020756982738, 51.207090397090106, 51.207090397090106,
-  //     95.92020756982738, 51.207090397090106, 51.207090397090106,
-  //     95.92020756982738, 51.207090397090106, 51.207090397090106;
-  // Kd << 95.92020756982738 * 0.022526014640095713,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     95.92020756982738 * 0.022526014640095713,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     95.92020756982738 * 0.022526014640095713,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     95.92020756982738 * 0.022526014640095713,
-  //     51.207090397090106 * 0.023184721126433695,
-  //     51.207090397090106 * 0.023184721126433695;
 
   RCLCPP_INFO(get_node()->get_logger(), "Read %d leg names", params_.leg_names.size());
 
@@ -460,10 +443,29 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
   // Read target states
   auto msg = *(input_ref_.readFromRT());
 
-  target_foot_positions_ << msg->fl_foot_position.x, msg->fl_foot_position.y, msg->fl_foot_position.z,
-      msg->fr_foot_position.x, msg->fr_foot_position.y, msg->fr_foot_position.z, msg->rl_foot_position.x,
-      msg->rl_foot_position.y, msg->rl_foot_position.z, msg->rr_foot_position.x, msg->rr_foot_position.y,
-      msg->rr_foot_position.z;
+  for (size_t i = 0; i < legs_map_.size(); ++i)
+  {
+    if(legs_map_[i].get_name() == "front_left")
+    {
+      target_foot_positions_.segment<3>(i * 3) << msg->fl_foot_position.x, msg->fl_foot_position.y,
+          msg->fl_foot_position.z;
+    }
+    else if(legs_map_[i].get_name() == "front_right")
+    {
+      target_foot_positions_.segment<3>(i * 3) << msg->fr_foot_position.x, msg->fr_foot_position.y,
+          msg->fr_foot_position.z;
+    }
+    else if(legs_map_[i].get_name() == "rear_left")
+    {
+      target_foot_positions_.segment<3>(i * 3) << msg->rl_foot_position.x, msg->rl_foot_position.y,
+          msg->rl_foot_position.z;
+    }
+    else if(legs_map_[i].get_name() == "rear_right")
+    {
+      target_foot_positions_.segment<3>(i * 3) << msg->rr_foot_position.x, msg->rr_foot_position.y,
+          msg->rr_foot_position.z;
+    }
+  }
 
   // Inverse kinematics
   for (std::size_t i = 0; i < legs_map_.size(); ++i)

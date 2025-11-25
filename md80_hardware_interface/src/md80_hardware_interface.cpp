@@ -107,6 +107,11 @@ MD80HardwareInterface::export_command_interfaces() {
           &md80_info_[i].command.effort));
       md80_info_[i].control_mode = mab::Md80Mode_E::RAW_TORQUE;
     }
+    else {
+      RCLCPP_ERROR_STREAM(rclcpp::get_logger(get_name()),
+                          "Unknown control mode: " << control_mode);
+      throw std::runtime_error("Unknown control mode");
+    }
   }
 
   return command_interfaces;

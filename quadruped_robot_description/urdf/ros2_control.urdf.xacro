@@ -7,7 +7,7 @@
               dq_kp=2.0   dq_ki=0.5   dq_kd=0.0   dq_windup=0.1
               ddq_kp=1.0  ddq_kd=0.15">
         <joint name="${name}">
-            <command_interface name="acceleration" />
+            <command_interface name="effort" />
             <state_interface name="position">
                 <param name="initial_value">0.0</param>
             </state_interface>
@@ -96,18 +96,18 @@
 
             <xacro:property name="kp1" value="25" />
             <xacro:property name="kd1" value="5.0" />
-            <xacro:property name="max_torque1" value="3.0" />
+            <xacro:property name="max_torque1" value="2.0" />
 
 
             <!-- <xacro:property name="kp2" value="50" /> -->
             <xacro:property name="kp2" value="7.5" />
             <xacro:property name="kd2" value="1.0" />
-            <xacro:property name="max_torque2" value="3.0" />
+            <xacro:property name="max_torque2" value="1.0" />
 
             <!-- <xacro:property name="kp3" value="50" /> -->
             <xacro:property name="kp3" value="7.5" />
             <xacro:property name="kd3" value="1.0" />
-            <xacro:property name="max_torque3" value="3.0" />
+            <xacro:property name="max_torque3" value="1.0" />
 
             <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" ddq_kp="${kp1}"
                 ddq_kd="${kd1}" max_torque="${max_torque1}" />

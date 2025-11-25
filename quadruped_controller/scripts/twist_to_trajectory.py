@@ -27,7 +27,7 @@ class PosePublisher(Node):
         )
 
         # Częstotliwość publikacji co sekundę
-        self.gait_period = 0.08
+        self.gait_period = 0.25
         self.timer_period = self.gait_period / 100.0
         
         # timer_period = 0.01

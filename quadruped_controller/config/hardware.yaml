@@ -32,6 +32,8 @@ joint_state_broadcaster:
 
 quadruped_controller:
     ros__parameters:
+      # Do not change the order of the legs!
+      # FIXME 
       leg_names:
         - front_left
         - front_right
@@ -52,7 +54,7 @@ quadruped_controller:
         - rear_right_second_joint
         - rear_right_third_joint
 
-      command_interface: acceleration
+      command_interface: effort
       state_interfaces:
         - position
         - velocity
@@ -68,12 +70,12 @@ quadruped_controller:
 
       # REAL ROBOT
       # 22.5633300297324 * 0.0102549019607843
-      first_joint_kp: 22.5633300297324
-      first_joint_kd: 0.23138473736372606
-      second_joint_kp: 22.5633300297324
-      second_joint_kd: 0.23138473736372606
-      third_joint_kp: 22.5633300297324
-      third_joint_kd: 0.23138473736372606
+      first_joint_kp: 1.5633300297324
+      first_joint_kd: 0.023138473736372606
+      second_joint_kp: 1.5633300297324
+      second_joint_kd: 0.023138473736372606
+      third_joint_kp: 1.5633300297324
+      third_joint_kd: 0.023138473736372606
 
       # Mujoco:
       # 95.92020756982738, 51.207090397090106, 51.207090397090106,
