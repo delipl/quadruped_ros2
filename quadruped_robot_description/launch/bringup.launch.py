@@ -68,52 +68,6 @@ def generate_launch_description():
         ],
         condition=UnlessCondition(use_sim),
     )
-
-
-    imu_sensor_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "imu_sensor_broadcaster",
-            "-c",
-            "controller_manager",
-        ],
-        # condition=IfCondition(use_hardware),
-    )
-
-    # passive_joint_state_broadcaster = Node(
-    #     package="quadruped_controller",
-    #     executable="passive_joint_state_broadcaster",
-    #     name="passive_joint_state_broadcaster",
-    #     output="screen",
-    #     parameters=[
-    #         {
-    #             "use_sim_time": use_sim
-    #         }
-    #         ],
-    # )
-
-    # inverse_test_controller = Node(
-    #     package="quadruped_controller",
-    #     executable="quadruped_controller_node",
-    #     name="quadruped_controller_node",
-    #     output="screen",
-    #     parameters=[{
-    #         "use_sim_time": use_sim,
-    #         "use_hardware": use_hardware
-    #         }],
-    # )
-
-    # position_controller = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[
-    #         "position_controller",
-    #         "-c",
-    #         "controller_manager",
-    #     ],
-    #     # condition=IfCondition(use_hardware),
-    # )
     
     twist_to_trajectory = Node(
         package="quadruped_controller",
@@ -148,27 +102,8 @@ def generate_launch_description():
                     }
                 ],
             ),
-            # Node(
-            #     package="joint_state_publisher_gui",
-            #     executable="joint_state_publisher_gui",
-            #     name="joint_state_publisher_gui",
-            #     output="screen",
-            #     # remappings= {("joint_states", "rqt_joint_states")},
-            # ),
-            # Node(
-            #     package="rviz2",
-            #     executable="rviz2",
-            #     name="rviz2",
-            #     output="screen",
-            #     arguments=['-d', os.path.join(get_package_share_directory("quadruped_robot_description"), "rviz", "quadruped_robot.rviz")],
-            # ),
-            # passive_joint_state_broadcaster,
             joint_state_broadcaster_spawner,
             control_node,
-            # joint_trajectory_controller,
-            # imu_sensor_broadcaster,
-            # inverse_test_controller,
-            # position_controller,
             # twist_to_trajectory
         ]
     )

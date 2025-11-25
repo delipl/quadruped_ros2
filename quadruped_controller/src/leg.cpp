@@ -115,7 +115,7 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
   Eigen::Vector4d v_A01 = {M_PI_2, d0, a0, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, a1,
                            z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI + 0.2793, d2, a2,
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * (-q_open(1)) + M_PI + 0.2793 , d2, a2,
                            0.0};
   Eigen::Vector4d v_A34 = {q_open(2), 0.0, a3, 0.0};
 
@@ -124,7 +124,7 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d &q_open) {
   auto A23 = denavite_hartenberg(directions_[2] * v_A23);
   auto A34 = denavite_hartenberg(directions_[3] * v_A34);
 
-  return A01 * A12 * A23  * A34;
+  return A01 * A12 * A23 * A34;
 }
 
 Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d &q) {
@@ -214,7 +214,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
   Eigen::Vector2d b = {xb, yb};
   auto theta_b = std::atan2(b(1), b(0));
   const auto q1_dir = 1.0;
-  q(1) = (-theta_b);
+  q(1) = (theta_b) + 0.2793;
 
   // Check if angle is correct
   const auto ze_based_on_q1 =
@@ -229,7 +229,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d &x) {
     yb *= -1;
     b << b(0), -b(1);
     theta_b = std::atan2(b(1), b(0));
-    q(1) = q1_dir * (-theta_b);
+    q(1) = q1_dir * (-theta_b) - 0.2793;
   }
 
   const Eigen::Vector2d e = {xe, ze};

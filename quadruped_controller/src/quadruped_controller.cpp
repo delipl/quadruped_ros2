@@ -227,19 +227,18 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     return controller_interface::CallbackReturn::ERROR;
   }
 
-    // Kp << 5.85966683083936, 0, 0,
-    Kp << 22.5633300297324, 22.5633300297324, 22.5633300297324,
+  // Kp << 5.85966683083936, 0, 0,
+  Kp << 22.5633300297324, 22.5633300297324, 22.5633300297324,
 
-    0,0,0,
-    0,0,0,
-    0,0,0;
-    // Kd << 5.85966683083936 * 0.0264537851168775,
-    Kd << 22.5633300297324 * 0.0102549019607843,
-     22.5633300297324 * 0.0102549019607843,
-     22.5633300297324 * 0.0102549019607843,
-    0,0,0,
-    0,0,0,
-    0,0,0;
+      0, 0, 0, 0, 0, 0, 0, 0, 0;
+  // Kd << 5.85966683083936 * 0.0264537851168775,
+  Kd << 22.5633300297324 * 0.0102549019607843, 22.5633300297324 * 0.0102549019607843,
+      22.5633300297324 * 0.0102549019607843, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+
+  Kp << 0.5633300297324, 0.5633300297324, 0.5633300297324,
+
+      0, 0, 0, 0, 0, 0, 0, 0, 0;
+  Kd << 100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843, 0, 0, 0, 0, 0, 0, 0, 0, 0;
   // Kp << 95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
@@ -257,7 +256,6 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
   //     51.207090397090106 * 0.023184721126433695,
   //     51.207090397090106 * 0.023184721126433695;
 
-
   RCLCPP_INFO(get_node()->get_logger(), "Read %d leg names", params_.leg_names.size());
 
   for (const auto& leg_name : params_.leg_names)
@@ -266,7 +264,7 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     legs_map_.push_back(leg);
   }
 
-  const std::size_t data_size = legs_map_.size() * 3;
+  const std::size_t data_size = legs_map_.size() * JOINTS_IN_LEG;
 
   RCLCPP_INFO(get_node()->get_logger(), "Data size is: %d", data_size);
 
@@ -357,8 +355,7 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     }
   };
 
-  tf_timer_ = get_node()->create_wall_timer(std::chrono::milliseconds(10),
-                                            publish_tf_callback);
+  tf_timer_ = get_node()->create_wall_timer(std::chrono::milliseconds(10), publish_tf_callback);
 
   RCLCPP_INFO(get_node()->get_logger(), "configure successful");
   return controller_interface::CallbackReturn::SUCCESS;
@@ -436,7 +433,7 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     Eigen::Vector3d tau;
 
     // Throught joints. Remember there are positions, velocities and efforts
-    for (std::size_t j = 0; j < 3; ++j)
+    for (std::size_t j = 0; j < JOINTS_IN_LEG; ++j)
     {
       const auto q_index = get_state_interface_index(i, j, 0);
       const auto v_index = get_state_interface_index(i, j, 1);
@@ -468,35 +465,28 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
   // Inverse kinematics
   for (std::size_t i = 0; i < legs_map_.size(); ++i)
   {
-    // ADDED!!!!
-    // double s = std::sin(time.seconds()*5);
-    // double target = (s+1)/2.0 * 0.2 - 0.3; 
-    // double target_2 = (s+1)/2.0 * 1.57 ; 
-
-    // RCLCPP_INFO(get_node()->get_logger(), "time: %f sin: %f, target: %f", time.seconds(), s, target);
-
-    // target_joint_positions_.segment<3>(i * 3) << 0.0, target_2, 1.4;
-    
     auto& leg = legs_map_[i];
 
-    if (msg->header.stamp == rclcpp::Time(0, 0, RCL_ROS_TIME))
-    {
-      target_joint_positions_.segment<3>(i * 3) << -0.86, 0.52, 1.8;
-      continue;
-    }
+    // if (msg->header.stamp == rclcpp::Time(0, 0, RCL_ROS_TIME))
+    // {
+    //   target_joint_positions_.segment<3>(i * 3) << -0.86, 0.52, 1.8;
+    //   continue;
+    // }
 
     foot_positions_error_.segment<3>(i * 3) =
         target_foot_positions_.segment<3>(i * 3) - foot_positions_.segment<3>(i * 3);
 
     foot_control_positions_.segment<3>(i * 3) = target_foot_positions_.segment<3>(i * 3);
 
-    // z coordinate  PID
-    foot_control_positions_[i * 3 + 2] += params_.pid_z_leg_trajectory * foot_positions_error_[i * 3 + 2];
-
-    foot_control_positions_[i * 3 + 2] = std::max(foot_control_positions_[i * 3 + 2], -0.22);
+    if (std::isnan(foot_control_positions_[0]))
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "No valid reference received yet, holding initial position.");
+      target_joint_positions_.segment<3>(i * 3) << -0.0, 0.0, 0.0;
+      continue;
+    }
 
     auto q = leg.inverse_kinematics(foot_control_positions_.segment<3>(i * 3));
-    for (std::size_t j = 0; j < 3; ++j)
+    for (std::size_t j = 0; j < JOINTS_IN_LEG; ++j)
     {
       if (std::isnan(q[j]))
       {
@@ -510,8 +500,6 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     }
   }
 
-  // TODO: parametrize this
-
   joint_positions_errors_ = target_joint_positions_ - joint_positions_;
   joint_velocity_errors_ = -joint_velocities_;
 
@@ -520,13 +508,23 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
   target_joint_efforts_ =
       Kp.cwiseProduct(joint_positions_errors_) + Kd.cwiseProduct(joint_velocity_errors_) + feed_forward_;
 
-  for (size_t i = 0; i < legs_map_.size() * 3; ++i)
+  for (size_t i = 0; i < legs_map_.size() * JOINTS_IN_LEG; ++i)
   {
     command_interfaces_[i].set_value(target_joint_efforts_[i]);
   }
 
   // ========================Prepare the message for the state publisher
   visualization_msgs::msg::MarkerArray vis_msg;
+  std_msgs::msg::ColorRGBA red;
+  red.r = 1.0;
+  red.g = 0.0;
+  red.b = 0.0;
+  red.a = 1.0;
+  std_msgs::msg::ColorRGBA green;
+  green.r = 0.0;
+  green.g = 1.0;
+  green.b = 0.0;
+  green.a = 1.0;
 
   for (size_t i = 0; i < legs_map_.size(); ++i)
   {
@@ -545,68 +543,15 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     state_rt_pub_->msg_.velocity[second] = passive_knee_joints.second.velocity;
     state_rt_pub_->msg_.effort[second] = passive_knee_joints.second.effort;
 
-    // auto J = legs_map_[i].jacobian_2d();
-    // joint_states = legs_map_[i].get_joints_states();
 
-    // auto J_t = J.transpose();
-    // auto J_t_pinv = J.completeOrthogonalDecomposition().pseudoInverse();
-    // Eigen::Vector2d ddq;
-    // // ddq << joint_states[0].effort, joint_states[1].effort,
-    // //     joint_states[4].effort;
-    // ddq << joint_states[1].effort, joint_states[3].effort;
+    vis_msg.markers.push_back(visualization_->createSphere(foot_positions_.segment<3>(i*3), 0.02, red, "base_link", i));
+    vis_msg.markers.push_back(visualization_->createSphere(target_foot_positions_.segment<3>(i*3), 0.02, green, "base_link",  10+i));
 
-    // Eigen::Vector2d f = J_t_pinv * ddq;
-
-    geometry_msgs::msg::Point start;
-    geometry_msgs::msg::Point target_p;
-    auto foot_position = foot_positions_.segment<3>(i * 3);
-    Eigen::Vector2d f;
-    f << legs_map_[i].bar_acc_(0), legs_map_[i].bar_acc_(1);
-
-    start.x = foot_position.x();
-    start.y = foot_position.y();
-    start.z = foot_position.z();
-
-    target_p.x = foot_position.x();
-    target_p.y = foot_position.y();
-    target_p.z = foot_position.z();
-
-    target_p.x += f(0) / 5;
-    target_p.z += f(1) / 5;
-    const std::string frame_id = "base_link";
-
-    std_msgs::msg::ColorRGBA red;
-    red.r = 1.0;
-    red.a = 1.0;
-    std_msgs::msg::ColorRGBA green;
-    green.g = 1.0;
-    green.a = 1.0;
-    std_msgs::msg::ColorRGBA blue;
-    blue.b = 1.0;
-    blue.a = 1.0;
-
-    vis_msg.markers.push_back(visualization_->createArrow(start, target_p, 0.05, red, frame_id, i));
-
-    geometry_msgs::msg::Point target_q2;
-    Eigen::Vector2d f2 = legs_map_[i].bar_q2_acc_;
-    target_q2.x = foot_position.x() + f2(0);
-    target_q2.y = foot_position.y();
-    target_q2.z = foot_position.z() + f2(1);
-
-    vis_msg.markers.push_back(visualization_->createArrow(start, target_q2, 0.05, blue, frame_id, i + 4));
-
-    Eigen::Vector2d f_bar;
-    f_bar = legs_map_[i].bar_acc_ + legs_map_[i].bar_q2_acc_;
-    geometry_msgs::msg::Point target_bar;
-    target_bar.x = foot_position.x() + f_bar(0);
-    target_bar.y = foot_position.y();
-    target_bar.z = foot_position.z() + f_bar(1);
-    vis_msg.markers.push_back(visualization_->createArrow(start, target_bar, 0.05, green, frame_id, i + 8));
   }
 
   if (visualization_rt_pub_ && visualization_rt_pub_->trylock())
   {
-    // visualization_msgs::msg::Marker vis_clean_marker;
+    // visualization_msgs::msg::Marker vis_clean_marker;`
     // vis_clean_marker.header.stamp = get_node()->now();
     // vis_clean_marker.action = visualization_msgs::msg::Marker::DELETEALL;
     // visualization_msgs::msg::MarkerArray vis_clean_msg;
@@ -614,6 +559,7 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
 
     // visualization_rt_pub_->msg_ = vis_clean_msg;
     // visualization_rt_pub_->unlockAndPublish();
+
 
     visualization_rt_pub_->msg_ = vis_msg;
 
@@ -663,24 +609,16 @@ controller_interface::return_type QuadrupedController::update(const rclcpp::Time
     multi_dof_task_state_rt_pub_->unlockAndPublish();
   }
 
-  set_msg_data_from_vector_and_publish(impedance_control_rt_pub_,
-                                       target_joint_efforts_);
-  set_msg_data_from_vector_and_publish(target_joint_position_rt_pub_,
-                                       target_joint_positions_);
-  set_msg_data_from_vector_and_publish(position_error_rt_pub_,
-                                       joint_positions_errors_);
-  set_msg_data_from_vector_and_publish(velocity_error_rt_pub_,
-                                       joint_velocity_errors_);
+  set_msg_data_from_vector_and_publish(impedance_control_rt_pub_, target_joint_efforts_);
+  set_msg_data_from_vector_and_publish(target_joint_position_rt_pub_, target_joint_positions_);
+  set_msg_data_from_vector_and_publish(position_error_rt_pub_, joint_positions_errors_);
+  set_msg_data_from_vector_and_publish(velocity_error_rt_pub_, joint_velocity_errors_);
 
-  set_msg_data_from_vector_and_publish(foot_position_rt_pub_,
-  foot_positions_);
-  set_msg_data_from_vector_and_publish(target_foot_position_rt_pub_,
-                                       target_foot_positions_);
-  set_msg_data_from_vector_and_publish(foot_position_error_rt_pub_,
-                                       foot_positions_error_);
+  set_msg_data_from_vector_and_publish(foot_position_rt_pub_, foot_positions_);
+  set_msg_data_from_vector_and_publish(target_foot_position_rt_pub_, target_foot_positions_);
+  set_msg_data_from_vector_and_publish(foot_position_error_rt_pub_, foot_positions_error_);
 
-  set_msg_data_from_vector_and_publish(foot_control_position_rt_pub_,
-                                       foot_control_positions_);
+  set_msg_data_from_vector_and_publish(foot_control_position_rt_pub_, foot_control_positions_);
 
   auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();

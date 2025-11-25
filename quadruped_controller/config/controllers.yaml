@@ -44,7 +44,7 @@ quadruped_controller:
         - rear_left_second_joint
         - rear_left_third_joint
 
-      command_interface: effort
+      command_interface: acceleration
       state_interfaces:
         - position
         - velocity

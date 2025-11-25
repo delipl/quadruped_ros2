@@ -45,6 +45,8 @@
 
 #include "quadruped_controller/visualization.hpp"
 namespace quadruped_controller {
+
+static constexpr std::size_t JOINTS_IN_LEG = 3;
 // name constants for state interfaces
 static constexpr size_t STATE_MY_ITFS = 0;
 

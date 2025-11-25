@@ -7,7 +7,7 @@
               dq_kp=2.0   dq_ki=0.5   dq_kd=0.0   dq_windup=0.1
               ddq_kp=1.0  ddq_kd=0.15">
         <joint name="${name}">
-            <command_interface name="effort" />
+            <command_interface name="acceleration" />
             <state_interface name="position">
                 <param name="initial_value">0.0</param>
             </state_interface>
@@ -37,18 +37,6 @@
         </joint>
     </xacro:macro>
 
-    <xacro:macro name="ros2_control_passive_point" params="name">
-        <joint name="${name}">
-            <state_interface name="position" />
-            <!-- TODO @delipl
-       <state_interface name="velocity">
-        <param name="initial_value">0.0</param>
-      </state_interface> -->
-            <!-- <state_interface name="effort" /> -->
-
-        </joint>
-
-    </xacro:macro>
 
     <xacro:macro name="imu_ros2_control">
 
@@ -101,6 +89,7 @@
                     </xacro:if>
                     <xacro:unless value="${use_hardware}">
                         <plugin>mock_components/GenericSystem</plugin>
+                        <param name="calculate_dynamics">true</param>
                     </xacro:unless>
                 </xacro:unless>
             </hardware>
