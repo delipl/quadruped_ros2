@@ -62,37 +62,39 @@ quadruped_controller:
           forbidden_interface_name_prefix: null,
         },
     }
-
-  pid_z_leg_trajectory:
+  first_joint_kp:
     {
       type: double,
       default_value: 0.0,
-      description: "Specifies the PID gains for the Z leg trajectory controller.",
+      description: "Specifies the proportional gain for the first joint.",
     }
-  kinematics:
-    plugin_name:
-      {
-        type: string,
-        description: "Specifies the name of the kinematics plugin to load.",
-      }
-    plugin_package:
-      {
-        type: string,
-        description: "Specifies the package name that contains the kinematics plugin.",
-      }
-    base:
-      {
-        type: string,
-        description: "Specifies the base link of the robot description used by the kinematics plugin.",
-      }
-    tip:
-      {
-        type: string,
-        description: "Specifies the end effector link of the robot description used by the kinematics plugin.",
-      }
-    alpha:
-      {
-        type: double,
-        default_value: 0.01,
-        description: "Specifies the damping coefficient for the Jacobian pseudo inverse.",
-      }
+  first_joint_kd:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Specifies the derivative gain for the first joint.",
+    }
+  second_joint_kp:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Specifies the proportional gain for the second joint.",
+    }
+  second_joint_kd:
+    {
+      type: double,   
+      default_value: 0.0,
+      description: "Specifies the derivative gain for the second joint.",
+    }
+  third_joint_kp:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Specifies the proportional gain for the third joint.",
+    }
+  third_joint_kd:
+    {
+      type: double,
+      default_value: 0.0,
+      description: "Specifies the derivative gain for the third joint.",
+    }

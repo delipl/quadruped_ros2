@@ -58,10 +58,26 @@ quadruped_controller:
         - velocity
         - effort
 
-      kinematics:
-        plugin_name: quadbar_kinematics/QuadbarKinematics
-        plugin_package: quadbar_kinematics
-        base: base_link
-        tip: end_effector_link
-      state_publish_rate: 100.0
-      action_monitor_rate: 20.0
+      # MOCK
+      # first_joint_kp: 0.5633300297324
+      # first_joint_kd: 1.02549019607843
+      # second_joint_kp: 0.5633300297324
+      # second_joint_kd: 1.02549019607843
+      # third_joint_kp: 0.5633300297324
+      # third_joint_kd: 1.02549019607843
+
+      # REAL ROBOT
+      # 22.5633300297324 * 0.0102549019607843
+      first_joint_kp: 22.5633300297324
+      first_joint_kd: 0.23138473736372606
+      second_joint_kp: 22.5633300297324
+      second_joint_kd: 0.23138473736372606
+      third_joint_kp: 22.5633300297324
+      third_joint_kd: 0.23138473736372606
+
+      # Mujoco:
+      # 95.92020756982738, 51.207090397090106, 51.207090397090106,
+
+      # 95.92020756982738 * 0.022526014640095713,
+      # 51.207090397090106 * 0.023184721126433695,
+      # 51.207090397090106 * 0.023184721126433695,

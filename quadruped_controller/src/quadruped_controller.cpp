@@ -227,24 +227,16 @@ QuadrupedController::on_configure(const rclcpp_lifecycle::State& /*previous_stat
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  // Kp << 5.85966683083936, 0, 0,
-  Kp << 22.5633300297324, 22.5633300297324, 22.5633300297324,
-
-      0, 0, 0, 0, 0, 0, 0, 0, 0;
-  // Kd << 5.85966683083936 * 0.0264537851168775,
-  Kd << 22.5633300297324 * 0.0102549019607843, 22.5633300297324 * 0.0102549019607843,22.5633300297324 * 0.0102549019607843,
-   0, 0, 0, 0, 0, 0, 0, 0, 0;
-
-  Kp << 0.5633300297324, 0.5633300297324, 0.5633300297324,
-  0.5633300297324, 0.5633300297324, 0.5633300297324,
-  0.5633300297324, 0.5633300297324, 0.5633300297324,
-  0.5633300297324, 0.5633300297324, 0.5633300297324;
-
-
-  Kd << 100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
-  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
-  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843,
-  100 * 0.0102549019607843, 100 * 0.0102549019607843, 100 * 0.0102549019607843;
+  for (int i = 0; i < params_.leg_names.size(); i++)
+  {
+    Kp[3 * i] = params_.first_joint_kp;
+    Kp[3 * i + 1] = params_.second_joint_kp;
+    Kp[3 * i + 2] = params_.third_joint_kp;
+    Kd[3 * i] = params_.first_joint_kd;
+    Kd[3 * i + 1] = params_.second_joint_kd;
+    Kd[3 * i + 2] = params_.third_joint_kd;
+  }
+  // mujoco
   // Kp << 95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
   //     95.92020756982738, 51.207090397090106, 51.207090397090106,
@@ -415,7 +407,7 @@ QuadrupedController::on_deactivate(const rclcpp_lifecycle::State& /*previous_sta
 {
   // TODO(anyone): depending on number of interfaces, use definitions, e.g.,
   // `CMD_MY_ITFS`, instead of a loop
-  for (auto & command_interface : command_interfaces_)
+  for (auto& command_interface : command_interfaces_)
   {
     if (!command_interface.set_value(0.0))
     {
@@ -423,7 +415,6 @@ QuadrupedController::on_deactivate(const rclcpp_lifecycle::State& /*previous_sta
       return controller_interface::CallbackReturn::SUCCESS;
     }
   }
-
 
   return controller_interface::CallbackReturn::SUCCESS;
 }
