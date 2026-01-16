@@ -15,26 +15,35 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, Shutdown
+from launch.event_handlers import OnProcessExit
+from launch.substitutions import (
+    Command,
+    LaunchConfiguration,
+    PathJoinSubstitution,
+    PythonExpression,
+)
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
     urdf_file = PathJoinSubstitution(
-        [FindPackageShare("quadruped_robot_description"), "urdf", "quadruped_robot.urdf.xacro"]
+        [FindPackageShare("four_bar_bot_description"), "urdf", "four_bar_bot.urdf.xacro"]
     )
+
+    use_hardware = LaunchConfiguration("use_hardware")
+    use_sim = LaunchConfiguration("use_sim")
 
     robot_controllers = PathJoinSubstitution(
         [
             FindPackageShare("four_bar_bot_bringup"),
             "config",
-            "controllers.yaml",
+            PythonExpression(
+                ["'controllers.yaml' if ", use_hardware, " else 'mock_controllers.yaml'"]
+            ),
         ]
     )
-    use_hardware = LaunchConfiguration("use_hardware")
-    use_sim = LaunchConfiguration("use_sim")
 
     declare_use_hardware = DeclareLaunchArgument(
         name="use_hardware",
@@ -78,15 +87,21 @@ def generate_launch_description():
         ],
     )
 
-    # joint_state_broadcaster_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[
-    #         "joint_state_broadcaster",
-    #         "--controller-manager",
-    #         "/controller_manager",
-    #     ],
-    # )
+    shutdown_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=control_node, on_exit=[Shutdown(reason="ROS Control failed to launch")]
+        )
+    )
+
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+    )
 
     # quadruped_controller = Node(
     #     package="controller_manager",
@@ -105,5 +120,7 @@ def generate_launch_description():
             declare_robot_description,
             robot_state_publisher_node,
             control_node,
+            shutdown_handler,
+            joint_state_broadcaster_spawner,
         ]
     )

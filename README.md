@@ -26,7 +26,7 @@ rosdep install --from-paths src -y -i
 ## Run
 
 ```bash
-colcon build --symlink-install --packages-up-to quadruped_robot_description --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+colcon build --symlink-install --packages-up-to four_bar_bot_description --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 ```
 
 ros2 action send_goal /joint_trajectory_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory "{

@@ -417,6 +417,43 @@ controller_interface::return_type QuadrupedController::update(
 
   auto start = std::chrono::high_resolution_clock::now();
 
+  calculate_kinematics();
+  set_target_states();
+  calculate_inverse_kinematics();
+  calculate_control();
+
+  update_passive_joints();
+
+  if (visualization_rt_pub_ && visualization_rt_pub_->trylock()) {
+    visualization_rt_pub_->unlockAndPublish();
+  }
+
+  if (state_rt_pub_ && state_rt_pub_->trylock()) {
+    state_rt_pub_->msg_.header.stamp = time;
+    state_rt_pub_->unlockAndPublish();
+  }
+
+  set_msg_data_from_vector_and_publish(impedance_control_rt_pub_, target_joint_efforts_);
+  set_msg_data_from_vector_and_publish(target_joint_position_rt_pub_, target_joint_positions_);
+  set_msg_data_from_vector_and_publish(position_error_rt_pub_, joint_positions_errors_);
+  set_msg_data_from_vector_and_publish(velocity_error_rt_pub_, joint_velocity_errors_);
+
+  set_msg_data_from_vector_and_publish(foot_position_rt_pub_, foot_positions_);
+  set_msg_data_from_vector_and_publish(target_foot_position_rt_pub_, target_foot_positions_);
+  set_msg_data_from_vector_and_publish(foot_position_error_rt_pub_, foot_positions_error_);
+
+  set_msg_data_from_vector_and_publish(foot_control_position_rt_pub_, foot_control_positions_);
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  RCLCPP_DEBUG(
+    get_node()->get_logger(), "Update loop elapsed time: %ld microseconds", elapsed_time);
+
+  return controller_interface::return_type::OK;
+}
+
+void QuadrupedController::calculate_kinematics()
+{
   // Setting states and forward kinematics
   for (std::size_t i = 0; i < legs_map_.size(); ++i) {
     auto & leg = legs_map_[i];
@@ -445,7 +482,10 @@ controller_interface::return_type QuadrupedController::update(
 
     foot_positions_.segment<3>(i * 3) = foot_position;
   }
+}
 
+void QuadrupedController::set_target_states()
+{
   // Read target states
   auto msg = *(input_ref_.readFromRT());
 
@@ -464,16 +504,12 @@ controller_interface::return_type QuadrupedController::update(
         msg->rr_foot_position.z;
     }
   }
+}
 
-  // Inverse kinematics
+void QuadrupedController::calculate_inverse_kinematics()
+{
   for (std::size_t i = 0; i < legs_map_.size(); ++i) {
     auto & leg = legs_map_[i];
-
-    // if (msg->header.stamp == rclcpp::Time(0, 0, RCL_ROS_TIME))
-    // {
-    //   target_joint_positions_.segment<3>(i * 3) << -0.86, 0.52, 1.8;
-    //   continue;
-    // }
 
     foot_positions_error_.segment<3>(i * 3) = target_foot_positions_.segment<3>(i * 3) -
                                               foot_positions_.segment<3>(i * 3);
@@ -481,8 +517,9 @@ controller_interface::return_type QuadrupedController::update(
     foot_control_positions_.segment<3>(i * 3) = target_foot_positions_.segment<3>(i * 3);
 
     if (std::isnan(foot_control_positions_[0])) {
-      RCLCPP_WARN(
-        get_node()->get_logger(), "No valid reference received yet, holding initial position.");
+      RCLCPP_WARN_STREAM_THROTTLE(
+        get_node()->get_logger(), *get_node()->get_clock(), 1000,
+        "No valid reference received yet, holding initial position.");
       target_joint_positions_.segment<3>(i * 3) << 0.0, 0.0, 0.0;
       continue;
     }
@@ -498,7 +535,10 @@ controller_interface::return_type QuadrupedController::update(
       }
     }
   }
+}
 
+void QuadrupedController::calculate_control()
+{
   joint_positions_errors_ = target_joint_positions_ - joint_positions_;
   joint_velocity_errors_ = -joint_velocities_;
 
@@ -510,7 +550,9 @@ controller_interface::return_type QuadrupedController::update(
   for (size_t i = 0; i < legs_map_.size() * JOINTS_IN_LEG; ++i) {
     command_interfaces_[i].set_value(target_joint_efforts_[i]);
   }
-
+}
+void QuadrupedController::update_passive_joints()
+{
   // ========================Prepare the message for the state publisher
   visualization_msgs::msg::MarkerArray vis_msg;
   std_msgs::msg::ColorRGBA red;
@@ -545,67 +587,7 @@ controller_interface::return_type QuadrupedController::update(
     vis_msg.markers.push_back(visualization_->createSphere(
       target_foot_positions_.segment<3>(i * 3), 0.02, green, "base_link", 10 + i));
   }
-
-  if (visualization_rt_pub_ && visualization_rt_pub_->trylock()) {
-    visualization_rt_pub_->msg_ = vis_msg;
-
-    visualization_rt_pub_->unlockAndPublish();
-  }
-
-  if (state_rt_pub_ && state_rt_pub_->trylock()) {
-    state_rt_pub_->msg_.header.stamp = time;
-    state_rt_pub_->unlockAndPublish();
-  }
-
-  if (multi_dof_state_rt_pub_ && multi_dof_state_rt_pub_->trylock()) {
-    multi_dof_state_rt_pub_->msg_.header.stamp = time;
-    for (size_t i = 0; i < legs_map_.size() * 3; ++i) {
-      auto & dof = multi_dof_state_rt_pub_->msg_.dof_states[i];
-      dof.error = joint_positions_errors_[i];
-      dof.error_dot = joint_velocity_errors_[i];
-
-      dof.feedback = joint_positions_[i];
-      dof.feedback_dot = joint_velocities_[i];
-      dof.reference = target_joint_positions_[i];
-
-      dof.output = target_joint_efforts_[i];
-    }
-
-    multi_dof_state_rt_pub_->unlockAndPublish();
-  }
-
-  if (multi_dof_task_state_rt_pub_ && multi_dof_task_state_rt_pub_->trylock()) {
-    multi_dof_task_state_rt_pub_->msg_.header.stamp = time;
-    for (size_t i = 0; i < legs_map_.size() * 3; ++i) {
-      auto & dof = multi_dof_task_state_rt_pub_->msg_.dof_states[i];
-      // dof.name =
-      dof.error = foot_positions_error_[i];
-
-      dof.feedback = foot_positions_[i];
-      dof.reference = target_foot_positions_[i];
-      dof.output = foot_control_positions_[i];
-    }
-
-    multi_dof_task_state_rt_pub_->unlockAndPublish();
-  }
-
-  set_msg_data_from_vector_and_publish(impedance_control_rt_pub_, target_joint_efforts_);
-  set_msg_data_from_vector_and_publish(target_joint_position_rt_pub_, target_joint_positions_);
-  set_msg_data_from_vector_and_publish(position_error_rt_pub_, joint_positions_errors_);
-  set_msg_data_from_vector_and_publish(velocity_error_rt_pub_, joint_velocity_errors_);
-
-  set_msg_data_from_vector_and_publish(foot_position_rt_pub_, foot_positions_);
-  set_msg_data_from_vector_and_publish(target_foot_position_rt_pub_, target_foot_positions_);
-  set_msg_data_from_vector_and_publish(foot_position_error_rt_pub_, foot_positions_error_);
-
-  set_msg_data_from_vector_and_publish(foot_control_position_rt_pub_, foot_control_positions_);
-
-  auto end = std::chrono::high_resolution_clock::now();
-  auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-  RCLCPP_DEBUG(
-    get_node()->get_logger(), "Update loop elapsed time: %ld microseconds", elapsed_time);
-
-  return controller_interface::return_type::OK;
+  visualization_rt_pub_->msg_ = vis_msg;
 }
 
 std::size_t QuadrupedController::get_state_interface_index(

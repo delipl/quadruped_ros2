@@ -95,7 +95,7 @@ def generate_launch_description():
             #     executable="rviz2",
             #     name="rviz2",
             #     output="screen",
-            #     arguments=['-d', os.path.join(get_package_share_directory("quadruped_robot_description"), "rviz", "quadruped_robot.rviz")],
+            #     arguments=['-d', os.path.join(get_package_share_directory("four_bar_bot_description"), "rviz", "quadruped_robot.rviz")],
             # ),
             passive_joint_state_broadcaster,
             # joint_state_broadcaster_spawner,

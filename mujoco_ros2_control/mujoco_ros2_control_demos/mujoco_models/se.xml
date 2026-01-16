@@ -2,7 +2,7 @@
   <option gravity="0 0 -9.81" iterations="50" solver="PGS" timestep="0.001" />
 
   <compiler angle="radian" autolimits="true" eulerseq="zyx"
-    meshdir="/home/rabin/Documents/quadruped_robot/src/quadruped_robot_description/meshes" />
+    meshdir="/home/rabin/Documents/quadruped_robot/src/four_bar_bot_description/meshes" />
 
   <default>
     <joint armature="0.01" damping="0.3" frictionloss="0.3" limited="true" />

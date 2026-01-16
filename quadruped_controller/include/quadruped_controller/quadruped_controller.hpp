@@ -186,6 +186,12 @@ private:
   QUADRUPED_CONTROLLER__VISIBILITY_LOCAL
   void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
 
+  void calculate_kinematics();
+  void set_target_states();
+  void calculate_inverse_kinematics();
+  void calculate_control();
+  void update_passive_joints();
+
   std::vector<Leg> legs_map_;
   Eigen::VectorXd joint_positions_;
   Eigen::VectorXd joint_positions_errors_;

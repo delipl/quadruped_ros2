@@ -27,9 +27,9 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     urdf_file = os.path.join(
-        get_package_share_directory("quadruped_robot_description"),
+        get_package_share_directory("four_bar_bot_description"),
         "urdf",
-        "quadruped_robot.urdf.xacro",
+        "four_bar_bot.urdf.xacro",
     )
     robot_controllers = PathJoinSubstitution(
         [

@@ -16,6 +16,7 @@
   <depend>joint_state_broadcaster</depend>
   <depend>quadruped_controller</depend>
   <depend>md80_hardware_interface</depend>
+  <depend>four_bar_bot_description</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
