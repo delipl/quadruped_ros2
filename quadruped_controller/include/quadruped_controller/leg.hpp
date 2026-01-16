@@ -85,6 +85,15 @@ public:
   Eigen::Vector2d bar_acc_;
   Eigen::Vector2d bar_q2_acc_;
   Eigen::Vector3d bar_q1_acc_;
+  Eigen::Vector3d get_joints_directions() const
+  {
+    Eigen::Vector3d directions;
+
+    // NOTE: @delipl I have no idea why the first joint direction is the same as inverted passive
+    // side multiplier but it works
+    directions << -passive_side_multiplier_, z_axis_q1_direction_, z_axis_q2_direction_;
+    return directions;
+  };
 
 private:
   const std::string name_;

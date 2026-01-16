@@ -98,3 +98,25 @@ quadruped_controller:
       default_value: 0.0,
       description: "Specifies the derivative gain for the third joint.",
     }
+
+  standing_sequence_positions:
+    {
+      type: string_array,
+      default_value:
+        [
+
+          "[0.0, 0.0, 0.0" ,
+          "[0.6, 0.0, 0.0]",
+          "[0.6, 1.57, 0.0]",
+          "[0.0, 1.57, 0.0]",
+          "[0.0, 0.12, 2.67]"
+        ],
+      description: "Specifies the joint positions for the standing sequence.",
+    }
+
+  standing_sequence_positions_accuracy:
+    {
+      type: double,
+      default_value: 0.05,
+      description: "Specifies the accuracy to consider that a leg has reached the target position during the standing sequence.",
+    }

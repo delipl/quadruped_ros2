@@ -56,6 +56,8 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 
+#include "std_srvs/srv/trigger.hpp"
+
 #include "quadruped_controller/visualization.hpp"
 namespace quadruped_controller
 {
@@ -163,6 +165,8 @@ protected:
   rclcpp::Publisher<DataMsg>::SharedPtr foot_position_error_normal_pub_;
   rclcpp::Publisher<VisualizationMsg>::SharedPtr visualization_normal_pub_;
 
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr standing_sequence_service_;
+
   rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr step_service_;
 
   rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr multi_dof_state_normal_pub_;
@@ -187,10 +191,17 @@ private:
   void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
 
   void calculate_kinematics();
-  void set_target_states();
+  void set_target_states(const quadruped_msgs::msg::QuadrupedControl::SharedPtr & msg);
   void calculate_inverse_kinematics();
   void calculate_control();
   void update_passive_joints();
+  void standing_sequence_control();
+  void parse_string_to_eigen_vector3d(const std::string & str, Eigen::Vector3d & vec);
+
+  bool standing_sequence_ = false;
+  bool stood_first_time_ = false;
+  std::size_t standing_sequence_step_ = 0;
+  std::vector<Eigen::Vector3d> standing_sequence_positions_;
 
   std::vector<Leg> legs_map_;
   Eigen::VectorXd joint_positions_;

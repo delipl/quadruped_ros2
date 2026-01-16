@@ -230,6 +230,20 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
           Kd[request->a] = 0;
         }
       });
+
+    standing_sequence_service_ = get_node()->create_service<std_srvs::srv::Trigger>(
+      "~/standing_sequence", [&](
+                               const std::shared_ptr<std_srvs::srv::Trigger::Request> /*request*/,
+                               std::shared_ptr<std_srvs::srv::Trigger::Response> response) {
+        if (standing_sequence_) {
+          response->success = false;
+          response->message = "Standing sequence is already running.";
+          return;
+        }
+        standing_sequence_ = true;
+        response->success = true;
+        response->message = "Standing sequence started.";
+      });
   } catch (const std::exception & e) {
     fprintf(
       stderr,
@@ -253,6 +267,23 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
   for (const auto & leg_name : params_.leg_names) {
     quadruped_controller::Leg leg(leg_name);
     legs_map_.push_back(leg);
+  }
+
+  for (std::size_t i = 0; i < params_.standing_sequence_positions.size(); ++i) {
+    RCLCPP_INFO(
+      get_node()->get_logger(), "Standing sequence position %zu: %s", i,
+      params_.standing_sequence_positions[i].c_str());
+    Eigen::Vector3d vec;
+
+    try {
+      parse_string_to_eigen_vector3d(params_.standing_sequence_positions[i], vec);
+    } catch (const std::exception & e) {
+      RCLCPP_ERROR(
+        get_node()->get_logger(), "Error parsing standing sequence position %zu: %s with error: %s",
+        i, params_.standing_sequence_positions[i].c_str(), e.what());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+    standing_sequence_positions_.push_back(vec);
   }
 
   const std::size_t data_size = legs_map_.size() * JOINTS_IN_LEG;
@@ -399,6 +430,8 @@ controller_interface::CallbackReturn QuadrupedController::on_deactivate(
 {
   // TODO(anyone): depending on number of interfaces, use definitions, e.g.,
   // `CMD_MY_ITFS`, instead of a loop
+  // Maybe sitdonw the robot
+
   for (auto & command_interface : command_interfaces_) {
     if (!command_interface.set_value(0.0)) {
       RCLCPP_ERROR(get_node()->get_logger(), "Unable to set command interface value to 0.0");
@@ -418,8 +451,15 @@ controller_interface::return_type QuadrupedController::update(
   auto start = std::chrono::high_resolution_clock::now();
 
   calculate_kinematics();
-  set_target_states();
-  calculate_inverse_kinematics();
+
+  if (stood_first_time_ and not standing_sequence_) {
+    auto msg = *(input_ref_.readFromRT());
+    set_target_states(msg);
+    calculate_inverse_kinematics();
+  } else if (standing_sequence_) {
+    standing_sequence_control();
+  }
+
   calculate_control();
 
   update_passive_joints();
@@ -484,11 +524,9 @@ void QuadrupedController::calculate_kinematics()
   }
 }
 
-void QuadrupedController::set_target_states()
+void QuadrupedController::set_target_states(
+  const quadruped_msgs::msg::QuadrupedControl::SharedPtr & msg)
 {
-  // Read target states
-  auto msg = *(input_ref_.readFromRT());
-
   for (size_t i = 0; i < legs_map_.size(); ++i) {
     if (legs_map_[i].get_name() == "front_left") {
       target_foot_positions_.segment<3>(i * 3) << msg->fl_foot_position.x, msg->fl_foot_position.y,
@@ -519,8 +557,8 @@ void QuadrupedController::calculate_inverse_kinematics()
     if (std::isnan(foot_control_positions_[0])) {
       RCLCPP_WARN_STREAM_THROTTLE(
         get_node()->get_logger(), *get_node()->get_clock(), 1000,
-        "No valid reference received yet, holding initial position.");
-      target_joint_positions_.segment<3>(i * 3) << 0.0, 0.0, 0.0;
+        "No valid reference received yet,holding this position.");
+      target_joint_positions_.segment<3>(i * 3) << joint_positions_.segment<3>(i * 3);
       continue;
     }
 
@@ -551,6 +589,47 @@ void QuadrupedController::calculate_control()
     command_interfaces_[i].set_value(target_joint_efforts_[i]);
   }
 }
+
+void QuadrupedController::standing_sequence_control()
+{
+  std::vector<bool> leg_reached_position(legs_map_.size(), false);
+
+  for (std::size_t i = 0; i < legs_map_.size(); ++i) {
+    RCLCPP_INFO_STREAM_THROTTLE(
+      get_node()->get_logger(), *get_node()->get_clock(), 1000, "Standing sequence active.");
+    auto & leg = legs_map_[i];
+
+    Eigen::Vector3d target_joint_pos = standing_sequence_positions_[standing_sequence_step_];
+    auto directions = leg.get_joints_directions();
+
+    target_joint_pos = directions.cwiseProduct(target_joint_pos);
+    target_joint_positions_.segment<3>(i * 3) << target_joint_pos;
+    const auto joints_position = joint_positions_.segment<3>(i * 3);
+
+    const double error = (joints_position - target_joint_pos).norm();
+    if (error < params_.standing_sequence_positions_accuracy) {
+      RCLCPP_INFO_STREAM(
+        get_node()->get_logger(),
+        "Leg " << leg.get_name() << " reached standing position step " << standing_sequence_step_);
+      leg_reached_position[i] = true;
+    }
+  }
+
+  if (std::all_of(
+        leg_reached_position.begin(), leg_reached_position.end(), [](bool v) { return v; })) {
+    standing_sequence_step_++;
+    if (standing_sequence_step_ >= standing_sequence_positions_.size()) {
+      standing_sequence_ = false;
+      standing_sequence_step_ = 0;
+      stood_first_time_ = !stood_first_time_;
+      std::reverse(standing_sequence_positions_.begin(), standing_sequence_positions_.end());
+
+      RCLCPP_INFO(
+        get_node()->get_logger(), "Standing sequence finished, switching to reference input.");
+    }
+  }
+}
+
 void QuadrupedController::update_passive_joints()
 {
   // ========================Prepare the message for the state publisher
@@ -612,6 +691,16 @@ void QuadrupedController::set_msg_data_from_vector_and_publish(
 
     rt_pub->unlockAndPublish();
   }
+}
+void QuadrupedController::parse_string_to_eigen_vector3d(
+  const std::string & str, Eigen::Vector3d & vec)
+{
+  std::string s = str;
+  s.erase(std::remove(s.begin(), s.end(), '['), s.end());
+  s.erase(std::remove(s.begin(), s.end(), ']'), s.end());
+  std::replace(s.begin(), s.end(), ',', ' ');
+  std::istringstream iss(s);
+  iss >> vec[0] >> vec[1] >> vec[2];
 }
 
 }  // namespace quadruped_controller
