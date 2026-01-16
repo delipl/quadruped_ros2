@@ -5,6 +5,8 @@ repos:
       - id: check-added-large-files
         # mesh files has to be taken into account
         args: ["--maxkb=3000"]
+        exclude: '.*\.(stl|obj|dae|urdf|xacro|sdf)$'
+
       - id: check-ast
       - id: check-json
         # vscode .json files do not follow the standard JSON format

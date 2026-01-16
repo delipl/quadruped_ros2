@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 10 # Hz
+    update_rate: 400 # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -9,9 +9,6 @@ controller_manager:
 
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
-
-    effort_controllers:
-      type: effort_controllers/JointGroupEffortController
 
     quadruped_controller:
       type: quadruped_controller/QuadrupedController
@@ -22,6 +19,12 @@ imu_sensor_broadcaster:
     frame_id: imu_link
     publish_rate: 100.0
 
+
+
+
+joint_state_broadcaster:
+  ros__parameters:
+    publish_rate: 1000.0
 
 
 quadruped_controller:
@@ -48,7 +51,7 @@ quadruped_controller:
         - rear_right_second_joint
         - rear_right_third_joint
 
-      command_interface: effort
+      command_interface: acceleration
       state_interfaces:
         - position
         - velocity
