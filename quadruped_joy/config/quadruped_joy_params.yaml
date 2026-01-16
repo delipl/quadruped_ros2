@@ -3,7 +3,7 @@ quadruped_joy:
     example_param: "abc"
 
 joy2twist_node:
-  ros__parameters: 
+  ros__parameters:
     linear_velocity_factor:
       fast: 1.0
       regular: 0.5

@@ -1,10 +1,26 @@
 #!/usr/bin/env python3
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import threading
 from collections import deque
-from typing import Dict, Deque, Tuple, List
+from typing import Deque, Dict, List, Tuple
 
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -15,9 +31,9 @@ J_NAMES: List[str] = [
     "front_left_second_joint",
     "front_left_third_joint",
 ]
-BUFFER_SECONDS   = 10.0
-PLOT_REFRESH_HZ  = 1.0
-MAX_SAMPLES      = int(BUFFER_SECONDS * 200)
+BUFFER_SECONDS = 10.0
+PLOT_REFRESH_HZ = 1.0
+MAX_SAMPLES = int(BUFFER_SECONDS * 200)
 # ---------------------------------------------------------------------------
 
 
@@ -25,19 +41,19 @@ class JointPlotter(Node):
     def __init__(self) -> None:
         super().__init__("joint_state_plotter")
         self.pos_buf: Dict[str, Deque[Tuple[float, float]]] = {
-            j: deque(maxlen=MAX_SAMPLES) for j in J_NAMES}
+            j: deque(maxlen=MAX_SAMPLES) for j in J_NAMES
+        }
         self.eff_buf: Dict[str, Deque[Tuple[float, float]]] = {
-            j: deque(maxlen=MAX_SAMPLES) for j in J_NAMES}
+            j: deque(maxlen=MAX_SAMPLES) for j in J_NAMES
+        }
 
-        self.create_subscription(JointState, "/joint_states",
-                                 self.joint_cb, 50)
+        self.create_subscription(JointState, "/joint_states", self.joint_cb, 50)
 
         # matplotlib setup (fig & animation, BUT show() stays in main thread)
         plt.style.use("ggplot")
         self.fig = plt.figure(figsize=(10, 6))
         self.ani = animation.FuncAnimation(
-            self.fig, self.animate,
-            interval=1000.0 / PLOT_REFRESH_HZ
+            self.fig, self.animate, interval=1000.0 / PLOT_REFRESH_HZ
         )
 
     # ----------------- callbacks -------------------------------------------
@@ -47,10 +63,7 @@ class JointPlotter(Node):
             if name in J_NAMES:
                 self.pos_buf[name].append((stamp, pos))
                 self.eff_buf[name].append((stamp, eff))
-                
-        
 
-        
     # -----------------------------------------------------------------------
     def animate(self, _frame) -> None:
         ax1 = plt.gca()
@@ -71,7 +84,7 @@ class JointPlotter(Node):
             t_p, pos = zip(*p_filtered)
 
             ax1.plot(t_e, eff, label=f"{j} torque")
-            ax2.plot(t_p, pos, '--', label=f"{j} pos")
+            ax2.plot(t_p, pos, "--", label=f"{j} pos")
 
             eff_all.extend(eff)
             pos_all.extend(pos)
@@ -99,6 +112,7 @@ def ros_spin(node: Node) -> None:
     rclpy.spin(node)
     node.destroy_node()
 
+
 def main() -> None:
     rclpy.init()
     node = JointPlotter()
@@ -108,7 +122,7 @@ def main() -> None:
     threading.Thread(target=ros_spin, args=(node,), daemon=True).start()
 
     try:
-        plt.show()          # ← blokujące wywołanie w MAIN THREAD
+        plt.show()  # ← blokujące wywołanie w MAIN THREAD
     except KeyboardInterrupt:
         pass
     finally:

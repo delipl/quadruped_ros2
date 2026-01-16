@@ -1,3 +1,17 @@
+// Copyright 2026 Jakub Delicat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifndef QUADRUPED_CONTROLLER_LEG_HPP
 #define QUADRUPED_CONTROLLER_LEG_HPP
 
@@ -8,9 +22,11 @@
 
 #include <sensor_msgs/msg/joint_state.hpp>
 
-namespace quadruped_controller {
+namespace quadruped_controller
+{
 
-struct JointState {
+struct JointState
+{
   std::string name;
   double position;
   double velocity;
@@ -21,36 +37,34 @@ const double UPPER_BONE_LENGTH = 0.125;
 const double LOWER_BONE_LENGTH = 0.21;
 const double FOOT_LENGTH = 0.0;
 
-class Leg {
+class Leg
+{
 public:
-  Leg(const std::string &name);
+  Leg(const std::string & name);
 
-  void set_positions_from_joint_states(
-      const sensor_msgs::msg::JointState::SharedPtr msg);
+  void set_positions_from_joint_states(const sensor_msgs::msg::JointState::SharedPtr msg);
 
-  Eigen::Vector3d forward_kinematics(const Eigen::Vector3d &q);
-  Eigen::Vector3d forward_kinematics() {
-    return forward_kinematics(
-        Eigen::Vector3d(first_.position, second_.position, third_.position));
+  Eigen::Vector3d forward_kinematics(const Eigen::Vector3d & q);
+  Eigen::Vector3d forward_kinematics()
+  {
+    return forward_kinematics(Eigen::Vector3d(first_.position, second_.position, third_.position));
   }
 
-  Eigen::Vector3d inverse_kinematics(const Eigen::Vector3d &x);
+  Eigen::Vector3d inverse_kinematics(const Eigen::Vector3d & x);
 
-  std::pair<JointState, JointState> get_passive_knee_joints() const {
-    return {forth_, fifth_};
-  }
+  std::pair<JointState, JointState> get_passive_knee_joints() const { return {forth_, fifth_}; }
 
-  std::array<JointState, 5> get_joints_states() const {
+  std::array<JointState, 5> get_joints_states() const
+  {
     return {first_, second_, third_, forth_, fifth_};
   }
 
-  std::array<JointState, 3> get_active_joint_states() {
-    return {first_, second_, third_};
-  }
+  std::array<JointState, 3> get_active_joint_states() { return {first_, second_, third_}; }
 
-  void set_joints_states(const Eigen::Vector3d &q,
-                         const Eigen::Vector3d &v = {0, 0, 0},
-                         const Eigen::Vector3d &tau = {0, 0, 0}) {
+  void set_joints_states(
+    const Eigen::Vector3d & q, const Eigen::Vector3d & v = {0, 0, 0},
+    const Eigen::Vector3d & tau = {0, 0, 0})
+  {
     first_.position = q(0);
     second_.position = q(1);
     third_.position = q(2);
@@ -67,10 +81,11 @@ public:
   double get_distance_to_effector() const { return distance_to_effector_; }
 
   std::string get_name() const { return name_; }
-  Eigen::Matrix4d kinematics(const Eigen::Vector3d &q);
+  Eigen::Matrix4d kinematics(const Eigen::Vector3d & q);
   Eigen::Vector2d bar_acc_;
   Eigen::Vector2d bar_q2_acc_;
   Eigen::Vector3d bar_q1_acc_;
+
 private:
   const std::string name_;
 
@@ -102,12 +117,11 @@ private:
   JointState fifth_;
 
   void update_passive_joints(double q3);
-  Eigen::Matrix4d denavite_hartenberg(double alpha, double a, double d,
-                                      double theta);
-  Eigen::Matrix4d denavite_hartenberg(const Eigen::Vector4d &v);
+  Eigen::Matrix4d denavite_hartenberg(double alpha, double a, double d, double theta);
+  Eigen::Matrix4d denavite_hartenberg(const Eigen::Vector4d & v);
   double distance_to_effector_;
 };
 
-} // namespace quadruped_controller
+}  // namespace quadruped_controller
 
-#endif // QUADRUPED_CONTROLLER_LEG_HPP
+#endif  // QUADRUPED_CONTROLLER_LEG_HPP

@@ -1240,7 +1240,7 @@
         <param name="initial_value">0.0</param>
       </state_interface>
     </joint>
-    
+
     <!-- <joint name="front_right_first_joint">
       <command_interface name="effort"/>
       <state_interface name="position">

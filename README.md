@@ -1,3 +1,18 @@
+# four_bar_bot
+
+ROS 2 packages for 4BarBot and any other quadruped robot.
+
+
+## Quick start
+
+### Create workspace
+
+```bash
+mkdir -p quadruped_ws/src
+cd quadruped_ws
+git clone https://github.com/delipl/quadruped_ros2 src/quadruped_ros2
+```
+
 ## Build
 
 ```bash
@@ -8,7 +23,7 @@ rosdep update --rosdistro $ROS_DISTRO
 rosdep install --from-paths src -y -i
 ```
 
-## Run 
+## Run
 
 ```bash
 colcon build --symlink-install --packages-up-to quadruped_robot_description --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF

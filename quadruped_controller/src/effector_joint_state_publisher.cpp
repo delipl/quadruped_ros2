@@ -1,3 +1,16 @@
+// Copyright 2026 Jakub Delicat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "quadruped_controller/leg.hpp"
@@ -5,23 +18,23 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 
-class EffectorJointStatePublisher : public rclcpp::Node {
+class EffectorJointStatePublisher : public rclcpp::Node
+{
 public:
-  EffectorJointStatePublisher() : Node("leg_controller_node") {
+  EffectorJointStatePublisher() : Node("leg_controller_node")
+  {
     subscription_ = this->create_subscription<sensor_msgs::msg::JointState>(
-        "joint_states", 10,
-        std::bind(&EffectorJointStatePublisher::joint_state_callback, this,
-                  std::placeholders::_1));
-    publisher_ = this->create_publisher<sensor_msgs::msg::JointState>(
-        "joint_states", 10);
+      "joint_states", 10,
+      std::bind(&EffectorJointStatePublisher::joint_state_callback, this, std::placeholders::_1));
+    publisher_ = this->create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
 
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
   }
 
 private:
-  void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg) {
-    if (msg->name.empty()) 
-    {
+  void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
+  {
+    if (msg->name.empty()) {
       RCLCPP_ERROR(this->get_logger(), "Received empty joint state message");
       return;
     }
@@ -29,17 +42,15 @@ private:
     if (msg->name[0] != "front_left_first_joint") {
       return;
     }
-    std::vector<std::string> legs_names = {"front_left", "front_right",
-                                           "rear_left", "rear_right"};
+    std::vector<std::string> legs_names = {"front_left", "front_right", "rear_left", "rear_right"};
 
     std::vector<quadruped_controller::Leg> legs;
-    std::vector<std::pair<quadruped_controller::JointState,
-                          quadruped_controller::JointState>>
-        passive_knee_joints;
+    std::vector<std::pair<quadruped_controller::JointState, quadruped_controller::JointState>>
+      passive_knee_joints;
 
     std::vector<Eigen::Vector3d> foot_positions;
 
-    for (const auto &leg_name : legs_names) {
+    for (const auto & leg_name : legs_names) {
       quadruped_controller::Leg leg(leg_name);
       leg.set_positions_from_joint_states(msg);
       legs.push_back(leg);
@@ -52,7 +63,7 @@ private:
     auto calculated_msg = sensor_msgs::msg::JointState();
     calculated_msg.header.stamp = this->now();
 
-    for (const auto &passive_knee_joint : passive_knee_joints) {
+    for (const auto & passive_knee_joint : passive_knee_joints) {
       calculated_msg.name.push_back(passive_knee_joint.first.name);
       calculated_msg.position.push_back(passive_knee_joint.first.position);
       calculated_msg.velocity.push_back(passive_knee_joint.first.velocity);
@@ -83,10 +94,10 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
-
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char * argv[])
+{
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<EffectorJointStatePublisher>());
   rclcpp::shutdown();

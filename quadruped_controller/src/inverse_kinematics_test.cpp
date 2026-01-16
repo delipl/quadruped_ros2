@@ -1,3 +1,17 @@
+// Copyright 2026 Jakub Delicat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <algorithm>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -12,29 +26,27 @@
 #include "trajectory_msgs/msg/joint_trajectory.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
-class InverseKinematicsTest : public rclcpp::Node {
-
+class InverseKinematicsTest : public rclcpp::Node
+{
   using Point = geometry_msgs::msg::Point;
 
 public:
-  InverseKinematicsTest() : Node("leg_controller_node") {
-    quadruped_control_sub_ =
-        this->create_subscription<quadruped_msgs::msg::QuadrupedControl>(
-            "control_quadruped", 10,
+  InverseKinematicsTest() : Node("leg_controller_node")
+  {
+    quadruped_control_sub_ = this->create_subscription<quadruped_msgs::msg::QuadrupedControl>(
+      "control_quadruped", 10,
 
-            std::bind(&InverseKinematicsTest::control_callback, this,
-                      std::placeholders::_1));
+      std::bind(&InverseKinematicsTest::control_callback, this, std::placeholders::_1));
 
     marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
-        "quadruped_robot/visualization", 10);
+      "quadruped_robot/visualization", 10);
 
-    position_control_pub_ =
-        this->create_publisher<std_msgs::msg::Float64MultiArray>(
-            "/position_controller/commands", 10);
+    position_control_pub_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+      "/position_controller/commands", 10);
 
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-    for (const auto &leg_name : legs_names) {
+    for (const auto & leg_name : legs_names) {
       quadruped_controller::Leg leg(leg_name);
       legs.push_back(leg);
     }
@@ -44,20 +56,20 @@ public:
   }
 
 private:
-  void control_callback(const quadruped_msgs::msg::QuadrupedControl msg) {
+  void control_callback(const quadruped_msgs::msg::QuadrupedControl msg)
+  {
     auto passive_joint_state = sensor_msgs::msg::JointState();
     auto active_joint_state = sensor_msgs::msg::JointState();
     active_joint_state.header.stamp = msg.header.stamp;
     passive_joint_state.header.stamp = msg.header.stamp;
 
     std::vector<Point> reference_foot_positions = {
-        msg.fl_foot_position, msg.fr_foot_position, msg.rl_foot_position,
-        msg.rr_foot_position};
+      msg.fl_foot_position, msg.fr_foot_position, msg.rl_foot_position, msg.rr_foot_position};
 
     std::vector<Eigen::Vector3d> foot_positions;
     std::vector<bool> in_contact = {
-        msg.fl_foot_in_contact.data, msg.fr_foot_in_contact.data,
-        msg.rl_foot_in_contact.data, msg.rr_foot_in_contact.data};
+      msg.fl_foot_in_contact.data, msg.fr_foot_in_contact.data, msg.rl_foot_in_contact.data,
+      msg.rr_foot_in_contact.data};
 
     trajectory_msgs::msg::JointTrajectoryPoint point;
     auto l = joint_trajectory.points.size();
@@ -88,15 +100,14 @@ private:
     green.a = 1.0f;
 
     for (std::size_t i = 0; i < legs.size(); ++i) {
-      auto &leg = legs[i];
-      auto &reference_foot_position = reference_foot_positions[i];
+      auto & leg = legs[i];
+      auto & reference_foot_position = reference_foot_positions[i];
 
       Eigen::Vector3d x;
-      x << reference_foot_position.x, reference_foot_position.y,
-          reference_foot_position.z;
+      x << reference_foot_position.x, reference_foot_position.y, reference_foot_position.z;
 
-      marker_array_.markers.push_back(create_foot_markers(
-          legs_names[i] + "_foot_requested_state", x, blue));
+      marker_array_.markers.push_back(
+        create_foot_markers(legs_names[i] + "_foot_requested_state", x, blue));
 
       Eigen::Vector3d help;
       auto q = leg.inverse_kinematics(x);
@@ -105,19 +116,19 @@ private:
       foot_positions.push_back(foot_position);
 
       if (in_contact[i]) {
-        marker_array_.markers.push_back(create_foot_markers(
-            legs_names[i] + "_foot_state", foot_position, light_red));
+        marker_array_.markers.push_back(
+          create_foot_markers(legs_names[i] + "_foot_state", foot_position, light_red));
 
       } else {
-        marker_array_.markers.push_back(create_foot_markers(
-            legs_names[i] + "_foot_state", foot_position, red));
+        marker_array_.markers.push_back(
+          create_foot_markers(legs_names[i] + "_foot_state", foot_position, red));
       }
-      marker_array_.markers.push_back(create_acceleration_marker(
-          legs_names[i] + "_foot_force", foot_position, leg, light_red));
+      marker_array_.markers.push_back(
+        create_acceleration_marker(legs_names[i] + "_foot_force", foot_position, leg, light_red));
 
       auto leg_active_joints = leg.get_active_joint_states();
 
-      for (const auto &joint_state : leg_active_joints) {
+      for (const auto & joint_state : leg_active_joints) {
         if (joint_trajectory.joint_names.size() < 12) {
           joint_trajectory.joint_names.push_back(joint_state.name);
         }
@@ -129,10 +140,10 @@ private:
         point.positions.push_back(joint_state.position);
 
         if (std::isnan(joint_state.position)) {
-          RCLCPP_ERROR_STREAM(get_logger(),
-                              "Leg " << leg.get_name()
-                                     << " is in the singularity. Skipping "
-                                        "this the control.");
+          RCLCPP_ERROR_STREAM(
+            get_logger(), "Leg " << leg.get_name()
+                                 << " is in the singularity. Skipping "
+                                    "this the control.");
 
           return;
         }
@@ -144,17 +155,14 @@ private:
     auto vis_foot_positions = foot_positions;
     auto vis_in_contact = in_contact;
 
-    if (std::all_of(in_contact.begin(), in_contact.end(),
-                    [](bool v) { return v; })) {
-      std::iter_swap(vis_foot_positions.begin() + 2,
-                     vis_foot_positions.begin() + 3);
+    if (std::all_of(in_contact.begin(), in_contact.end(), [](bool v) { return v; })) {
+      std::iter_swap(vis_foot_positions.begin() + 2, vis_foot_positions.begin() + 3);
       std::iter_swap(vis_in_contact.begin() + 2, vis_in_contact.begin() + 3);
       vis_foot_positions.push_back(vis_foot_positions[0]);
       vis_in_contact.push_back(vis_in_contact[0]);
     }
 
-    auto contact_surface =
-        create_surface_between_contacts(vis_foot_positions, vis_in_contact);
+    auto contact_surface = create_surface_between_contacts(vis_foot_positions, vis_in_contact);
     if (contact_surface.points.size() > 0) {
       marker_array_.markers.push_back(contact_surface);
     }
@@ -165,7 +173,8 @@ private:
   }
 
   geometry_msgs::msg::TransformStamped create_footprint_transform(
-      const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+    const geometry_msgs::msg::PoseStamped::SharedPtr msg)
+  {
     auto transform = geometry_msgs::msg::TransformStamped();
     transform.header.stamp = now();
     transform.header.frame_id = "base_footprint";
@@ -182,8 +191,9 @@ private:
   }
 
   visualization_msgs::msg::Marker create_surface_between_contacts(
-      const std::vector<Eigen::Vector3d> &reference_foot_positions,
-      const std::vector<bool> &in_contact) {
+    const std::vector<Eigen::Vector3d> & reference_foot_positions,
+    const std::vector<bool> & in_contact)
+  {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_link";
     marker.header.stamp = now();
@@ -216,10 +226,9 @@ private:
     return marker;
   }
 
-  visualization_msgs::msg::Marker
-  create_foot_markers(const std::string &ns,
-                      const Eigen::Vector3d &foot_position,
-                      std_msgs::msg::ColorRGBA color) {
+  visualization_msgs::msg::Marker create_foot_markers(
+    const std::string & ns, const Eigen::Vector3d & foot_position, std_msgs::msg::ColorRGBA color)
+  {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "base_link";
     marker.header.stamp = now();
@@ -247,8 +256,9 @@ private:
   }
 
   visualization_msgs::msg::Marker create_acceleration_marker(
-      const std::string &ns, const Eigen::Vector3d &foot_position,
-      quadruped_controller::Leg &leg, std_msgs::msg::ColorRGBA color) {
+    const std::string & ns, const Eigen::Vector3d & foot_position, quadruped_controller::Leg & leg,
+    std_msgs::msg::ColorRGBA color)
+  {
     visualization_msgs::msg::Marker marker;
     // marker.header.frame_id = "base_link";
     // marker.header.stamp = now();
@@ -301,7 +311,8 @@ private:
     return marker;
   }
 
-  void clear_markers() {
+  void clear_markers()
+  {
     visualization_msgs::msg::Marker marker;
     marker.action = visualization_msgs::msg::Marker::DELETEALL;
     visualization_msgs::msg::MarkerArray marker_array;
@@ -309,30 +320,25 @@ private:
     marker_pub_->publish(marker_array);
   }
 
-  void publish_visualization() {
-
+  void publish_visualization()
+  {
     marker_pub_->publish(marker_array_);
     marker_array_.markers.clear();
   }
 
-  rclcpp::Subscription<quadruped_msgs::msg::QuadrupedControl>::SharedPtr
-      quadruped_control_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr
-      base_pose_sub_;
+  rclcpp::Subscription<quadruped_msgs::msg::QuadrupedControl>::SharedPtr quadruped_control_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr base_pose_sub_;
 
-  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
-      marker_pub_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr marker_pub_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr
-      position_control_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr position_control_pub_;
 
   std::vector<quadruped_controller::Leg> legs;
-  std::vector<std::string> legs_names = {"front_left", "front_right",
-                                         "rear_left", "rear_right"};
+  std::vector<std::string> legs_names = {"front_left", "front_right", "rear_left", "rear_right"};
 
   trajectory_msgs::msg::JointTrajectory joint_trajectory;
   visualization_msgs::msg::MarkerArray marker_array_;
@@ -342,7 +348,8 @@ private:
   bool use_hardware_ = false;
 };
 
-int main(int argc, char *argv[]) {
+int main(int argc, char * argv[])
+{
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<InverseKinematicsTest>());
   rclcpp::shutdown();

@@ -6,7 +6,7 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
     joint_trajectory_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-    
+
     imu_sensor_broadcaster:
       type: imu_sensor_broadcaster/IMUSensorBroadcaster
 
@@ -44,5 +44,3 @@ imu_sensor_broadcaster:
 joint_state_broadcaster:
   ros__parameters:
     publish_rate: 50.0
-    
-

@@ -139,9 +139,9 @@
             <xacro:ros2_control_joint_can name="rear_left_second_joint" can_id="41" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="rear_left_third_joint" can_id="42" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" /> 
-           
-        </ros2_control> 
+                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+
+        </ros2_control>
 
 
     </xacro:macro>

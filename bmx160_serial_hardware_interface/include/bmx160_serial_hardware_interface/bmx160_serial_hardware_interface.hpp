@@ -28,43 +28,43 @@
 #include "bmx160_serial_hardware_interface/visibility_control.h"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
+#include "hardware_interface/lexical_casts.hpp"
 #include "hardware_interface/sensor_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "hardware_interface/lexical_casts.hpp"
 #include "rclcpp/macros.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 
-namespace bmx160_serial_hardware_interface {
-class BMX160SerialHardwareInterface
-    : public hardware_interface::SensorInterface {
+namespace bmx160_serial_hardware_interface
+{
+class BMX160SerialHardwareInterface : public hardware_interface::SensorInterface
+{
 public:
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_init(const hardware_interface::HardwareInfo &info) override;
+  hardware_interface::CallbackReturn on_init(
+    const hardware_interface::HardwareInfo & info) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State &previous_state) override;
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  std::vector<hardware_interface::StateInterface>
-  export_state_interfaces() override;
+  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
-  hardware_interface::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State &previous_state) override;
-
-  TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
+  hardware_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::return_type read(const rclcpp::Time &time,
-                                       const rclcpp::Duration &period) override;
+  hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
+
+  TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
+  hardware_interface::return_type read(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
   BMX160Serial::SensorData sensor_data_;
-  BMX160Serial::SharedPtr bmx160_; // Instance of the BMX160Serial class
+  BMX160Serial::SharedPtr bmx160_;  // Instance of the BMX160Serial class
 
   rclcpp::Logger logger_{rclcpp::get_logger("BMX160SerialHardwareInterface")};
   rclcpp::Clock steady_clock_{RCL_STEADY_TIME};
@@ -74,6 +74,6 @@ private:
   double mag_bias_x_, mag_bias_y_, mag_bias_z_;
 };
 
-} // namespace bmx160_serial_hardware_interface
+}  // namespace bmx160_serial_hardware_interface
 
-#endif // BMX160_SERIAL_HARDWARE_INTERFACE__BMX160_SERIAL_HARDWARE_INTERFACE_HPP_
+#endif  // BMX160_SERIAL_HARDWARE_INTERFACE__BMX160_SERIAL_HARDWARE_INTERFACE_HPP_

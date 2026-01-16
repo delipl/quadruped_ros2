@@ -1,12 +1,26 @@
 #!/usr/bin/env python3
-import rclpy
-from rclpy.node import Node
-from quadruped_msgs.msg import QuadrupedControl
-from std_msgs.msg import Bool
-from geometry_msgs.msg import Twist
-from std_msgs.msg import Float64MultiArray
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import numpy as np
+import rclpy
+from geometry_msgs.msg import Twist
+from rclpy.node import Node
+from std_msgs.msg import Bool, Float64MultiArray
+
+from quadruped_msgs.msg import QuadrupedControl
 
 
 class PosePublisher(Node):
@@ -17,19 +31,15 @@ class PosePublisher(Node):
         self.publisher_ = self.create_publisher(
             QuadrupedControl, "/quadruped_controller/reference", 10
         )
-        
-        self.traj_pub = self.create_publisher(
-            Float64MultiArray, "/legs_trajectory", 10
-        )
 
-        self.subscription = self.create_subscription(
-            Twist, "/cmd_vel", self.cmd_vel_callback, 10
-        )
+        self.traj_pub = self.create_publisher(Float64MultiArray, "/legs_trajectory", 10)
+
+        self.subscription = self.create_subscription(Twist, "/cmd_vel", self.cmd_vel_callback, 10)
 
         # Częstotliwość publikacji co sekundę
         self.gait_period = 0.25
         self.timer_period = self.gait_period / 100.0
-        
+
         # timer_period = 0.01
         # timer_period = 0.1
         self.i = 0
@@ -68,11 +78,11 @@ class PosePublisher(Node):
         y0es = 0.1498 * np.array([1, -1, 1, -1])
         if dw != 0:
             self.get_logger().info(f"dw: {dw}")
-           
+
             for i in range(4):
-                r = np.sqrt(y0es[i]**2 + x0es[i]**2)
+                r = np.sqrt(y0es[i] ** 2 + x0es[i] ** 2)
                 phi = np.arctan2(y0es[i], x0es[i])
-  
+
                 dwx = r * np.cos(phi + dw)
                 dwy = r * np.sin(phi + dw)
                 dxes[i] += dwx - x0es[i]
@@ -111,12 +121,11 @@ class PosePublisher(Node):
 
         z = z0 + dz * np.sin(s)
         dminz = 0.0
-        
+
         if dz == 0:
             dminz = 0.0
         else:
             dminz = -0.0
-
 
         x = np.concatenate((x, xb)) - dx / 2
         y = np.concatenate((y, yb)) - dy / 2

@@ -18,21 +18,10 @@ find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
 
-set(THIS_PACKAGE_DEPENDS
-  ament_cmake
-  rclcpp
-  rclcpp_action
-  std_msgs
-  control_msgs
-)
+set(THIS_PACKAGE_DEPENDS ament_cmake rclcpp rclcpp_action std_msgs control_msgs)
 
-install(DIRECTORY
-  launch
-  config
-  urdf
-  mujoco_models
-  DESTINATION share/${PROJECT_NAME}/
-)
+install(DIRECTORY launch config urdf mujoco_models
+        DESTINATION share/${PROJECT_NAME}/)
 
 add_executable(example_position examples/example_position.cpp)
 ament_target_dependencies(example_position ${THIS_PACKAGE_DEPENDS})
@@ -55,15 +44,14 @@ ament_target_dependencies(example_gripper ${THIS_PACKAGE_DEPENDS})
 add_executable(example_camera examples/example_camera.cpp)
 ament_target_dependencies(example_camera ${THIS_PACKAGE_DEPENDS})
 
-install(TARGETS
-    example_position
-    example_velocity
-    example_effort
-    example_diff_drive
-    example_tricycle_drive
-    example_gripper
-    example_camera
-  DESTINATION lib/${PROJECT_NAME}
-)
+install(
+  TARGETS example_position
+          example_velocity
+          example_effort
+          example_diff_drive
+          example_tricycle_drive
+          example_gripper
+          example_camera
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

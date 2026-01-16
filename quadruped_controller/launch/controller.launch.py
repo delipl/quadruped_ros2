@@ -1,22 +1,28 @@
+#!/usr/bin/env python3
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    OpaqueFunction,
-)
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch.conditions import IfCondition
 
 
 def generate_launch_description():
@@ -32,7 +38,7 @@ def generate_launch_description():
             "controllers.yaml",
         ]
     )
-    
+
     use_hardware = LaunchConfiguration("use_hardware")
     delcare_use_hardware = DeclareLaunchArgument(
         name="use_hardware",
@@ -50,7 +56,7 @@ def generate_launch_description():
         ],
         condition=IfCondition(use_hardware),
     )
-    
+
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
@@ -73,7 +79,7 @@ def generate_launch_description():
         ],
         # condition=IfCondition(use_hardware),
     )
-    
+
     return LaunchDescription(
         [
             delcare_use_hardware,
@@ -92,8 +98,8 @@ def generate_launch_description():
                 default_value=Command(["xacro ", urdf_file]),
                 description="Absolute path to robot urdf file",
             ),
-            # joint_state_broadcaster_spawner,
-            # control_node,
+            joint_state_broadcaster_spawner,
+            control_node,
             quadruped_controller,
         ]
     )

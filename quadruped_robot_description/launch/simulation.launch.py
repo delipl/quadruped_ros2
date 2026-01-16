@@ -15,8 +15,6 @@
 # limitations under the License.
 
 
-from launch_ros.substitutions import FindPackageShare
-
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -26,6 +24,8 @@ from launch.actions import (
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node, SetUseSimTime
+from launch_ros.substitutions import FindPackageShare
+
 
 def launch_setup(context):
     gz_headless_mode = LaunchConfiguration("gz_headless_mode").perform(context)
@@ -40,9 +40,7 @@ def launch_setup(context):
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([FindPackageShare("ros_gz_sim"), "launch", "gz_sim.launch.py"])
         ),
-        launch_arguments={
-            "gz_args": gz_args, 
-            'on_exit_shutdown': 'true'}.items()
+        launch_arguments={"gz_args": gz_args, "on_exit_shutdown": "true"}.items(),
     )
 
     return [gz_sim]
@@ -65,12 +63,10 @@ def generate_launch_description():
 
     declare_gz_world_arg = DeclareLaunchArgument(
         "gz_world",
-        default_value=PathJoinSubstitution(
-            ["empty.sdf"]
-        ),
+        default_value=PathJoinSubstitution(["empty.sdf"]),
         description="Absolute path to SDF world file.",
     )
-    
+
     spawn_robot = Node(
         package="ros_gz_sim",
         executable="create",
@@ -79,18 +75,17 @@ def generate_launch_description():
             "4BarBot",
             "-topic",
             "robot_description",
-            '-z',
-            '0.3',
-
+            "-z",
+            "0.3",
         ],
         emulate_tty=True,
     )
-    
+
     bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
-        output='screen'
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=["/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"],
+        output="screen",
     )
 
     return LaunchDescription(
@@ -101,7 +96,6 @@ def generate_launch_description():
             declare_gz_world_arg,
             OpaqueFunction(function=launch_setup),
             bridge,
-            spawn_robot
-            
+            spawn_robot,
         ]
     )

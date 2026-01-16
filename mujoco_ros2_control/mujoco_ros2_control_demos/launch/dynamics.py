@@ -190,7 +190,7 @@ class ImpedanceControllerNode(Node):
             0.21,
             0.21,
         )
-        
+
         tau[2] = (
              -new_kinematic_values["epsilon3"]
         )

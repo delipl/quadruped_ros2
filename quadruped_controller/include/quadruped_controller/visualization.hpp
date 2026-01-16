@@ -1,3 +1,17 @@
+// Copyright 2026 Jakub Delicat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifndef QUADRUPED_CONTROLLER_VISUALIZATION_HPP
 #define QUADRUPED_CONTROLLER_VISUALIZATION_HPP
 
@@ -7,37 +21,36 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-namespace quadruped_controller {
-class Visualization {
+namespace quadruped_controller
+{
+class Visualization
+{
 public:
-  Visualization(rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-                const std::string &topic_name);
-  visualization_msgs::msg::Marker
-  createArrow(const geometry_msgs::msg::Point &start,
-              const geometry_msgs::msg::Point &end, double scale,
-              const std_msgs::msg::ColorRGBA &color,
-              const std::string &frame_id = "base_link", std::size_t id = 0);
+  Visualization(rclcpp_lifecycle::LifecycleNode::SharedPtr node, const std::string & topic_name);
+  visualization_msgs::msg::Marker createArrow(
+    const geometry_msgs::msg::Point & start, const geometry_msgs::msg::Point & end, double scale,
+    const std_msgs::msg::ColorRGBA & color, const std::string & frame_id = "base_link",
+    std::size_t id = 0);
 
   visualization_msgs::msg::Marker createSphere(
-      const Eigen::Vector3d &center, double scale,
-      const std_msgs::msg::ColorRGBA &color,
-      const std::string &frame_id = "base_link", std::size_t id = 0);
+    const Eigen::Vector3d & center, double scale, const std_msgs::msg::ColorRGBA & color,
+    const std::string & frame_id = "base_link", std::size_t id = 0);
 
 private:
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;
-  rclcpp_lifecycle::LifecycleNode::SharedPtr
-      node_; // Store the lifecycle node for timestamp
+  rclcpp_lifecycle::LifecycleNode::SharedPtr node_;  // Store the lifecycle node for timestamp
 };
 
-Visualization::Visualization(rclcpp_lifecycle::LifecycleNode::SharedPtr node,
-                             const std::string &topic_name)
-    : node_(node) {}
+Visualization::Visualization(
+  rclcpp_lifecycle::LifecycleNode::SharedPtr node, const std::string & topic_name)
+: node_(node)
+{
+}
 
-visualization_msgs::msg::Marker
-Visualization::createArrow(const geometry_msgs::msg::Point &start,
-                           const geometry_msgs::msg::Point &end,double scale,
-                           const std_msgs::msg::ColorRGBA &color, 
-                           const std::string &frame_id, std::size_t id) {
+visualization_msgs::msg::Marker Visualization::createArrow(
+  const geometry_msgs::msg::Point & start, const geometry_msgs::msg::Point & end, double scale,
+  const std_msgs::msg::ColorRGBA & color, const std::string & frame_id, std::size_t id)
+{
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = frame_id;
   marker.header.stamp = node_->now();
@@ -47,9 +60,9 @@ Visualization::createArrow(const geometry_msgs::msg::Point &start,
   marker.action = visualization_msgs::msg::Marker::ADD;
   // marker.lifetime = rclcpp::Duration::from_nanoseconds(0);
 
-  marker.scale.x = scale * 0.25; // Shaft diameter
-  marker.scale.y = scale * 0.35; // Head diameter
-  marker.scale.z = scale * 0.25; // Head length
+  marker.scale.x = scale * 0.25;  // Shaft diameter
+  marker.scale.y = scale * 0.35;  // Head diameter
+  marker.scale.z = scale * 0.25;  // Head length
 
   marker.color = color;
 
@@ -60,8 +73,9 @@ Visualization::createArrow(const geometry_msgs::msg::Point &start,
 }
 
 visualization_msgs::msg::Marker Visualization::createSphere(
-    const Eigen::Vector3d &center, double scale, const std_msgs::msg::ColorRGBA &color,
-    const std::string &frame_id, std::size_t id) {
+  const Eigen::Vector3d & center, double scale, const std_msgs::msg::ColorRGBA & color,
+  const std::string & frame_id, std::size_t id)
+{
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = frame_id;
   marker.header.stamp = node_->now();
@@ -86,7 +100,7 @@ visualization_msgs::msg::Marker Visualization::createSphere(
   marker.pose.orientation.w = 1.0;
 
   return marker;
-} 
-}// namespace quadruped_controller
+}
+}  // namespace quadruped_controller
 
-#endif // QUADRUPED_CONTROLLER_VISUALIZATION_HPP
+#endif  // QUADRUPED_CONTROLLER_VISUALIZATION_HPP

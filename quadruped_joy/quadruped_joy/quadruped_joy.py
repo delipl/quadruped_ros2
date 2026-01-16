@@ -1,11 +1,27 @@
 #!/usr/bin/env python3
-import rclpy
-import numpy as np
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import math
-from rclpy.node import Node
 from copy import copy
-from sensor_msgs.msg import Joy
+
+import numpy as np
+import rclpy
 from geometry_msgs.msg import PoseStamped
+from rclpy.node import Node
+from sensor_msgs.msg import Joy
 
 
 def quaternion_from_euler(ai, aj, ak):
@@ -40,7 +56,7 @@ class QuadrupedJoy(Node):
         self.joy_sub_ = self.create_subscription(Joy, "joy", self.joy_callback, 10)
         self.joy_pub_ = self.create_publisher(Joy, "joy_cmd_vel", 10)
         self.pose_cmd_pub_ = self.create_publisher(
-            PoseStamped, "quadruped_robot/command_base_pose" , 10
+            PoseStamped, "quadruped_robot/command_base_pose", 10
         )
 
         self.button_index_map = {
@@ -81,7 +97,6 @@ class QuadrupedJoy(Node):
         pose.header.stamp = self.get_clock().now().to_msg()
         pose.header.frame_id = "base_footprint"
 
-
         if msg.buttons[self.movement_type_button_map["WALK"]]:
             self.joy_pub_.publish(msg)
             self.was_walk_before = True
@@ -99,14 +114,14 @@ class QuadrupedJoy(Node):
                 msg.axes[self.button_index_map["axis"]["position_z"]]
                 * self.factor_map["position_factor"]["z"]
             )
-            
+
             yaw = (
                 msg.axes[self.button_index_map["axis"]["orientation_y"]]
                 * self.factor_map["orientation_factor"]["y"]
             )
-            
+
             q = quaternion_from_euler(0, 0, yaw)
-            
+
             pose.pose.orientation.x = q[0]
             pose.pose.orientation.y = q[1]
             pose.pose.orientation.z = q[2]
@@ -137,7 +152,6 @@ class QuadrupedJoy(Node):
                 msg.axes[self.button_index_map["axis"]["position_z"]]
                 * self.factor_map["position_factor"]["z"]
             )
-
 
         if self.was_walk_before:
             self.was_walk_before = False

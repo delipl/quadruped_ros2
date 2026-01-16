@@ -1,4 +1,17 @@
-// Copyright (c) 2024, Jakub Delicat
+// Copyright 2026 Jakub Delicat
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // All rights reserved.
 //
 // Proprietary License
@@ -36,15 +49,16 @@
 #include "quadruped_msgs/msg/quadruped_control.hpp"
 
 #include "control_msgs/msg/multi_dof_state_stamped.hpp"
+#include "example_interfaces/srv/add_two_ints.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "kinematics_interface/kinematics_interface.hpp"
 #include "quadruped_controller/leg.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
-#include "example_interfaces/srv/add_two_ints.hpp"
 
 #include "quadruped_controller/visualization.hpp"
-namespace quadruped_controller {
+namespace quadruped_controller
+{
 
 static constexpr std::size_t JOINTS_IN_LEG = 3;
 // name constants for state interfaces
@@ -62,7 +76,8 @@ enum class control_mode_type : std::uint8_t {
 
 using Point = geometry_msgs::msg::Point;
 
-class QuadrupedController : public controller_interface::ControllerInterface {
+class QuadrupedController : public controller_interface::ControllerInterface
+{
 public:
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
   QuadrupedController();
@@ -71,28 +86,26 @@ public:
   controller_interface::CallbackReturn on_init() override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::InterfaceConfiguration
-  command_interface_configuration() const override;
+  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::InterfaceConfiguration
-  state_interface_configuration() const override;
+  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State &previous_state) override;
+  controller_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State &previous_state) override;
+  controller_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
+  controller_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   QUADRUPED_CONTROLLER__VISIBILITY_PUBLIC
-  controller_interface::return_type
-  update(const rclcpp::Time &time, const rclcpp::Duration &period) override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
   // TODO(anyone): replace the state and command message types
   using ControllerReferenceMsg = quadruped_msgs::msg::QuadrupedControl;
   using ControllerModeSrvType = std_srvs::srv::SetBool;
@@ -105,27 +118,21 @@ protected:
   std::vector<std::string> state_joints_;
 
   // Command subscribers and Controller State publisher
-  rclcpp::Subscription<ControllerReferenceMsg>::SharedPtr ref_subscriber_ =
-      nullptr;
-  realtime_tools::RealtimeBuffer<std::shared_ptr<ControllerReferenceMsg>>
-      input_ref_;
+  rclcpp::Subscription<ControllerReferenceMsg>::SharedPtr ref_subscriber_ = nullptr;
+  realtime_tools::RealtimeBuffer<std::shared_ptr<ControllerReferenceMsg>> input_ref_;
 
-  rclcpp::Service<ControllerModeSrvType>::SharedPtr
-      set_slow_control_mode_service_;
+  rclcpp::Service<ControllerModeSrvType>::SharedPtr set_slow_control_mode_service_;
   realtime_tools::RealtimeBuffer<control_mode_type> control_mode_;
 
-  using ControllerStatePublisher =
-      realtime_tools::RealtimePublisher<ControllerStateMsg>;
+  using ControllerStatePublisher = realtime_tools::RealtimePublisher<ControllerStateMsg>;
   using DataMsg = std_msgs::msg::Float64MultiArray;
   using DataRTPublisher = realtime_tools::RealtimePublisher<DataMsg>;
 
   using VisualizationMsg = visualization_msgs::msg::MarkerArray;
-  using VisualizationRTPublisher =
-      realtime_tools::RealtimePublisher<VisualizationMsg>;
+  using VisualizationRTPublisher = realtime_tools::RealtimePublisher<VisualizationMsg>;
 
   using MultiDofStateStampedMsg = control_msgs::msg::MultiDOFStateStamped;
-  using MultiDofStateStampedRTP =
-      realtime_tools::RealtimePublisher<MultiDofStateStampedMsg>;
+  using MultiDofStateStampedRTP = realtime_tools::RealtimePublisher<MultiDofStateStampedMsg>;
 
   // RT publishers
   std::unique_ptr<ControllerStatePublisher> state_rt_pub_;
@@ -142,7 +149,6 @@ protected:
 
   std::unique_ptr<MultiDofStateStampedRTP> multi_dof_state_rt_pub_;
   std::unique_ptr<MultiDofStateStampedRTP> multi_dof_task_state_rt_pub_;
-  
 
   // Normal publishers
   rclcpp::Publisher<ControllerStateMsg>::SharedPtr state_pub_;
@@ -159,11 +165,9 @@ protected:
 
   rclcpp::Service<example_interfaces::srv::AddTwoInts>::SharedPtr step_service_;
 
-  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr
-      multi_dof_state_normal_pub_;
+  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr multi_dof_state_normal_pub_;
 
-  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr
-      multi_dof_task_state_normal_pub_;
+  rclcpp::Publisher<MultiDofStateStampedMsg>::SharedPtr multi_dof_task_state_normal_pub_;
 
   // TF broadcaster and timer
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
@@ -171,9 +175,8 @@ protected:
   rclcpp::TimerBase::SharedPtr tf_timer_;
 
   // Kinematics interface plugin loader
-  std::shared_ptr<
-      pluginlib::ClassLoader<kinematics_interface::KinematicsInterface>>
-      kinematics_loader_;
+  std::shared_ptr<pluginlib::ClassLoader<kinematics_interface::KinematicsInterface>>
+    kinematics_loader_;
   std::unique_ptr<kinematics_interface::KinematicsInterface> kinematics_;
 
   std::unique_ptr<Visualization> visualization_;
@@ -198,21 +201,18 @@ private:
   Eigen::VectorXd target_foot_positions_;
   Eigen::VectorXd foot_positions_error_;
 
-  std::size_t get_state_interface_index(std::size_t leg_index,
-                                        std::size_t joint_index,
-                                        std::size_t interface_index) const;
+  std::size_t get_state_interface_index(
+    std::size_t leg_index, std::size_t joint_index, std::size_t interface_index) const;
 
-  std::size_t get_command_interface_index(std::size_t leg_index,
-                                          std::size_t joint_index) const;
+  std::size_t get_command_interface_index(std::size_t leg_index, std::size_t joint_index) const;
 
-  void
-  set_msg_data_from_vector_and_publish(std::unique_ptr<DataRTPublisher> &rt_pub,
-                                       const Eigen::VectorXd &data);
+  void set_msg_data_from_vector_and_publish(
+    std::unique_ptr<DataRTPublisher> & rt_pub, const Eigen::VectorXd & data);
 
-                                       Eigen::VectorXd Kp = Eigen::VectorXd::Zero(12);
-                                       Eigen::VectorXd Kd = Eigen::VectorXd::Zero(12);
-                                       Eigen::VectorXd feed_forward_ = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd Kp = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd Kd = Eigen::VectorXd::Zero(12);
+  Eigen::VectorXd feed_forward_ = Eigen::VectorXd::Zero(12);
 };
-} // namespace quadruped_controller
+}  // namespace quadruped_controller
 
-#endif // QUADRUPED_CONTROLLER__QUADRUPED_CONTROLLER_HPP_
+#endif  // QUADRUPED_CONTROLLER__QUADRUPED_CONTROLLER_HPP_

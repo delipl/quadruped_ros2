@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import rclpy
 from rclpy.node import Node
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -38,21 +54,17 @@ class ZeroTrajectoryPublisher(Node):
 
         # Create a JointTrajectoryPoint with all positions set to 0.0
         point = JointTrajectoryPoint()
-        point.positions = [0.0] * len(
-            self.joint_names
-        )  # Set position of each joint to 0.0
-        
+        point.positions = [0.0] * len(self.joint_names)  # Set position of each joint to 0.0
+
         # for i in range(4):
         #     point.positions[i*3 + 2] = 2.0
         point.positions[2] = -3.14
-        point.positions[2+3] = 3.14
-        
-        point.positions[2+6] = 3.14
-        point.positions[2+9] = -3.14
-        
-        point.time_from_start.sec = (
-            0  # Set a 1-second time from start for demonstration
-        )
+        point.positions[2 + 3] = 3.14
+
+        point.positions[2 + 6] = 3.14
+        point.positions[2 + 9] = -3.14
+
+        point.time_from_start.sec = 0  # Set a 1-second time from start for demonstration
         point.time_from_start.nanosec = 500000000
         # Add the point to the trajectory message
         trajectory_msg.points.append(point)

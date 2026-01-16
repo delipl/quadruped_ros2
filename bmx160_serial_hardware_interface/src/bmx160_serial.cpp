@@ -14,19 +14,22 @@
 
 #include "bmx160_serial_hardware_interface/bmx160_serial.hpp"
 #include <fcntl.h>
-#include <iostream>
+#include <termios.h>
+#include <unistd.h>
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <regex>
 #include <sstream>
-#include <termios.h>
-#include <unistd.h>
 
 // Constructor: Opens the serial port
-BMX160Serial::BMX160Serial(const std::string &port_name, int baud_rate)
-    : port_name_{port_name}, baud_rate_{baud_rate} {}
+BMX160Serial::BMX160Serial(const std::string & port_name, int baud_rate)
+: port_name_{port_name}, baud_rate_{baud_rate}
+{
+}
 
-bool BMX160Serial::initialize() {
+bool BMX160Serial::initialize()
+{
   serial_fd = open(port_name_.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
   if (serial_fd < 0) {
     std::cerr << "Error opening serial port!" << std::endl;
@@ -63,14 +66,16 @@ bool BMX160Serial::initialize() {
 }
 
 // Destructor: Closes the serial port
-BMX160Serial::~BMX160Serial() {
+BMX160Serial::~BMX160Serial()
+{
   if (serial_fd >= 0) {
     close(serial_fd);
   }
 }
 
 // Reads a line of input from the serial port
-std::string BMX160Serial::read_line() {
+std::string BMX160Serial::read_line()
+{
   std::string line;
   char ch;
   while (read(serial_fd, &ch, 1) > 0 && ch != '\n') {
@@ -82,9 +87,10 @@ std::string BMX160Serial::read_line() {
 }
 
 // Parses a single line of sensor data and updates the SensorData struct
-void BMX160Serial::parse_line(const std::string &line, SensorData &data) {
+void BMX160Serial::parse_line(const std::string & line, SensorData & data)
+{
   std::regex pattern(
-      R"(([MAGR]) X:\s*(-?\d+\.\d+)\s+Y:\s*(-?\d+\.\d+)\s+Z:\s*(-?\d+\.\d+)(?:\s+W:\s*(-?\d+\.\d+))?)");
+    R"(([MAGR]) X:\s*(-?\d+\.\d+)\s+Y:\s*(-?\d+\.\d+)\s+Z:\s*(-?\d+\.\d+)(?:\s+W:\s*(-?\d+\.\d+))?)");
 
   std::smatch match;
   if (std::regex_search(line, match, pattern)) {
@@ -93,41 +99,41 @@ void BMX160Serial::parse_line(const std::string &line, SensorData &data) {
     float y = std::stof(match[3].str());
     float z = std::stof(match[4].str());
     switch (type) {
-    case 'R': {
-      float w = std::stof(match[5].str());
-      data.quat_x = x;
-      data.quat_y = y;
-      data.quat_z = z;
-      data.quat_w = w;
-      break;
-    }
-    case 'M':
-      data.mag_x = x;
-      data.mag_y = y;
-      data.mag_z = z;
-      break;
-    case 'G':
-      data.gyro_x = x;
-      data.gyro_y = y;
-      data.gyro_z = z;
-      break;
-    case 'A':
-      data.accel_x = x;
-      data.accel_y = y;
-      data.accel_z = z;
-      break;
+      case 'R': {
+        float w = std::stof(match[5].str());
+        data.quat_x = x;
+        data.quat_y = y;
+        data.quat_z = z;
+        data.quat_w = w;
+        break;
+      }
+      case 'M':
+        data.mag_x = x;
+        data.mag_y = y;
+        data.mag_z = z;
+        break;
+      case 'G':
+        data.gyro_x = x;
+        data.gyro_y = y;
+        data.gyro_z = z;
+        break;
+      case 'A':
+        data.accel_x = x;
+        data.accel_y = y;
+        data.accel_z = z;
+        break;
     }
   }
 }
 
 // Reads and returns the latest sensor data
-BMX160Serial::SensorData BMX160Serial::read_sensor_data() {
+BMX160Serial::SensorData BMX160Serial::read_sensor_data()
+{
   const auto nan = std::numeric_limits<float>::quiet_NaN();
-  SensorData data = {nan, nan, nan, nan, nan, nan, nan,
-                     nan, nan, nan, nan, nan, nan};
+  SensorData data = {nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan};
 
-  while (std::isnan(data.quat_x) || std::isnan(data.gyro_x) ||
-         std::isnan(data.accel_x) || std::isnan(data.mag_x)) {
+  while (std::isnan(data.quat_x) || std::isnan(data.gyro_x) || std::isnan(data.accel_x) ||
+         std::isnan(data.mag_x)) {
     std::string line = read_line();
     if (line.empty()) {
       continue;

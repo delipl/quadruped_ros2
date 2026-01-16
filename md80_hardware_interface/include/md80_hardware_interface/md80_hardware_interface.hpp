@@ -33,22 +33,26 @@
 #include "std_msgs/msg/float32_multi_array.hpp"
 
 #include "candle.hpp"
-namespace md80_hardware_interface {
+namespace md80_hardware_interface
+{
 
-struct JointInfo {
+struct JointInfo
+{
   double position = 0.0;
   double velocity = 0.0;
   double effort = 0.0;
 };
 
-struct PID {
+struct PID
+{
   float kp;
   float ki;
   float kd;
   float windup;
 };
 
-struct MD80Info {
+struct MD80Info
+{
   JointInfo state;
   JointInfo command;
   int can_id;
@@ -59,42 +63,41 @@ struct MD80Info {
   PID ddq_pid;
 };
 
-class MD80HardwareInterface : public hardware_interface::SystemInterface {
+class MD80HardwareInterface : public hardware_interface::SystemInterface
+{
 public:
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_init(const hardware_interface::HardwareInfo &info) override;
+  hardware_interface::CallbackReturn on_init(
+    const hardware_interface::HardwareInfo & info) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State &previous_state) override;
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  std::vector<hardware_interface::StateInterface>
-  export_state_interfaces() override;
+  std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  std::vector<hardware_interface::CommandInterface>
-  export_command_interfaces() override;
+  std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State &previous_state) override;
+  hardware_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
+  hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::return_type read(const rclcpp::Time &time,
-                                       const rclcpp::Duration &period) override;
+  hardware_interface::return_type read(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
   TEMPLATES__ROS2_CONTROL__VISIBILITY_PUBLIC
-  hardware_interface::return_type
-  write(const rclcpp::Time &time, const rclcpp::Duration &period) override;
+  hardware_interface::return_type write(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
 private:
-  void parse_urdf_joint_info(MD80Info &md80, const hardware_interface::ComponentInfo &info);
+  void parse_urdf_joint_info(MD80Info & md80, const hardware_interface::ComponentInfo & info);
 
   std::shared_ptr<mab::Candle> find_candle_by_motor_can_id(uint16_t can_id);
   void add_candle_instances();
@@ -115,6 +118,6 @@ private:
   std::vector<std::shared_ptr<mab::Candle>> candle_instances;
 };
 
-} // namespace md80_hardware_interface
+}  // namespace md80_hardware_interface
 
-#endif // MICROROS_HARDWARE_INTERFACES__MICROROS_HARDWARE_INTERFACES_HPP_
+#endif  // MICROROS_HARDWARE_INTERFACES__MICROROS_HARDWARE_INTERFACES_HPP_

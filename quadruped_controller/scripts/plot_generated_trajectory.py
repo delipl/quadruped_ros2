@@ -1,5 +1,22 @@
-import numpy as np
+#!/usr/bin/env python3
+
+# Copyright 2026 Jakub Delicat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 def generate_leg_trajectory(
     ticks, phase=0, periods=3, x0=0.3, y0=0.148, dx=0.0, dy=0.0, dz=0.15, dw=0.0
@@ -17,7 +34,7 @@ def generate_leg_trajectory(
     if dz == 0:
         dminz = 0.0
     else:
-        dminz = 0.01 
+        dminz = 0.01
 
     x = np.concatenate((x, xb)) - dx / 2
     y = np.concatenate((y, yb)) - dy / 2
@@ -31,13 +48,14 @@ def generate_leg_trajectory(
     traj_contact = np.where(traj_z < (z0 + dminz), True, False)
     return traj_x, traj_y, traj_z, traj_contact
 
+
 # Parameters
 ticks = 30
 dx, dy, dz, dw = 0.0, 0.0, 0.15, 0.1  # Added dw (angular velocity)
 phases = [0, 1, 1, 0]  # Phase offset for each leg
 x0es = 0.227 * np.array([1, 1, -1, -1])  # Initial X positions for each leg
-y0es = 0.15 * np.array([1, -1, 1, -1])   # Initial Y positions for each leg
-leg_names = ['FL (Front Left)', 'FR (Front Right)', 'RL (Rear Left)', 'RR (Rear Right)']
+y0es = 0.15 * np.array([1, -1, 1, -1])  # Initial Y positions for each leg
+leg_names = ["FL (Front Left)", "FR (Front Right)", "RL (Rear Left)", "RR (Rear Right)"]
 
 # Generate trajectories for all four legs
 trajectories = []
@@ -63,18 +81,18 @@ fig, axs = plt.subplots(4, 1, figsize=(10, 12), sharex=True)
 
 for i, ax in enumerate(axs):
     traj_x, traj_y, traj_z = trajectories[i]
-    ax.plot(traj_x, label='X trajectory')
-    ax.plot(traj_y, label='Y trajectory')
-    ax.plot(traj_z, label='Z trajectory')
+    ax.plot(traj_x, label="X trajectory")
+    ax.plot(traj_y, label="Y trajectory")
+    ax.plot(traj_z, label="Z trajectory")
     ax.set_title(leg_names[i])  # Add the leg name as the title
-    ax.set_ylabel('Position')
+    ax.set_ylabel("Position")
     ax.set_ylim(y_min, y_max)  # Set consistent Y-axis limits
     ax.legend()
     ax.grid()
 
-axs[-1].set_xlabel('Time Steps')  # Add a common X-axis label
+axs[-1].set_xlabel("Time Steps")  # Add a common X-axis label
 
 # Save the figure
 plt.tight_layout()
-plt.savefig('/home/rabin/external_disk/robotics/master_thesis/figures/traj_dw.png', dpi=300)
+plt.savefig("/home/rabin/external_disk/robotics/master_thesis/figures/traj_dw.png", dpi=300)
 plt.show()

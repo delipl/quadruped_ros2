@@ -703,6 +703,6 @@
     <connect anchor="0.0 0 0" body1="rear_left_foot_link" body2="rear_left_chain_close_a_link"
       active="true" name="equality_sconstraint_rear_left" />
     <connect anchor="0.0 0 0" body1="rear_right_foot_link" body2="rear_right_chain_close_a_link"
-      active="true" name="equality_sconstraint_rear_right" /> 
+      active="true" name="equality_sconstraint_rear_right" />
   </equality>
 </mujoco>

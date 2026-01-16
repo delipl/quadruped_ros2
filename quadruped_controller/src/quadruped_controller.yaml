@@ -82,7 +82,7 @@ quadruped_controller:
     }
   second_joint_kd:
     {
-      type: double,   
+      type: double,
       default_value: 0.0,
       description: "Specifies the derivative gain for the second joint.",
     }
