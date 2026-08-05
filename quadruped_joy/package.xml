@@ -5,7 +5,7 @@
   <version>0.0.0</version>
   <description>Control quadruped robot using Joy</description>
   <maintainer email="delicat.kuba@gmail.com">Jakub Delicat</maintainer>
-  <license>Apache-2.0</license>
+  <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
