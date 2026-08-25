@@ -90,15 +90,9 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    headless = DeclareLaunchArgument(
-        "headless",
-        default_value="false",
-        description="Run simulation without visualization window",
-    )
 
     return LaunchDescription(
         [
-            headless,
             OpaqueFunction(function=launch_setup),
         ]
     )
