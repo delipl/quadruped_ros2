@@ -1,3 +1,4 @@
+---
 Language: Cpp
 BasedOnStyle: Google
 
@@ -19,3 +20,6 @@ IncludeBlocks: Preserve
 AlignOperands: true
 PenaltyBreakAssignment: 21
 PenaltyBreakBeforeFirstCallParameter: 1
+---
+Language: Json
+BasedOnStyle: LLVM

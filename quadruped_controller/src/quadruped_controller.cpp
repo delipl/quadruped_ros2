@@ -462,7 +462,7 @@ controller_interface::return_type QuadrupedController::update(
 
   calculate_control();
 
-  update_passive_joints();
+  // update_passive_joints();
 
   if (visualization_rt_pub_ && visualization_rt_pub_->trylock()) {
     visualization_rt_pub_->unlockAndPublish();

@@ -84,21 +84,9 @@
 
         <ros2_control name="MD80HardwareInterface" type="system">
             <hardware>
-                <xacro:if value="${use_sim}">
-                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
-                </xacro:if>
-                <xacro:unless value="${use_sim}">
-                    <xacro:if value="${use_hardware}">
-                        <plugin>md80_hardware_interface/MD80HardwareInterface</plugin>
-                        <param name="usb_port">/dev/ttyACM0</param>
-                        <param name="bus">usb</param>
-
-                    </xacro:if>
-                    <xacro:unless value="${use_hardware}">
-                        <plugin>mock_components/GenericSystem</plugin>
-                        <param name="calculate_dynamics">true</param>
-                    </xacro:unless>
-                </xacro:unless>
+                <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+                <param name="mujoco_model">$(find four_bar_bot_mujoco)/config/mujoco_description_formatted.xml</param>
+                <param name="sim_speed_factor">1.0</param>
             </hardware>
 
             <xacro:property name="kp1" value="25" />

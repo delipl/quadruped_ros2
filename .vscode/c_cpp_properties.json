@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/rabin/Documents/quadruped_robot/install/quadruped_controller/include/**",
+        "/home/rabin/Documents/quadruped_robot/install/md80_hardware_interface/include/**",
+        "/opt/ros/jazzy/include/**",
+        "/home/rabin/Documents/quadruped_robot/src/quadruped_robot/bmx160_serial_hardware_interface/include/**",
+        "/home/rabin/Documents/quadruped_robot/src/quadruped_robot/joy2twist/joy2twist/include/**",
+        "/home/rabin/Documents/quadruped_robot/src/quadruped_robot/md80_hardware_interface/include/**",
+        "/home/rabin/Documents/quadruped_robot/src/quadruped_robot/mujoco_ros2_control/mujoco_ros2_control/include/**",
+        "/home/rabin/Documents/quadruped_robot/src/quadruped_robot/quadruped_controller/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
