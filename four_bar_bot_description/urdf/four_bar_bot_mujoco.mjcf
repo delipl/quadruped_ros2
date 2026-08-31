@@ -1,0 +1,256 @@
+<mujoco model="quadruped">
+  <default>
+    <default class="robot">
+      <default class="motor">
+        <joint />
+        <motor />
+      </default>
+      <default class="visual">
+        <geom material="visualgeom" contype="0" conaffinity="0" group="2" />
+      </default>
+      <default class="collision">
+        <geom material="collision_material" condim="3" contype="0" conaffinity="1" priority="1" group="1" solref="0.005 1" solimp="0.99 0.999 1e-05" friction="1 0.01 0.01" />
+      </default>
+    </default>
+  </default>
+
+  <compiler angle="radian" />
+
+  <asset>
+    <material name="grey" rgba="0.5 0.5 0.5 1.0" />
+    <material name="default_material" rgba="0.7 0.7 0.7 1" />
+    <material name="collision_material" rgba="1.0 0.28 0.1 0.9" />
+    <mesh name="base_link.dae" file="package://four_bar_bot_description/meshes/base_link.dae" />
+    <mesh name="first_link.dae" file="package://four_bar_bot_description/meshes/first_link.dae" />
+    <mesh name="second_link.dae" file="package://four_bar_bot_description/meshes/second_link.dae" />
+    <mesh name="third_link.dae" file="package://four_bar_bot_description/meshes/third_link.dae" />
+    <mesh name="fourth_link.dae" file="package://four_bar_bot_description/meshes/fourth_link.dae" />
+    <mesh name="fifth_link.dae" file="package://four_bar_bot_description/meshes/fifth_link.dae" />
+    <mesh name="sixth_link.dae" file="package://four_bar_bot_description/meshes/sixth_link.dae" />
+  </asset>
+
+  <worldbody>
+    <body name="base_link" pos="0.00000000 0.00000000 0.00000000" quat="1 0 0 0" childclass="robot">
+      <freejoint name="floating_base" />
+      <body name="body_link" pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0">
+        <inertial pos="0.01 0 0.06" quat="1.0 0.0 0.0 0.0" mass="50.0" diaginertia="0.2526041666666667 1.4920833333333334 1.6613541666666667" />
+        <geom name="body_link_collision" pos="0.0 0 0" quat="6.123233995736766e-17 0.0 0.0 1.0" type="mesh" mesh="base_link.dae" class="collision" />
+        <geom name="body_link_visual" pos="0.0 0 0" quat="6.123233995736766e-17 0.0 0.0 1.0" material="grey" type="mesh" mesh="base_link.dae" class="visual" />
+      </body>
+      <body name="imu_link" pos="0.0 0.0 0.1" quat="6.123233995736766e-17 0.0 1.0 0.0" />
+      <body name="rear_left_leg_base_link" pos="-0.131 0.06 0.06" quat="6.123233995736766e-17 0.0 0.0 1.0">
+        <body name="rear_left_first_link" pos="0.0 0.0 0.0" quat="0.7071067811865476 -0.7071067811865475 0.0 0.0">
+          <inertial pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+          <geom name="rear_left_first_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="first_link.dae" class="collision" />
+          <geom name="rear_left_first_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="first_link.dae" class="visual" />
+          <body name="rear_left_second_link" pos="0.031 0.0 0.0" quat="6.123233995736766e-17 1.0 0.0 0.0">
+            <joint name="rear_left_first_joint" type="hinge" ref="0.0" class="motor" range="-3.1416 3.1416" axis="1 0 0" />
+            <inertial pos="0.055 0  0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+            <geom name="rear_left_second_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="second_link.dae" class="collision" />
+            <geom name="rear_left_second_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="second_link.dae" class="visual" />
+            <body name="rear_left_third_link" pos="0.064 0.0 0.023" quat="6.123233995736766e-17 0.0 0.0 1.0">
+              <joint name="rear_left_second_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+              <inertial pos="0.0 0  0.025" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+              <geom name="rear_left_third_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="third_link.dae" class="collision" />
+              <geom name="rear_left_third_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="third_link.dae" class="visual" />
+              <body name="rear_left_fourth_link" pos="0.0 0.0 0.0555" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                <joint name="rear_left_third_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+                <inertial pos="0.0625 0.0  0.015" quat="1.0 0.0 0.0 0.0" mass="0.04" diaginertia="3.1041666666666677e-06 0.00010310416666666667 0.00010416666666666666" />
+                <geom name="rear_left_fourth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fourth_link.dae" class="collision" />
+                <geom name="rear_left_fourth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fourth_link.dae" class="visual" />
+                <body name="rear_left_fifth_link" pos="0.125 0.0 0.0255" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                  <joint name="rear_left_fourth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                  <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                  <geom name="rear_left_fifth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fifth_link.dae" class="collision" />
+                  <geom name="rear_left_fifth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fifth_link.dae" class="visual" />
+                  <body name="rear_left_chain_close_a_link" pos="0.21 0 -0.0115" quat="1.0 0.0 0.0 0.0" />
+                </body>
+              </body>
+              <body name="rear_left_sixth_link" pos="-0.125 0.0 0.058" quat="1.0 0.0 0.0 0.0">
+                <joint name="rear_left_fifth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                <geom name="rear_left_sixth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="sixth_link.dae" class="collision" />
+                <geom name="rear_left_sixth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="sixth_link.dae" class="visual" />
+                <body name="rear_left_foot_link" pos="0.21 0 0.0115" quat="1.0 0.0 0.0 0.0" />
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="rear_right_leg_base_link" pos="-0.131 -0.06 0.06" quat="6.123233995736766e-17 0.0 0.0 1.0">
+        <body name="rear_right_first_link" pos="0.0 0.0 0.0" quat="0.7071067811865476 -0.7071067811865475 0.0 0.0">
+          <inertial pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+          <geom name="rear_right_first_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="first_link.dae" class="collision" />
+          <geom name="rear_right_first_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="first_link.dae" class="visual" />
+          <body name="rear_right_second_link" pos="0.031 0.0 0.0" quat="1.0 0.0 0.0 0.0">
+            <joint name="rear_right_first_joint" type="hinge" ref="0.0" class="motor" range="-3.1416 3.1416" axis="1 0 0" />
+            <inertial pos="0.055 0  0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+            <geom name="rear_right_second_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="second_link.dae" class="collision" />
+            <geom name="rear_right_second_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="second_link.dae" class="visual" />
+            <body name="rear_right_third_link" pos="0.064 0.0 0.023" quat="6.123233995736766e-17 0.0 0.0 1.0">
+              <joint name="rear_right_second_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+              <inertial pos="0.0 0  0.025" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+              <geom name="rear_right_third_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="third_link.dae" class="collision" />
+              <geom name="rear_right_third_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="third_link.dae" class="visual" />
+              <body name="rear_right_fourth_link" pos="0.0 0.0 0.0555" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                <joint name="rear_right_third_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+                <inertial pos="0.0625 0.0  0.015" quat="1.0 0.0 0.0 0.0" mass="0.04" diaginertia="3.1041666666666677e-06 0.00010310416666666667 0.00010416666666666666" />
+                <geom name="rear_right_fourth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fourth_link.dae" class="collision" />
+                <geom name="rear_right_fourth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fourth_link.dae" class="visual" />
+                <body name="rear_right_fifth_link" pos="0.125 0.0 0.0255" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                  <joint name="rear_right_fourth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                  <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                  <geom name="rear_right_fifth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fifth_link.dae" class="collision" />
+                  <geom name="rear_right_fifth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fifth_link.dae" class="visual" />
+                  <body name="rear_right_chain_close_a_link" pos="0.21 0 -0.0115" quat="1.0 0.0 0.0 0.0" />
+                </body>
+              </body>
+              <body name="rear_right_sixth_link" pos="-0.125 0.0 0.058" quat="1.0 0.0 0.0 0.0">
+                <joint name="rear_right_fifth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                <geom name="rear_right_sixth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="sixth_link.dae" class="collision" />
+                <geom name="rear_right_sixth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="sixth_link.dae" class="visual" />
+                <body name="rear_right_foot_link" pos="0.21 0 0.0115" quat="1.0 0.0 0.0 0.0" />
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="front_right_leg_base_link" pos="0.131 -0.06 0.06" quat="1.0 0.0 0.0 0.0">
+        <body name="front_right_first_link" pos="0.0 0.0 0.0" quat="0.7071067811865476 -0.7071067811865475 0.0 0.0">
+          <inertial pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+          <geom name="front_right_first_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="first_link.dae" class="collision" />
+          <geom name="front_right_first_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="first_link.dae" class="visual" />
+          <body name="front_right_second_link" pos="0.031 0.0 0.0" quat="6.123233995736766e-17 1.0 0.0 0.0">
+            <joint name="front_right_first_joint" type="hinge" ref="0.0" class="motor" range="-3.1416 3.1416" axis="1 0 0" />
+            <inertial pos="0.055 0  0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+            <geom name="front_right_second_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="second_link.dae" class="collision" />
+            <geom name="front_right_second_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="second_link.dae" class="visual" />
+            <body name="front_right_third_link" pos="0.064 0.0 0.023" quat="6.123233995736766e-17 0.0 0.0 1.0">
+              <joint name="front_right_second_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+              <inertial pos="0.0 0  0.025" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+              <geom name="front_right_third_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="third_link.dae" class="collision" />
+              <geom name="front_right_third_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="third_link.dae" class="visual" />
+              <body name="front_right_fourth_link" pos="0.0 0.0 0.0555" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                <joint name="front_right_third_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+                <inertial pos="0.0625 0.0  0.015" quat="1.0 0.0 0.0 0.0" mass="0.04" diaginertia="3.1041666666666677e-06 0.00010310416666666667 0.00010416666666666666" />
+                <geom name="front_right_fourth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fourth_link.dae" class="collision" />
+                <geom name="front_right_fourth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fourth_link.dae" class="visual" />
+                <body name="front_right_fifth_link" pos="0.125 0.0 0.0255" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                  <joint name="front_right_fourth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                  <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                  <geom name="front_right_fifth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fifth_link.dae" class="collision" />
+                  <geom name="front_right_fifth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fifth_link.dae" class="visual" />
+                  <body name="front_right_chain_close_a_link" pos="0.21 0 -0.0115" quat="1.0 0.0 0.0 0.0" />
+                </body>
+              </body>
+              <body name="front_right_sixth_link" pos="-0.125 0.0 0.058" quat="1.0 0.0 0.0 0.0">
+                <joint name="front_right_fifth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                <geom name="front_right_sixth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="sixth_link.dae" class="collision" />
+                <geom name="front_right_sixth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="sixth_link.dae" class="visual" />
+                <body name="front_right_foot_link" pos="0.21 0 0.0115" quat="1.0 0.0 0.0 0.0" />
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="front_left_leg_base_link" pos="0.131 0.06 0.06" quat="1.0 0.0 0.0 0.0">
+        <body name="front_left_first_link" pos="0.0 0.0 0.0" quat="0.7071067811865476 -0.7071067811865475 0.0 0.0">
+          <inertial pos="0.0 0.0 0.0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+          <geom name="front_left_first_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="first_link.dae" class="collision" />
+          <geom name="front_left_first_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="first_link.dae" class="visual" />
+          <body name="front_left_second_link" pos="0.031 0.0 0.0" quat="1.0 0.0 0.0 0.0">
+            <joint name="front_left_first_joint" type="hinge" ref="0.0" class="motor" range="-3.1416 3.1416" axis="1 0 0" />
+            <inertial pos="0.055 0  0" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+            <geom name="front_left_second_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="second_link.dae" class="collision" />
+            <geom name="front_left_second_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="second_link.dae" class="visual" />
+            <body name="front_left_third_link" pos="0.064 0.0 0.023" quat="6.123233995736766e-17 0.0 0.0 1.0">
+              <joint name="front_left_second_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+              <inertial pos="0.0 0  0.025" quat="1.0 0.0 0.0 0.0" mass="0.6" diaginertia="0.0004550000000000001 0.0004550000000000001 0.00075" />
+              <geom name="front_left_third_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="third_link.dae" class="collision" />
+              <geom name="front_left_third_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="third_link.dae" class="visual" />
+              <body name="front_left_fourth_link" pos="0.0 0.0 0.0555" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                <joint name="front_left_third_joint" type="hinge" ref="0.0" class="motor" range="-5.8 5.8" axis="0 0 1" />
+                <inertial pos="0.0625 0.0  0.015" quat="1.0 0.0 0.0 0.0" mass="0.04" diaginertia="3.1041666666666677e-06 0.00010310416666666667 0.00010416666666666666" />
+                <geom name="front_left_fourth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fourth_link.dae" class="collision" />
+                <geom name="front_left_fourth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fourth_link.dae" class="visual" />
+                <body name="front_left_fifth_link" pos="0.125 0.0 0.0255" quat="6.123233995736766e-17 0.0 0.0 1.0">
+                  <joint name="front_left_fourth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                  <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                  <geom name="front_left_fifth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="fifth_link.dae" class="collision" />
+                  <geom name="front_left_fifth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="fifth_link.dae" class="visual" />
+                  <body name="front_left_chain_close_a_link" pos="0.21 0 -0.0115" quat="1.0 0.0 0.0 0.0" />
+                </body>
+              </body>
+              <body name="front_left_sixth_link" pos="-0.125 0.0 0.058" quat="1.0 0.0 0.0 0.0">
+                <joint name="front_left_fifth_joint" type="hinge" ref="0.0" class="motor" range="-3.14 3.14" axis="0 0 -1" />
+                <inertial pos="0.105 0  0.0" quat="1.0 0.0 0.0 0.0" mass="0.05" diaginertia="7.942708333333334e-06 0.0002616927083333333 0.00026708333333333337" />
+                <geom name="front_left_sixth_link_collision" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" type="mesh" mesh="sixth_link.dae" class="collision" />
+                <geom name="front_left_sixth_link_visual" pos="0.0 0 0.0" quat="1.0 0.0 0.0 0.0" material="grey" type="mesh" mesh="sixth_link.dae" class="visual" />
+                <body name="front_left_foot_link" pos="0.21 0 0.0115" quat="1.0 0.0 0.0 0.0" />
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <site name="base_link_site" pos="0 0 0" quat="1 0 0 0" />
+      <camera name="front_camera" mode="track" fovy="90.0" quat="4.329780281177467e-17 4.329780281177466e-17 0.7071067811865475 0.7071067811865476" pos="0.0 2.0 0.5" />
+      <camera name="side_camera" mode="track" fovy="90.0" quat="-0.5 -0.4999999999999999 0.5 0.5000000000000001" pos="-2.0 0.0 0.5" />
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="rear_left_first_joint_ctrl" joint="rear_left_first_joint" class="motor" />
+    <motor name="rear_left_second_joint_ctrl" joint="rear_left_second_joint" class="motor" />
+    <motor name="rear_left_third_joint_ctrl" joint="rear_left_third_joint" class="motor" />
+    <motor name="rear_left_fourth_joint_ctrl" joint="rear_left_fourth_joint" class="motor" />
+    <motor name="rear_left_fifth_joint_ctrl" joint="rear_left_fifth_joint" class="motor" />
+    <motor name="rear_right_first_joint_ctrl" joint="rear_right_first_joint" class="motor" />
+    <motor name="rear_right_second_joint_ctrl" joint="rear_right_second_joint" class="motor" />
+    <motor name="rear_right_third_joint_ctrl" joint="rear_right_third_joint" class="motor" />
+    <motor name="rear_right_fourth_joint_ctrl" joint="rear_right_fourth_joint" class="motor" />
+    <motor name="rear_right_fifth_joint_ctrl" joint="rear_right_fifth_joint" class="motor" />
+    <motor name="front_right_first_joint_ctrl" joint="front_right_first_joint" class="motor" />
+    <motor name="front_right_second_joint_ctrl" joint="front_right_second_joint" class="motor" />
+    <motor name="front_right_third_joint_ctrl" joint="front_right_third_joint" class="motor" />
+    <motor name="front_right_fourth_joint_ctrl" joint="front_right_fourth_joint" class="motor" />
+    <motor name="front_right_fifth_joint_ctrl" joint="front_right_fifth_joint" class="motor" />
+    <motor name="front_left_first_joint_ctrl" joint="front_left_first_joint" class="motor" />
+    <motor name="front_left_second_joint_ctrl" joint="front_left_second_joint" class="motor" />
+    <motor name="front_left_third_joint_ctrl" joint="front_left_third_joint" class="motor" />
+    <motor name="front_left_fourth_joint_ctrl" joint="front_left_fourth_joint" class="motor" />
+    <motor name="front_left_fifth_joint_ctrl" joint="front_left_fifth_joint" class="motor" />
+  </actuator>
+
+  <contact>
+    <exclude body1="rear_left_first_link" body2="rear_left_second_link" />
+    <exclude body1="rear_left_second_link" body2="rear_left_third_link" />
+    <exclude body1="rear_left_third_link" body2="rear_left_fourth_link" />
+    <exclude body1="rear_left_fourth_link" body2="rear_left_fifth_link" />
+    <exclude body1="rear_left_third_link" body2="rear_left_sixth_link" />
+    <exclude body1="rear_right_first_link" body2="rear_right_second_link" />
+    <exclude body1="rear_right_second_link" body2="rear_right_third_link" />
+    <exclude body1="rear_right_third_link" body2="rear_right_fourth_link" />
+    <exclude body1="rear_right_fourth_link" body2="rear_right_fifth_link" />
+    <exclude body1="rear_right_third_link" body2="rear_right_sixth_link" />
+    <exclude body1="front_right_first_link" body2="front_right_second_link" />
+    <exclude body1="front_right_second_link" body2="front_right_third_link" />
+    <exclude body1="front_right_third_link" body2="front_right_fourth_link" />
+    <exclude body1="front_right_fourth_link" body2="front_right_fifth_link" />
+    <exclude body1="front_right_third_link" body2="front_right_sixth_link" />
+    <exclude body1="front_left_first_link" body2="front_left_second_link" />
+    <exclude body1="front_left_second_link" body2="front_left_third_link" />
+    <exclude body1="front_left_third_link" body2="front_left_fourth_link" />
+    <exclude body1="front_left_fourth_link" body2="front_left_fifth_link" />
+    <exclude body1="front_left_third_link" body2="front_left_sixth_link" />
+  </contact>
+
+  <sensor>
+    <framepos name="base_link_site_pos" objtype="site" objname="base_link_site" />
+    <framequat name="base_link_site_quat" objtype="site" objname="base_link_site" />
+    <framelinvel name="base_link_site_linvel" objtype="site" objname="base_link_site" />
+    <frameangvel name="base_link_site_angvel" objtype="site" objname="base_link_site" />
+    <velocimeter name="base_link_site_vel" site="base_link_site" />
+  </sensor>
+</mujoco>

@@ -54,7 +54,7 @@ def generate_launch_description():
             "--controller-manager",
             "/controller_manager",
         ],
-        condition=IfCondition(use_hardware),
+        # condition=IfCondition(use_hardware),
     )
 
     control_node = Node(

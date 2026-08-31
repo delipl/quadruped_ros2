@@ -6,9 +6,6 @@
   <xacro:macro name="leg"
     params="prefix xyz rpy first_x:=0.1 first_joint_offset third_joint_gear_correction_dir ">
 
-    <xacro:property name="zero_angle_offset" value="0.17692153346630435" />
-    <!-- Define the thigh -->
-
     <link name="${prefix}_leg_base_link" />
 
     <!-- Define the joints -->
@@ -48,11 +45,7 @@
       name="${prefix}_third_link" />
 
     <xacro:property name="gear_ratio" value="0.0" />
-    <!-- <xacro:property name="second_joint_gear_correction" value="${third_joint_gear_correction_dir*0.2793}" />
-    <xacro:property name="third_joint_gear_correction" value="${-1.117+pi}" /> -->
 
-    <xacro:property name="second_joint_gear_correction" value="0" />
-    <xacro:property name="third_joint_gear_correction" value="${1.198}" />
 
     <joint name="${prefix}_second_joint"
       type="revolute">
@@ -61,22 +54,31 @@
       <origin xyz="0.064 0.0 0.023"
         rpy="0.0 0.0 ${pi} " />
       <axis xyz="0 0 1" />
-      <limit effort="100.0" lower="1.57" upper="4.71" velocity="10.0" />
+      <limit effort="100.0" lower="-5.8" upper="5.8" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
     <xacro:fourth_link
       name="${prefix}_fourth_link" />
 
+    <!-- <xacro:property name="second_joint_gear_correction" value="${third_joint_gear_correction_dir*0.2793}" />
+    <xacro:property name="third_joint_gear_correction" value="${-1.117+pi}" /> -->
+
+    <!-- <xacro:property name="fr_sign" value="${1 if 'front' in prefix else -1}" />
+    <xacro:property name="lr_sign" value="${1 if 'left' in prefix else -1}" />
+
+    <xacro:property name="third_joint_gear_correction" value="${third_joint_gear_correction_dir*0.7  if third_joint_gear_correction_dir > 0 else third_joint_gear_correction_dir*0.7 -1.198*2.0}" /> -->
+
+    <xacro:property name="third_joint_gear_correction" value="${pi}" />
 
     <joint name="${prefix}_third_joint"
       type="revolute">
       <parent link="${prefix}_third_link" />
       <child link="${prefix}_fourth_link" />
       <origin xyz="0.0 0.0 0.0555"
-        rpy="0.0 0.0 ${third_joint_gear_correction_dir*third_joint_gear_correction}" />
-      <axis xyz="0 0 ${third_joint_gear_correction_dir}" />
-      <limit effort="100.0" lower="0.425" upper="5.8" velocity="10.0" />
+        rpy="0.0 0.0 ${third_joint_gear_correction}" />
+      <axis xyz="0 0 1" />
+      <limit effort="100.0" lower="-5.8" upper="5.8" velocity="10.0" />
       <dynamics damping="0.1" friction="0.1" />
     </joint>
 
@@ -224,6 +226,24 @@
       </collision>
       <xacro:box_inertia m="0.05" w="0.25" h="0.04" d="0.0175" xyz="0.105 0  0.0" />
     </link>
+
+    <!-- Punkt zamknięcia pętli od strony aktywnej gałęzi (fifth_link) -->
+    <link name="${prefix}_chain_close_a_link" />
+    <joint name="${prefix}_chain_close_a_joint" type="fixed">
+      <parent link="${prefix}_fifth_link" />
+      <child link="${prefix}_chain_close_a_link" />
+      <origin xyz="0.21 0 -0.0115" rpy="0 0 0" />
+    </joint>
+
+    <!-- Punkt zamknięcia pętli od strony pasywnej gałęzi (sixth_link) -->
+    <link name="${prefix}_foot_link" />
+    <joint name="${prefix}_foot_joint" type="fixed">
+      <parent link="${prefix}_sixth_link" />
+      <child link="${prefix}_foot_link" />
+      <origin xyz="0.21 0 0.0115" rpy="0 0 0" />
+    </joint>
   </xacro:macro>
+
+
 
 </robot>

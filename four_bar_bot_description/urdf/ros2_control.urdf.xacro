@@ -5,10 +5,13 @@
         params="name can_id use_hardware max_torque=15.0
               q_kp=10.0   q_ki=0.5    q_kd=0.0    q_windup=1.0
               dq_kp=2.0   dq_ki=0.5   dq_kd=0.0   dq_windup=0.1
-              ddq_kp=1.0  ddq_kd=0.15">
+              ddq_kp=1.0  ddq_kd=0.15 init_pos=0.0">
         <joint name="${name}">
             <xacro:if value="${use_hardware}">
-                <command_interface name="effort" />
+                    <command_interface name="effort">
+                        <param name="min">-20.0</param>
+                        <param name="max">20.0</param>
+                    </command_interface>
             </xacro:if>
             <xacro:unless value="${use_hardware}">
                 <command_interface name="acceleration" />
@@ -16,7 +19,7 @@
 
 
             <state_interface name="position">
-                <param name="initial_value">0.0</param>
+                <param name="initial_value">${init_pos}</param>
             </state_interface>
             <state_interface name="velocity">
                 <param name="initial_value">0.0</param>
@@ -84,32 +87,43 @@
 
         <ros2_control name="MD80HardwareInterface" type="system">
             <hardware>
+                <!-- mock params -->
+                <!-- <plugin>mock_components/GenericSystem</plugin>
+                <param name="calculate_dynamics">false</param>
+                <param name="custom_interface_with_following_offset"></param>
+                <param name="disable_commands">false</param>
+                <param name="mock_gpio_commands">false</param>
+                <param name="mock_sensor_commands">true</param>
+                <param name="position_state_following_offset">0.0</param> -->
+
                 <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+
                 <param name="mujoco_model">$(find four_bar_bot_mujoco)/config/mujoco_description_formatted.xml</param>
                 <param name="sim_speed_factor">1.0</param>
+                <param name="headless">false</param>
             </hardware>
 
             <xacro:property name="kp1" value="25" />
             <xacro:property name="kd1" value="5.0" />
-            <xacro:property name="max_torque1" value="2.0" />
+            <xacro:property name="max_torque1" value="20.0" />
 
 
             <!-- <xacro:property name="kp2" value="50" /> -->
             <xacro:property name="kp2" value="7.5" />
             <xacro:property name="kd2" value="1.0" />
-            <xacro:property name="max_torque2" value="1.0" />
+            <xacro:property name="max_torque2" value="10.0" />
 
             <!-- <xacro:property name="kp3" value="50" /> -->
             <xacro:property name="kp3" value="7.5" />
             <xacro:property name="kd3" value="1.0" />
-            <xacro:property name="max_torque3" value="1.0" />
+            <xacro:property name="max_torque3" value="10.0" />
 
             <xacro:ros2_control_joint_can name="front_left_first_joint" can_id="10" use_hardware="${use_hardware}" ddq_kp="${kp1}"
                 ddq_kd="${kd1}" max_torque="${max_torque1}" />
             <xacro:ros2_control_joint_can name="front_left_second_joint" can_id="11" use_hardware="${use_hardware}" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="front_left_third_joint" can_id="12" use_hardware="${use_hardware}" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+                ddq_kd="${kd3}" max_torque="${max_torque3}" init_pos="${pi/2}" />
 
 
             <xacro:ros2_control_joint_can name="front_right_first_joint" can_id="20" use_hardware="${use_hardware}"  ddq_kp="${kp1}"
@@ -118,7 +132,7 @@
                 ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="front_right_third_joint" can_id="22" use_hardware="${use_hardware}" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+                ddq_kd="${kd3}" max_torque="${max_torque3}" init_pos="${pi/2}" />
 
 
             <xacro:ros2_control_joint_can name="rear_right_first_joint" can_id="30" use_hardware="${use_hardware}" ddq_kp="${kp1}"
@@ -126,7 +140,7 @@
             <xacro:ros2_control_joint_can name="rear_right_second_joint" can_id="31" use_hardware="${use_hardware}" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="rear_right_third_joint" can_id="32" use_hardware="${use_hardware}" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+                ddq_kd="${kd3}" max_torque="${max_torque3}" init_pos="${pi/2}" />
 
 
             <xacro:ros2_control_joint_can name="rear_left_first_joint" can_id="40" use_hardware="${use_hardware}" ddq_kp="${kp1}"
@@ -134,7 +148,7 @@
             <xacro:ros2_control_joint_can name="rear_left_second_joint" can_id="41" use_hardware="${use_hardware}" ddq_kp="${kp2}"
                 ddq_kd="${kd2}" max_torque="${max_torque2}" />
             <xacro:ros2_control_joint_can name="rear_left_third_joint" can_id="42" use_hardware="${use_hardware}" ddq_kp="${kp3}"
-                ddq_kd="${kd3}" max_torque="${max_torque3}" />
+                ddq_kd="${kd3}" max_torque="${max_torque3}" init_pos="${pi/2}" />
 
         </ros2_control>
 

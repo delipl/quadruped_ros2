@@ -1,4 +1,66 @@
 <?xml version="1.0"?>
+
+<!-- <mujoco_inputs>
+  <raw_inputs>
+    <equality>
+      <connect anchor="0 0 0" body1="front_left_foot_link" body2="front_left_chain_close_a_link"
+        name="equality_sconstraint_front_left" solref="0.001 2" />
+      <connect anchor="0 0 0" body1="front_right_foot_link" body2="front_right_chain_close_a_link"
+        name="equality_sconstraint_front_right" solref="0.001 2" />
+      <connect anchor="0 0 0" body1="rear_left_foot_link" body2="rear_left_chain_close_a_link"
+        name="equality_sconstraint_rear_left" solref="0.001 2" />
+      <connect anchor="0 0 0" body1="rear_right_foot_link" body2="rear_right_chain_close_a_link"
+        name="equality_sconstraint_rear_right" solref="0.001 2" />
+    </equality>
+    <contact>
+      <exclude body1="front_right_second_link" body2="front_right_third_link" />
+      <exclude body1="front_right_second_link" body2="front_right_fourth_link" />
+      <exclude body1="front_right_second_link" body2="front_right_fifth_link" />
+      <exclude body1="front_right_second_link" body2="front_right_sixth_link" />
+      <exclude body1="front_right_third_link" body2="front_right_fourth_link" />
+      <exclude body1="front_right_third_link" body2="front_right_fifth_link" />
+      <exclude body1="front_right_third_link" body2="front_right_sixth_link" />
+      <exclude body1="front_right_fourth_link" body2="front_right_fifth_link" />
+      <exclude body1="front_right_fourth_link" body2="front_right_sixth_link" />
+      <exclude body1="front_right_fifth_link" body2="front_right_sixth_link" />
+
+      <exclude body1="front_left_second_link" body2="front_left_third_link" />
+      <exclude body1="front_left_second_link" body2="front_left_fourth_link" />
+      <exclude body1="front_left_second_link" body2="front_left_fifth_link" />
+      <exclude body1="front_left_second_link" body2="front_left_sixth_link" />
+      <exclude body1="front_left_third_link" body2="front_left_fourth_link" />
+      <exclude body1="front_left_third_link" body2="front_left_fifth_link" />
+      <exclude body1="front_left_third_link" body2="front_left_sixth_link" />
+      <exclude body1="front_left_fourth_link" body2="front_left_fifth_link" />
+      <exclude body1="front_left_fourth_link" body2="front_left_sixth_link" />
+      <exclude body1="front_left_fifth_link" body2="front_left_sixth_link" />
+
+      <exclude body1="rear_right_second_link" body2="rear_right_third_link" />
+      <exclude body1="rear_right_second_link" body2="rear_right_fourth_link" />
+      <exclude body1="rear_right_second_link" body2="rear_right_fifth_link" />
+      <exclude body1="rear_right_second_link" body2="rear_right_sixth_link" />
+      <exclude body1="rear_right_third_link" body2="rear_right_fourth_link" />
+      <exclude body1="rear_right_third_link" body2="rear_right_fifth_link" />
+      <exclude body1="rear_right_third_link" body2="rear_right_sixth_link" />
+      <exclude body1="rear_right_fourth_link" body2="rear_right_fifth_link" />
+      <exclude body1="rear_right_fourth_link" body2="rear_right_sixth_link" />
+      <exclude body1="rear_right_fifth_link" body2="rear_right_sixth_link" />
+
+      <exclude body1="rear_left_second_link" body2="rear_left_third_link" />
+      <exclude body1="rear_left_second_link" body2="rear_left_fourth_link" />
+      <exclude body1="rear_left_second_link" body2="rear_left_fifth_link" />
+      <exclude body1="rear_left_second_link" body2="rear_left_sixth_link" />
+      <exclude body1="rear_left_third_link" body2="rear_left_fourth_link" />
+      <exclude body1="rear_left_third_link" body2="rear_left_fifth_link" />
+      <exclude body1="rear_left_third_link" body2="rear_left_sixth_link" />
+      <exclude body1="rear_left_fourth_link" body2="rear_left_fifth_link" />
+      <exclude body1="rear_left_fourth_link" body2="rear_left_sixth_link" />
+      <exclude body1="rear_left_fifth_link" body2="rear_left_sixth_link" />
+    </contact>
+  </raw_inputs>
+</mujoco_inputs> -->
+
+
 <robot name="quadruped" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:include filename="$(find four_bar_bot_description)/urdf/inertia.urdf.xacro" />
   <xacro:include filename="$(find four_bar_bot_description)/urdf/leg.urdf.xacro" />
@@ -7,13 +69,13 @@
   <xacro:arg name="use_hardware" default="True" />
   <xacro:arg name="use_sim" default="False" />
 
-  <mujoco>
+  <!-- <mujoco>
     <compiler
       balanceinertia="true"
       discardvisual="false"
       discardfixed="false"
       fusestatic="false"/>
-  </mujoco>
+  </mujoco> -->
   <material name="grey">
     <color rgba="0.5 0.5 0.5 1" />
   </material>

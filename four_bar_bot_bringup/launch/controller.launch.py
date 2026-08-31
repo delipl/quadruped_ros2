@@ -40,6 +40,16 @@ def generate_launch_description():
         ],
     )
 
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+        # condition=IfCondition(use_hardware),
+    )
     unload_controller = ExecuteProcess(
         cmd=[
             "ros2",
@@ -68,4 +78,6 @@ def generate_launch_description():
         condition=UnlessCondition(reload),
     )
 
-    return LaunchDescription([declare_reload, spawner, inactivate_controller])
+    return LaunchDescription(
+        [declare_reload, spawner, inactivate_controller, joint_state_broadcaster_spawner]
+    )

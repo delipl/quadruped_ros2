@@ -37,7 +37,7 @@ class PosePublisher(Node):
         self.subscription = self.create_subscription(Twist, "/cmd_vel", self.cmd_vel_callback, 10)
 
         # Częstotliwość publikacji co sekundę
-        self.gait_period = 0.25
+        self.gait_period = 0.15
         self.timer_period = self.gait_period / 100.0
 
         # timer_period = 0.01

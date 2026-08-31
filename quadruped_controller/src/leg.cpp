@@ -75,7 +75,10 @@ Leg::Leg(const std::string & name) : name_(name)
     inv_directions_ << -1, -1, 0;
   }
 
-  third_joint_gear_correction_ = -1.117 + M_PI;
+  double init_value = 3.09;
+  third_joint_gear_correction_ = passive_side_multiplier_ > 0 ? init_value
+                                                              : init_value - 1.198 * 2.0;
+  third_joint_gear_correction_ = M_PI;
 
   first_.name = name + "_first_joint";
   second_.name = name + "_second_joint";
@@ -129,7 +132,7 @@ Eigen::Matrix4d Leg::kinematics(const Eigen::Vector3d & q_open)
   //  TODO: @delipl check if kinematics works after changing default values
   Eigen::Vector4d v_A01 = {M_PI_2, d0, a0, 0.0};
   Eigen::Vector4d v_A12 = {M_PI_2, 0.0, a1, z_axis_q0_direction_ * q_open(0) - M_PI_2};
-  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI - 0.2793, d2, a2, 0.0};
+  Eigen::Vector4d v_A23 = {z_axis_q1_direction_ * q_open(1) + M_PI, d2, a2, 0.0};
   Eigen::Vector4d v_A34 = {z_axis_q2_direction_ * q_open(2), 0.0, a3, 0.0};
 
   auto A01 = denavite_hartenberg(directions_[0] * v_A01);
@@ -151,24 +154,34 @@ Eigen::Vector3d Leg::forward_kinematics(const Eigen::Vector3d & q)
   return K.block<3, 1>(0, 3);
 }
 
+Eigen::Vector3d Leg::get_joints_directions() const
+{
+  Eigen::Vector3d directions;
+
+  // NOTE: @delipl I have no idea why the first joint direction is the same as inverted passive
+  // side multiplier but it works
+  directions << -passive_side_multiplier_, z_axis_q1_direction_, z_axis_q2_direction_;
+  return directions;
+};
+
 // Page 87 of
 // http://160592857366.free.fr/joe/ebooks/Mechanical%20Engineering%20Books%20Collection/THEORY%20OF%20MACHINES/machines%20and%20mechanisms.pdf
 void Leg::update_passive_joints(double q3)
 {
-  const double th2 = M_PI - passive_side_multiplier_ * q3 + third_joint_gear_correction_;
+  const double th2 = passive_side_multiplier_ * (q3);
   const auto c2 = std::cos(th2);
   const auto s2 = std::sin(th2);
 
   const auto BD = std::sqrt(l1 * l1 + l2 * l2 - 2 * l1 * l2 * c2);
   const auto gamma = std::acos((l3 * l3 + l4 * l4 - BD * BD) / (2 * l3 * l4));
-  const auto sg = std::sin(gamma);
+  const auto sg = -std::sin(gamma);
   const auto cg = std::cos(gamma);
 
   const auto th1 = 2 * std::atan2(l2 * s2 - l3 * sg, l2 * c2 + l4 - l1 - l3 * cg);
   const auto th3 = 2 * std::atan2(l4 * sg - l2 * s2, l1 + l3 - l2 * c2 - l4 * cg);
 
-  fifth_.position = -passive_side_multiplier_ * (M_PI - th2 + th3);
-  forth_.position = passive_side_multiplier_ * (M_PI - th1);
+  fifth_.position = passive_side_multiplier_ * (M_PI - th2 + th3);
+  forth_.position = -passive_side_multiplier_ * (M_PI - th1);
 }
 
 // Szrek PhD thesis
@@ -224,7 +237,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d & x)
   Eigen::Vector2d b = {xb, yb};
   auto theta_b = std::atan2(b(1), b(0));
   const auto q1_dir = 1.0;
-  q(1) = z_axis_q1_direction_ * theta_b + passive_side_multiplier_ * 0.2793;
+  q(1) = z_axis_q1_direction_ * theta_b;
 
   // This part is to check if we have chosen the correct solution among the two possible
   // If the solution is not correct, the inverse kinematics is roteted by 90 degrees in the middle
@@ -238,7 +251,7 @@ Eigen::Vector3d Leg::inverse_kinematics(const Eigen::Vector3d & x)
   if ((is_error && q1_dir > 0) || (!is_error && q1_dir < 0)) {
     b << b(0), -b(1);
     theta_b = std::atan2(b(1), b(0));
-    q(1) = z_axis_q1_direction_ * (theta_b + 0.2793);
+    q(1) = z_axis_q1_direction_ * (theta_b);
   }
 
   const Eigen::Vector2d e = {xe, ze};

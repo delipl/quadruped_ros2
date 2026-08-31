@@ -17,7 +17,7 @@
 import os
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, Shutdown
+from launch.actions import OpaqueFunction, Shutdown
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
@@ -52,7 +52,7 @@ def launch_setup(context, *args, **kwargs):
             package="robot_state_publisher",
             executable="robot_state_publisher",
             output="both",
-            parameters=[robot_description, {"use_sim_time": True}],
+            parameters=[robot_description, {"use_sim_time": False}],
         )
     )
 
@@ -63,7 +63,7 @@ def launch_setup(context, *args, **kwargs):
             emulate_tty=True,
             output="both",
             parameters=[
-                {"use_sim_time": True},
+                {"use_sim_time": False},
                 ParameterFile(parameters_file),
             ],
             remappings=(

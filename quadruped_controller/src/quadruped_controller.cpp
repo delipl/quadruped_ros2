@@ -361,7 +361,7 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
       geometry_msgs::msg::TransformStamped transform;
       transform.header.stamp = get_node()->now();
       transform.header.frame_id = "base_link";
-      transform.child_frame_id = legs_map_[i].get_name() + "_foot_link";
+      transform.child_frame_id = legs_map_[i].get_name() + "_foot_calculated_link";
 
       const auto foot_position = foot_positions_.segment<3>(i * 3);
       transform.transform.translation.x = foot_position.x();
@@ -458,11 +458,22 @@ controller_interface::return_type QuadrupedController::update(
     calculate_inverse_kinematics();
   } else if (standing_sequence_) {
     standing_sequence_control();
+  } else {
+    for (std::size_t i = 0; i < legs_map_.size(); ++i) {
+      RCLCPP_INFO_STREAM_THROTTLE(
+        get_node()->get_logger(), *get_node()->get_clock(), 1000, "Waiting for standing");
+      auto & leg = legs_map_[i];
+      Eigen::Vector3d target_joint_pos = standing_sequence_positions_[0];
+      auto directions = leg.get_joints_directions();
+
+      target_joint_pos = directions.cwiseProduct(target_joint_pos);
+      target_joint_positions_.segment<3>(i * 3) << target_joint_pos;
+    }
   }
 
   calculate_control();
 
-  // update_passive_joints();
+  update_passive_joints();
 
   if (visualization_rt_pub_ && visualization_rt_pub_->trylock()) {
     visualization_rt_pub_->unlockAndPublish();
@@ -558,7 +569,7 @@ void QuadrupedController::calculate_inverse_kinematics()
       RCLCPP_WARN_STREAM_THROTTLE(
         get_node()->get_logger(), *get_node()->get_clock(), 1000,
         "No valid reference received yet,holding this position.");
-      target_joint_positions_.segment<3>(i * 3) << joint_positions_.segment<3>(i * 3);
+      // target_joint_positions_.segment<3>(i * 3) << joint_positions_.segment<3>(i * 3);
       continue;
     }
 
