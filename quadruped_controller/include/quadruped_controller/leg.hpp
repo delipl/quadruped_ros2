@@ -78,8 +78,6 @@ public:
     third_.effort = tau(2);
   }
 
-  double get_distance_to_effector() const { return distance_to_effector_; }
-
   std::string get_name() const { return name_; }
   Eigen::Matrix4d kinematics(const Eigen::Vector3d & q);
   Eigen::Vector2d bar_acc_;

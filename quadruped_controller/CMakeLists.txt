@@ -112,7 +112,7 @@ ament_export_libraries(quadruped_controller)
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
-
+install(DIRECTORY include/ DESTINATION include)
 # Install Python executables
 install(PROGRAMS scripts/twist_to_trajectory.py DESTINATION lib/${PROJECT_NAME})
 

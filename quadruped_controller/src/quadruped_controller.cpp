@@ -191,6 +191,9 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
     foot_control_position_rt_pub_ =
       std::make_unique<DataRTPublisher>(foot_control_position_normal_pub_);
 
+    jerk_normal_pub_ = get_node()->create_publisher<DataMsg>("~/jerk", rclcpp::SystemDefaultsQoS());
+    jerk_rt_pub_ = std::make_unique<DataRTPublisher>(jerk_normal_pub_);
+
     // Visualization Publisher
     visualization_normal_pub_ = get_node()->create_publisher<VisualizationMsg>(
       "~/visualization_markers", rclcpp::SystemDefaultsQoS());
@@ -295,6 +298,8 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
   joint_velocities_ = Eigen::VectorXd::Zero(data_size);
   joint_velocity_errors_ = Eigen::VectorXd::Zero(data_size);
   joint_efforts_ = Eigen::VectorXd::Zero(data_size);
+  previous_joint_efforts_ = Eigen::VectorXd::Zero(data_size);
+  jerks_ = Eigen::VectorXd::Zero(data_size);
 
   target_joint_positions_ = Eigen::VectorXd::Zero(data_size);
   target_joint_efforts_ = Eigen::VectorXd::Zero(data_size);
@@ -336,6 +341,9 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
   foot_position_error_rt_pub_->lock();
   foot_position_error_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
   foot_position_error_rt_pub_->unlock();
+  jerk_rt_pub_->lock();
+  jerk_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  jerk_rt_pub_->unlock();
 
   foot_control_position_rt_pub_->lock();
   foot_control_position_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
@@ -475,6 +483,9 @@ controller_interface::return_type QuadrupedController::update(
 
   update_passive_joints();
 
+  jerks_ = joint_efforts_ - previous_joint_efforts_;
+  previous_joint_efforts_ = joint_efforts_;
+
   if (visualization_rt_pub_ && visualization_rt_pub_->trylock()) {
     visualization_rt_pub_->unlockAndPublish();
   }
@@ -494,6 +505,7 @@ controller_interface::return_type QuadrupedController::update(
   set_msg_data_from_vector_and_publish(foot_position_error_rt_pub_, foot_positions_error_);
 
   set_msg_data_from_vector_and_publish(foot_control_position_rt_pub_, foot_control_positions_);
+  set_msg_data_from_vector_and_publish(jerk_rt_pub_, jerks_);
 
   auto end = std::chrono::high_resolution_clock::now();
   auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -596,6 +608,7 @@ void QuadrupedController::calculate_control()
   target_joint_efforts_ = Kp.cwiseProduct(joint_positions_errors_) +
                           Kd.cwiseProduct(joint_velocity_errors_) + feed_forward_;
 
+  // check vel limits
   for (size_t i = 0; i < legs_map_.size() * JOINTS_IN_LEG; ++i) {
     command_interfaces_[i].set_value(target_joint_efforts_[i]);
   }

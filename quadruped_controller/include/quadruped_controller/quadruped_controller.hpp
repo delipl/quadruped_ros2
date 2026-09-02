@@ -147,6 +147,7 @@ protected:
   std::unique_ptr<DataRTPublisher> foot_control_position_rt_pub_;
   std::unique_ptr<DataRTPublisher> target_foot_position_rt_pub_;
   std::unique_ptr<DataRTPublisher> foot_position_error_rt_pub_;
+  std::unique_ptr<DataRTPublisher> jerk_rt_pub_;
   std::unique_ptr<VisualizationRTPublisher> visualization_rt_pub_;
 
   std::unique_ptr<MultiDofStateStampedRTP> multi_dof_state_rt_pub_;
@@ -163,6 +164,7 @@ protected:
   rclcpp::Publisher<DataMsg>::SharedPtr foot_control_position_normal_pub_;
   rclcpp::Publisher<DataMsg>::SharedPtr target_foot_position_normal_pub_;
   rclcpp::Publisher<DataMsg>::SharedPtr foot_position_error_normal_pub_;
+  rclcpp::Publisher<DataMsg>::SharedPtr jerk_normal_pub_;
   rclcpp::Publisher<VisualizationMsg>::SharedPtr visualization_normal_pub_;
 
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr standing_sequence_service_;
@@ -209,6 +211,8 @@ private:
   Eigen::VectorXd joint_velocities_;
   Eigen::VectorXd joint_velocity_errors_;
   Eigen::VectorXd joint_efforts_;
+  Eigen::VectorXd previous_joint_efforts_;
+  Eigen::VectorXd jerks_;
 
   Eigen::VectorXd target_joint_positions_;
   Eigen::VectorXd target_joint_efforts_;
