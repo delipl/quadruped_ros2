@@ -34,31 +34,77 @@ foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
-# Add quadruped_controller library related compile commands
+# ============================================================
+# 1. BIBLIOTEKA INTERFEJSU (dla pluginów)
+# ============================================================
+add_library(quadruped_controller_interfaces INTERFACE)
+target_include_directories(
+  quadruped_controller_interfaces
+  INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:include/${PROJECT_NAME}>)
+ament_target_dependencies(
+  quadruped_controller_interfaces
+  INTERFACE
+  rclcpp
+  sensor_msgs
+  geometry_msgs
+  pluginlib
+  Eigen3)
+
+# ============================================================
+# 1. BIBLIOTEKA LEG PLUGIN (klasa bazowa)
+# ============================================================
+add_library(quadruped_controller_leg_plugin SHARED src/leg_plugin.cpp)
+
+target_include_directories(
+  quadruped_controller_leg_plugin
+  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}> ${EIGEN3_INCLUDE_DIRS})
+
+ament_target_dependencies(quadruped_controller_leg_plugin rclcpp sensor_msgs
+                          geometry_msgs pluginlib Eigen3)
+
+target_link_libraries(quadruped_controller_leg_plugin
+                      quadruped_controller_interfaces ${EIGEN3_LIBRARIES})
+
+target_compile_definitions(
+  quadruped_controller_leg_plugin PRIVATE PLUGINLIB__DISABLE_BOOST_FUNCTIONS
+                                          QUADRUPED_CONTROLLER_BUILDING_DLL)
+
+# ============================================================
+# 1. PARAMETRY (INTERFACE)
+# ============================================================
 generate_parameter_library(
   quadruped_controller_parameters src/quadruped_controller.yaml
   include/quadruped_controller/validate_quadruped_controller_parameters.hpp)
+
+# ============================================================
+# 1. GŁÓWNY KONTROLER
+# ============================================================
 add_library(quadruped_controller SHARED src/quadruped_controller.cpp
                                         src/leg.cpp)
+
 target_include_directories(
-  quadruped_controller PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-                              "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-target_link_libraries(quadruped_controller quadruped_controller_parameters)
+  quadruped_controller
+  PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>" ${EIGEN3_INCLUDE_DIRS})
+
+target_link_libraries(quadruped_controller quadruped_controller_parameters
+                      quadruped_controller_interfaces ${EIGEN3_LIBRARIES})
+
 ament_target_dependencies(quadruped_controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
 target_compile_definitions(quadruped_controller
                            PRIVATE "QUADRUPED_CONTROLLER_BUILDING_DLL")
 
+# ============================================================
+# 1. REJESTRACJA PLUGINU KONTROLERA
+# ============================================================
 pluginlib_export_plugin_description_file(controller_interface
                                          quadruped_controller.xml)
 
-install(
-  TARGETS quadruped_controller
-  RUNTIME DESTINATION bin
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib)
-
-install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
-
+# ============================================================
+# 1. EXECUTABLES
+# ============================================================
 add_executable(quadruped_controller_node src/inverse_kinematics_test.cpp
                                          src/leg.cpp)
 target_include_directories(
@@ -67,53 +113,63 @@ target_include_directories(
          "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 ament_target_dependencies(quadruped_controller_node
                           ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(quadruped_controller_node Eigen3::Eigen)
+target_link_libraries(quadruped_controller_node Eigen3::Eigen
+                      quadruped_controller_interfaces)
 
 add_executable(controller src/controller.cpp)
 target_include_directories(
   controller PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
                     "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-
 ament_target_dependencies(controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
+target_link_libraries(controller quadruped_controller_interfaces)
 
 add_executable(passive_joint_state_broadcaster
                src/effector_joint_state_publisher.cpp src/leg.cpp)
-
 target_include_directories(
   passive_joint_state_broadcaster
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
          "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-
 ament_target_dependencies(passive_joint_state_broadcaster
                           ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(passive_joint_state_broadcaster Eigen3::Eigen)
+target_link_libraries(passive_joint_state_broadcaster Eigen3::Eigen
+                      quadruped_controller_interfaces)
 
 add_executable(base_inverse_kinematics src/base_inverse_kinematics.cpp)
-
 target_include_directories(
   base_inverse_kinematics
   PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
          "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-
 ament_target_dependencies(base_inverse_kinematics
                           ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(base_inverse_kinematics Eigen3::Eigen)
+target_link_libraries(base_inverse_kinematics Eigen3::Eigen
+                      quadruped_controller_interfaces)
 
-install(TARGETS quadruped_controller_node controller
-                passive_joint_state_broadcaster base_inverse_kinematics
-        DESTINATION lib/${PROJECT_NAME})
-
-install(DIRECTORY launch config DESTINATION share/${PROJECT_NAME})
-
-ament_export_include_directories(include)
-ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
-
-ament_export_libraries(quadruped_controller)
-
-# Install Python modules
+# ============================================================
+# 1. INSTALACJA
+# ============================================================
+# Instalacja bibliotek (SHARED + biblioteki INTERFACE — muszą być w tym samym
+# export set, bo są linkowane PUBLIC do quadruped_controller / leg_plugin)
+install(
+  TARGETS quadruped_controller quadruped_controller_leg_plugin
+          quadruped_controller_interfaces quadruped_controller_parameters
+  EXPORT export_${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib)
+# ============================================================
+# 1. PYTHON
+# ============================================================
 ament_python_install_package(${PROJECT_NAME})
-install(DIRECTORY include/ DESTINATION include)
-# Install Python executables
 install(PROGRAMS scripts/twist_to_trajectory.py DESTINATION lib/${PROJECT_NAME})
+
+# ============================================================
+# 1. EKSPORT
+# ============================================================
+ament_export_targets(export_${PROJECT_NAME})
+ament_export_include_directories(include)
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS} Eigen3 pluginlib
+                          generate_parameter_library)
+ament_export_libraries(quadruped_controller)
+ament_export_libraries(quadruped_controller_leg_plugin)
 
 ament_package()

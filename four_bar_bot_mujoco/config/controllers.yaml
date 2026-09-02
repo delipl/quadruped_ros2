@@ -28,6 +28,8 @@ quadruped_controller:
     ros__parameters:
       # Do not change the order of the legs!
       # FIXME
+      leg_plugin_name: four_bar_bot_leg/FourBarLeg   # domyślnie
+      standing_sequence_positions_accuracy: 0.02
       leg_names:
         - front_left
         - front_right
@@ -91,14 +93,10 @@ quadruped_controller:
         - "[0.8, 0.3, 1.4]"
         - "[0.8, 0.4, 1.4]"
         - "[0.8, 0.5, 1.4]"
-        - "[0.8, 0.8, 1.4]"
-        - "[0.7, 0.8, 1.4]"
-        - "[0.6, 0.8, 1.4]"
-        - "[0.65, 0.8, 1.4]"
-        - "[0.5, 0.8, 1.4]"
-        - "[0.3, 0.8, 1.4]"
-        - "[0.0, 0.8, 1.4]"
-        - "[0.0, 0.8, 1.8]"
+        # - "[0.5, 0.8, 1.4]"
+        # - "[0.3, 0.8, 1.4]"
+        # - "[0.0, 0.8, 1.4]"
+        # - "[0.0, 0.8, 1.8]"
         - "[0.0, 0.8, 2.0]"
 
 

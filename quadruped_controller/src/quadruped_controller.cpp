@@ -29,8 +29,10 @@
 
 #include <limits>
 #include <memory>
+#include <pluginlib/class_loader.hpp>
 #include <string>
 #include <vector>
+#include "quadruped_controller/leg_interface.hpp"
 
 #include "controller_interface/helpers.hpp"
 
@@ -120,7 +122,6 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
       params_.joints.size(), state_joints_.size());
     return CallbackReturn::FAILURE;
   }
-
   // topics QoS
   auto subscribers_qos = rclcpp::SystemDefaultsQoS();
   subscribers_qos.keep_last(1);
@@ -267,9 +268,42 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
 
   RCLCPP_INFO(get_node()->get_logger(), "Read %d leg names", params_.leg_names.size());
 
+  // Wyciągnij nazwę paczki i klasy
+  std::string leg_plugin_package;
+  std::string leg_plugin_class;
+
+  size_t slash_pos = params_.leg_plugin_name.find('/');
+  if (slash_pos != std::string::npos) {
+    leg_plugin_package = params_.leg_plugin_name.substr(0, slash_pos);
+    leg_plugin_class = params_.leg_plugin_name.substr(slash_pos + 1);
+  } else {
+    RCLCPP_ERROR(
+      get_node()->get_logger(), "Invalid plugin name format: '%s'. Expected 'package/Class'",
+      params_.leg_plugin_name.c_str());
+    return CallbackReturn::FAILURE;
+  }
+
+  RCLCPP_INFO(
+    get_node()->get_logger(), "Loading leg plugin from package: %s, class: %s",
+    leg_plugin_package.c_str(), leg_plugin_class.c_str());
+
+  try {
+    leg_loader_ = std::make_unique<pluginlib::ClassLoader<LegInterface>>(
+      leg_plugin_package, "quadruped_controller::LegInterface");
+  } catch (const pluginlib::PluginlibException & ex) {
+    RCLCPP_ERROR(get_node()->get_logger(), "Failed to create loader: %s", ex.what());
+    return CallbackReturn::FAILURE;
+  }
+
   for (const auto & leg_name : params_.leg_names) {
-    quadruped_controller::Leg leg(leg_name);
-    legs_map_.push_back(leg);
+    try {
+      auto leg = leg_loader_->createUniqueInstance(params_.leg_plugin_name);
+      leg->initialize(leg_name);
+      legs_.push_back(std::move(leg));  // zachowujemy oryginalny deleter
+    } catch (const pluginlib::PluginlibException & ex) {
+      RCLCPP_ERROR(get_node()->get_logger(), "Failed to create leg: %s", ex.what());
+      return CallbackReturn::FAILURE;
+    }
   }
 
   for (std::size_t i = 0; i < params_.standing_sequence_positions.size(); ++i) {
@@ -289,7 +323,7 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
     standing_sequence_positions_.push_back(vec);
   }
 
-  const std::size_t data_size = legs_map_.size() * JOINTS_IN_LEG;
+  const std::size_t data_size = legs_.size() * JOINTS_IN_LEG;
 
   RCLCPP_INFO(get_node()->get_logger(), "Data size is: %d", data_size);
 
@@ -313,50 +347,50 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
   // type
   state_rt_pub_->lock();
   state_rt_pub_->msg_.header.frame_id = "base_link";
-  state_rt_pub_->msg_.name.resize(legs_map_.size() * 2);
-  state_rt_pub_->msg_.position.resize(legs_map_.size() * 2);
-  state_rt_pub_->msg_.velocity.resize(legs_map_.size() * 2);
-  state_rt_pub_->msg_.effort.resize(legs_map_.size() * 2);
+  state_rt_pub_->msg_.name.resize(legs_.size() * 2);
+  state_rt_pub_->msg_.position.resize(legs_.size() * 2);
+  state_rt_pub_->msg_.velocity.resize(legs_.size() * 2);
+  state_rt_pub_->msg_.effort.resize(legs_.size() * 2);
   state_rt_pub_->unlock();
 
   impedance_control_rt_pub_->lock();
-  impedance_control_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  impedance_control_rt_pub_->msg_.data.resize(legs_.size() * 3);
   impedance_control_rt_pub_->unlock();
   target_joint_position_rt_pub_->lock();
-  target_joint_position_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  target_joint_position_rt_pub_->msg_.data.resize(legs_.size() * 3);
   target_joint_position_rt_pub_->unlock();
   position_error_rt_pub_->lock();
-  position_error_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  position_error_rt_pub_->msg_.data.resize(legs_.size() * 3);
   position_error_rt_pub_->unlock();
   velocity_error_rt_pub_->lock();
-  velocity_error_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  velocity_error_rt_pub_->msg_.data.resize(legs_.size() * 3);
   velocity_error_rt_pub_->unlock();
 
   foot_position_rt_pub_->lock();
-  foot_position_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  foot_position_rt_pub_->msg_.data.resize(legs_.size() * 3);
   foot_position_rt_pub_->unlock();
   target_foot_position_rt_pub_->lock();
-  target_foot_position_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  target_foot_position_rt_pub_->msg_.data.resize(legs_.size() * 3);
   target_foot_position_rt_pub_->unlock();
   foot_position_error_rt_pub_->lock();
-  foot_position_error_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  foot_position_error_rt_pub_->msg_.data.resize(legs_.size() * 3);
   foot_position_error_rt_pub_->unlock();
   jerk_rt_pub_->lock();
-  jerk_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  jerk_rt_pub_->msg_.data.resize(legs_.size() * 3);
   jerk_rt_pub_->unlock();
 
   foot_control_position_rt_pub_->lock();
-  foot_control_position_rt_pub_->msg_.data.resize(legs_map_.size() * 3);
+  foot_control_position_rt_pub_->msg_.data.resize(legs_.size() * 3);
   foot_control_position_rt_pub_->unlock();
 
   multi_dof_state_rt_pub_->lock();
-  multi_dof_state_rt_pub_->msg_.dof_states.resize(legs_map_.size() * 3);
+  multi_dof_state_rt_pub_->msg_.dof_states.resize(legs_.size() * 3);
   multi_dof_state_rt_pub_->msg_.header.frame_id = "base_link";
   multi_dof_state_rt_pub_->msg_.header.stamp = get_node()->now();
   multi_dof_state_rt_pub_->unlock();
 
   multi_dof_task_state_rt_pub_->lock();
-  multi_dof_task_state_rt_pub_->msg_.dof_states.resize(legs_map_.size() * 3);
+  multi_dof_task_state_rt_pub_->msg_.dof_states.resize(legs_.size() * 3);
   multi_dof_state_rt_pub_->msg_.header.frame_id = "base_link";
   multi_dof_state_rt_pub_->msg_.header.stamp = get_node()->now();
   multi_dof_task_state_rt_pub_->unlock();
@@ -365,11 +399,11 @@ controller_interface::CallbackReturn QuadrupedController::on_configure(
   tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(get_node());
 
   auto publish_tf_callback = [&]() {
-    for (std::size_t i = 0; i < legs_map_.size(); ++i) {
+    for (std::size_t i = 0; i < legs_.size(); ++i) {
       geometry_msgs::msg::TransformStamped transform;
       transform.header.stamp = get_node()->now();
       transform.header.frame_id = "base_link";
-      transform.child_frame_id = legs_map_[i].get_name() + "_foot_calculated_link";
+      transform.child_frame_id = legs_[i]->get_name() + "_foot_calculated_link";
 
       const auto foot_position = foot_positions_.segment<3>(i * 3);
       transform.transform.translation.x = foot_position.x();
@@ -467,12 +501,12 @@ controller_interface::return_type QuadrupedController::update(
   } else if (standing_sequence_) {
     standing_sequence_control();
   } else {
-    for (std::size_t i = 0; i < legs_map_.size(); ++i) {
+    for (std::size_t i = 0; i < legs_.size(); ++i) {
       RCLCPP_INFO_STREAM_THROTTLE(
         get_node()->get_logger(), *get_node()->get_clock(), 1000, "Waiting for standing");
-      auto & leg = legs_map_[i];
+      auto & leg = legs_[i];
       Eigen::Vector3d target_joint_pos = standing_sequence_positions_[0];
-      auto directions = leg.get_joints_directions();
+      auto directions = leg->get_joints_directions();
 
       target_joint_pos = directions.cwiseProduct(target_joint_pos);
       target_joint_positions_.segment<3>(i * 3) << target_joint_pos;
@@ -518,8 +552,8 @@ controller_interface::return_type QuadrupedController::update(
 void QuadrupedController::calculate_kinematics()
 {
   // Setting states and forward kinematics
-  for (std::size_t i = 0; i < legs_map_.size(); ++i) {
-    auto & leg = legs_map_[i];
+  for (std::size_t i = 0; i < legs_.size(); ++i) {
+    auto & leg = legs_[i];
 
     Eigen::Vector3d q;
     Eigen::Vector3d v;
@@ -540,8 +574,8 @@ void QuadrupedController::calculate_kinematics()
       joint_efforts_[idx] = state_interfaces_[tau_index].get_value();
     }
 
-    leg.set_joints_states(q, v, tau);
-    const auto foot_position = leg.forward_kinematics();
+    leg->set_joints_states(q, v, tau);
+    const auto foot_position = leg->forward_kinematics();
 
     foot_positions_.segment<3>(i * 3) = foot_position;
   }
@@ -550,17 +584,17 @@ void QuadrupedController::calculate_kinematics()
 void QuadrupedController::set_target_states(
   const quadruped_msgs::msg::QuadrupedControl::SharedPtr & msg)
 {
-  for (size_t i = 0; i < legs_map_.size(); ++i) {
-    if (legs_map_[i].get_name() == "front_left") {
+  for (size_t i = 0; i < legs_.size(); ++i) {
+    if (legs_[i]->get_name() == "front_left") {
       target_foot_positions_.segment<3>(i * 3) << msg->fl_foot_position.x, msg->fl_foot_position.y,
         msg->fl_foot_position.z;
-    } else if (legs_map_[i].get_name() == "front_right") {
+    } else if (legs_[i]->get_name() == "front_right") {
       target_foot_positions_.segment<3>(i * 3) << msg->fr_foot_position.x, msg->fr_foot_position.y,
         msg->fr_foot_position.z;
-    } else if (legs_map_[i].get_name() == "rear_left") {
+    } else if (legs_[i]->get_name() == "rear_left") {
       target_foot_positions_.segment<3>(i * 3) << msg->rl_foot_position.x, msg->rl_foot_position.y,
         msg->rl_foot_position.z;
-    } else if (legs_map_[i].get_name() == "rear_right") {
+    } else if (legs_[i]->get_name() == "rear_right") {
       target_foot_positions_.segment<3>(i * 3) << msg->rr_foot_position.x, msg->rr_foot_position.y,
         msg->rr_foot_position.z;
     }
@@ -569,8 +603,8 @@ void QuadrupedController::set_target_states(
 
 void QuadrupedController::calculate_inverse_kinematics()
 {
-  for (std::size_t i = 0; i < legs_map_.size(); ++i) {
-    auto & leg = legs_map_[i];
+  for (std::size_t i = 0; i < legs_.size(); ++i) {
+    auto & leg = legs_[i];
 
     foot_positions_error_.segment<3>(i * 3) = target_foot_positions_.segment<3>(i * 3) -
                                               foot_positions_.segment<3>(i * 3);
@@ -585,7 +619,7 @@ void QuadrupedController::calculate_inverse_kinematics()
       continue;
     }
 
-    auto q = leg.inverse_kinematics(foot_control_positions_.segment<3>(i * 3));
+    auto q = leg->inverse_kinematics(foot_control_positions_.segment<3>(i * 3));
     for (std::size_t j = 0; j < JOINTS_IN_LEG; ++j) {
       if (std::isnan(q[j])) {
         target_joint_positions_[i * 3 + j] = joint_positions_[i * 3 + j];
@@ -609,22 +643,22 @@ void QuadrupedController::calculate_control()
                           Kd.cwiseProduct(joint_velocity_errors_) + feed_forward_;
 
   // check vel limits
-  for (size_t i = 0; i < legs_map_.size() * JOINTS_IN_LEG; ++i) {
+  for (size_t i = 0; i < legs_.size() * JOINTS_IN_LEG; ++i) {
     command_interfaces_[i].set_value(target_joint_efforts_[i]);
   }
 }
 
 void QuadrupedController::standing_sequence_control()
 {
-  std::vector<bool> leg_reached_position(legs_map_.size(), false);
+  std::vector<bool> leg_reached_position(legs_.size(), false);
 
-  for (std::size_t i = 0; i < legs_map_.size(); ++i) {
+  for (std::size_t i = 0; i < legs_.size(); ++i) {
     RCLCPP_INFO_STREAM_THROTTLE(
       get_node()->get_logger(), *get_node()->get_clock(), 1000, "Standing sequence active.");
-    auto & leg = legs_map_[i];
+    auto & leg = legs_[i];
 
     Eigen::Vector3d target_joint_pos = standing_sequence_positions_[standing_sequence_step_];
-    auto directions = leg.get_joints_directions();
+    auto directions = leg->get_joints_directions();
 
     target_joint_pos = directions.cwiseProduct(target_joint_pos);
     target_joint_positions_.segment<3>(i * 3) << target_joint_pos;
@@ -634,7 +668,7 @@ void QuadrupedController::standing_sequence_control()
     if (error < params_.standing_sequence_positions_accuracy) {
       RCLCPP_INFO_STREAM(
         get_node()->get_logger(),
-        "Leg " << leg.get_name() << " reached standing position step " << standing_sequence_step_);
+        "Leg " << leg->get_name() << " reached standing position step " << standing_sequence_step_);
       leg_reached_position[i] = true;
     }
   }
@@ -669,10 +703,13 @@ void QuadrupedController::update_passive_joints()
   green.b = 0.0;
   green.a = 1.0;
 
-  for (size_t i = 0; i < legs_map_.size(); ++i) {
-    auto joint_states = legs_map_[i].get_joints_states();
+  for (size_t i = 0; i < legs_.size(); ++i) {
+    auto joint_states = legs_[i]->get_joints_states();
+    if (!joint_states.size()) {
+      break;
+    }
 
-    auto passive_knee_joints = legs_map_[i].get_passive_knee_joints();
+    auto passive_knee_joints = legs_[i]->get_passive_knee_joints();
     const size_t first = 2 * i;
     const size_t second = 2 * i + 1;
     state_rt_pub_->msg_.name[first] = passive_knee_joints.first.name;

@@ -1,0 +1,7 @@
+<library path="four_bar_bot_leg">
+  <class name="four_bar_bot_leg/FourBarLeg"
+         type="four_bar_bot_leg::FourBarLeg"
+         base_class_type="quadruped_controller::LegInterface">
+    <description>Four-bar leg kinematics</description>
+  </class>
+</library>

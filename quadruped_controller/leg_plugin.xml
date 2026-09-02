@@ -1,0 +1,9 @@
+<library path="libquadruped_controller_leg_plugin">
+  <class name="quadruped_controller/LegPlugin"
+         type="quadruped_controller::LegPlugin"
+         base_class_type="quadruped_controller::LegInterface">
+    <description>
+      A plugin for quadruped robot leg kinematics.
+    </description>
+  </class>
+</library>

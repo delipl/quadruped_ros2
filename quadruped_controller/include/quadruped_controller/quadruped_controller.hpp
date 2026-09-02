@@ -52,11 +52,13 @@
 #include "example_interfaces/srv/add_two_ints.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "kinematics_interface/kinematics_interface.hpp"
-#include "quadruped_controller/leg.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 
 #include "std_srvs/srv/trigger.hpp"
+
+#include <pluginlib/class_loader.hpp>
+#include "quadruped_controller/leg_interface.hpp"
 
 #include "quadruped_controller/visualization.hpp"
 namespace quadruped_controller
@@ -180,11 +182,6 @@ protected:
 
   rclcpp::TimerBase::SharedPtr tf_timer_;
 
-  // Kinematics interface plugin loader
-  std::shared_ptr<pluginlib::ClassLoader<kinematics_interface::KinematicsInterface>>
-    kinematics_loader_;
-  std::unique_ptr<kinematics_interface::KinematicsInterface> kinematics_;
-
   std::unique_ptr<Visualization> visualization_;
 
 private:
@@ -205,7 +202,8 @@ private:
   std::size_t standing_sequence_step_ = 0;
   std::vector<Eigen::Vector3d> standing_sequence_positions_;
 
-  std::vector<Leg> legs_map_;
+  std::unique_ptr<pluginlib::ClassLoader<LegInterface>> leg_loader_;
+  std::vector<pluginlib::UniquePtr<LegInterface>> legs_;
   Eigen::VectorXd joint_positions_;
   Eigen::VectorXd joint_positions_errors_;
   Eigen::VectorXd joint_velocities_;
