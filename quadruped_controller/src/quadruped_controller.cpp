@@ -637,14 +637,40 @@ void QuadrupedController::calculate_control()
   joint_positions_errors_ = target_joint_positions_ - joint_positions_;
   joint_velocity_errors_ = -joint_velocities_;
 
-  // RCLCPP_INFO_STREAM(get_node()->get_logger(), feed_forward);
-
   target_joint_efforts_ = Kp.cwiseProduct(joint_positions_errors_) +
                           Kd.cwiseProduct(joint_velocity_errors_) + feed_forward_;
 
-  // check vel limits
+  if (!standing_sequence_ && stood_first_time_) {
+    for (size_t i = 0; i < legs_.size() * JOINTS_IN_LEG; ++i) {
+      command_interfaces_[i].set_value(target_joint_efforts_[i]);
+    }
+    return;
+  }
+
+  // torque-speed limiting curve
   for (size_t i = 0; i < legs_.size() * JOINTS_IN_LEG; ++i) {
-    command_interfaces_[i].set_value(target_joint_efforts_[i]);
+    const double vel = joint_velocities_[i];
+    double tau = target_joint_efforts_[i];
+
+    const double tau_max = params_.max_standing_joint_torque;  // parametr per staw
+    const double v_max = params_.max_standing_joint_velocity;  // parametr per staw
+
+    const double speed_ratio = std::clamp(std::abs(vel) / v_max, 0.0, 1.0);
+    const double tau_limit_same_dir = tau_max * (1.0 - speed_ratio);
+
+    if (vel > 0.0 && tau > 0.0) {
+      // przyspieszamy dalej w kierunku dodatnim -> ogranicz
+      tau = std::min(tau, tau_limit_same_dir);
+    } else if (vel < 0.0 && tau < 0.0) {
+      // przyspieszamy dalej w kierunku ujemnym -> ogranicz
+      tau = std::max(tau, -tau_limit_same_dir);
+    }
+    // w przeciwnym razie moment hamuje ruch (albo staw stoi) -> pełny moment dozwolony
+
+    tau = std::clamp(tau, -tau_max, tau_max);
+
+    target_joint_efforts_[i] = tau;
+    command_interfaces_[i].set_value(tau);
   }
 }
 

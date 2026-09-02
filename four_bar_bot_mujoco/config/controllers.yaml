@@ -29,7 +29,11 @@ quadruped_controller:
       # Do not change the order of the legs!
       # FIXME
       leg_plugin_name: four_bar_bot_leg/FourBarLeg   # domyślnie
-      standing_sequence_positions_accuracy: 0.02
+      standing_sequence_positions_accuracy: 0.1
+
+      max_standing_joint_velocity: 0.2
+      max_standing_joint_torque: 10.0
+
       leg_names:
         - front_left
         - front_right
@@ -88,16 +92,8 @@ quadruped_controller:
       third_joint_kd: 1.187222110552615
       standing_sequence_positions:
         - "[0.8, 0.0, 1.4]"
-        - "[0.8, 0.1, 1.4]"
-        - "[0.8, 0.2, 1.4]"
-        - "[0.8, 0.3, 1.4]"
-        - "[0.8, 0.4, 1.4]"
-        - "[0.8, 0.5, 1.4]"
-        # - "[0.5, 0.8, 1.4]"
-        # - "[0.3, 0.8, 1.4]"
-        # - "[0.0, 0.8, 1.4]"
-        # - "[0.0, 0.8, 1.8]"
         - "[0.0, 0.8, 2.0]"
+        - "[0.0, 0.12, 3.76]"
 
 
 

@@ -121,6 +121,20 @@ quadruped_controller:
       description: "Specifies the accuracy to consider that a leg has reached the target position during the standing sequence.",
     }
 
+  max_standing_joint_torque:
+    {
+      type: double,
+      default_value: 10.0,
+      description: "Max standing joint torque",
+    }
+
+  max_standing_joint_velocity:
+    {
+      type: double,
+      default_value: 0.5,
+      description: "Max standing velocity.",
+    }
+
   leg_plugin_name:
     {
       type: string,
