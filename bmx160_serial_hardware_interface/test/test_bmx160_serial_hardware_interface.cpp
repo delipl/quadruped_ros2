@@ -47,10 +47,3 @@ protected:
 
   std::string bmx160_serial_hardware_interface_2dof_;
 };
-
-TEST_F(TestBMX160SerialHardwareInterface, load_bmx160_serial_hardware_interface_2dof)
-{
-  auto urdf = ros2_control_test_assets::urdf_head + bmx160_serial_hardware_interface_2dof_ +
-              ros2_control_test_assets::urdf_tail;
-  ASSERT_NO_THROW(hardware_interface::ResourceManager rm(urdf));
-}

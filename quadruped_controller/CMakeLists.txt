@@ -81,8 +81,7 @@ generate_parameter_library(
 # ============================================================
 # 1. GŁÓWNY KONTROLER
 # ============================================================
-add_library(quadruped_controller SHARED src/quadruped_controller.cpp
-                                        src/leg.cpp)
+add_library(quadruped_controller SHARED src/quadruped_controller.cpp)
 
 target_include_directories(
   quadruped_controller
@@ -101,48 +100,6 @@ target_compile_definitions(quadruped_controller
 # ============================================================
 pluginlib_export_plugin_description_file(controller_interface
                                          quadruped_controller.xml)
-
-# ============================================================
-# 1. EXECUTABLES
-# ============================================================
-add_executable(quadruped_controller_node src/inverse_kinematics_test.cpp
-                                         src/leg.cpp)
-target_include_directories(
-  quadruped_controller_node
-  PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(quadruped_controller_node
-                          ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(quadruped_controller_node Eigen3::Eigen
-                      quadruped_controller_interfaces)
-
-add_executable(controller src/controller.cpp)
-target_include_directories(
-  controller PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-                    "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(controller ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(controller quadruped_controller_interfaces)
-
-add_executable(passive_joint_state_broadcaster
-               src/effector_joint_state_publisher.cpp src/leg.cpp)
-target_include_directories(
-  passive_joint_state_broadcaster
-  PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(passive_joint_state_broadcaster
-                          ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(passive_joint_state_broadcaster Eigen3::Eigen
-                      quadruped_controller_interfaces)
-
-add_executable(base_inverse_kinematics src/base_inverse_kinematics.cpp)
-target_include_directories(
-  base_inverse_kinematics
-  PUBLIC "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
-         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(base_inverse_kinematics
-                          ${THIS_PACKAGE_INCLUDE_DEPENDS})
-target_link_libraries(base_inverse_kinematics Eigen3::Eigen
-                      quadruped_controller_interfaces)
 
 # ============================================================
 # 1. INSTALACJA
